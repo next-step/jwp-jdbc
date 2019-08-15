@@ -24,7 +24,7 @@ public class JsonViewTest {
     void setUp() {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
-        view = new JsonView();
+        view = new JsonView(new JsonMessageConverter());
     }
 
     @Test
