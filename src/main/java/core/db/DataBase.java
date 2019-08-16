@@ -17,6 +17,11 @@ public class DataBase {
         users.put(user.getUserId(), user);
     }
 
+    public static void modifyUser(String userId, User user){
+        User editUser = findUserById(userId);
+        editUser.update(user);
+    }
+
     public static User findUserById(String userId) {
         return users.get(userId);
     }

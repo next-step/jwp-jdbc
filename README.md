@@ -7,3 +7,8 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+##새로운 기능 $step1:
+1. UserAcceptanceController 클래스 추가
+2. JsonView 작업
+3. CommonUtil 클래스 추가 (Request Body 를 받아오는 유틸 함수 추가)
