@@ -10,7 +10,7 @@ import next.model.User;
 import java.util.List;
 
 public class QnaService {
-    private static QnaService qnaService;
+    private static QnaService qnaService = new QnaService();
 
     private QuestionDao questionDao = QuestionDao.getInstance();
     private AnswerDao answerDao = AnswerDao.getInstance();
@@ -19,9 +19,6 @@ public class QnaService {
     }
 
     public static QnaService getInstance() {
-        if (qnaService == null) {
-            qnaService = new QnaService();
-        }
         return qnaService;
     }
 
