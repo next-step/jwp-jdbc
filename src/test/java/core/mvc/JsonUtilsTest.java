@@ -1,5 +1,6 @@
 package core.mvc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import study.jackson.Car;
 
@@ -12,5 +13,14 @@ public class JsonUtilsTest {
         Car car = JsonUtils.toObject(json, Car.class);
         assertThat(car.getColor()).isEqualTo("Black");
         assertThat(car.getType()).isEqualTo("BMW");
+    }
+
+    @Test
+    void toJsonString() throws JsonProcessingException {
+        Car car = new Car("yellow", "renault");
+        String expected = "{\"color\":\"yellow\",\"type\":\"renault\"}";
+        String actual = JsonUtils.toJsonString(car);
+
+        assertThat(actual).isEqualTo(expected);
     }
 }
