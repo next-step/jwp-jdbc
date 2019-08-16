@@ -4,15 +4,17 @@ import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.db.DataBase;
-import core.mvc.DispatcherServlet;
-import core.mvc.JspView;
-import core.mvc.ModelAndView;
+import core.mvc.*;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.Optional;
+
+import static core.util.IOUtil.getBodyFromServletRequest;
 
 @Controller
 public class UserController {
@@ -45,4 +47,28 @@ public class UserController {
         mav.addObject("users", DataBase.findAll());
         return mav;
     }
+
+    @RequestMapping(value = "/api/user", method = RequestMethod.GET)
+    public ModelAndView find(HttpServletRequest request, HttpServletResponse response) throws Exception{
+        final User user = DataBase.findUserById(request.getParameter("id"));
+        return new ModelAndView(new JsonView()).addObject("user", user);
+    }
+
+    @RequestMapping(value = "/api/user", method = RequestMethod.PUT)
+    public ModelAndView put(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        final User updateUser = JsonUtils.toObject(getBodyFromServletRequest(request), User.class);
+        final User user = Optional.of(updateUser.getUserId())
+                .map(DataBase::findUserById)
+                .orElseThrow(IllegalArgumentException::new);
+        user.update(updateUser);
+        return new ModelAndView(new SuccessView());
+    }
+
+    @RequestMapping(value = "/api/user", method = RequestMethod.POST)
+    public ModelAndView post(HttpServletRequest request, HttpServletResponse response) throws Exception{
+        final User user = JsonUtils.toObject(getBodyFromServletRequest(request), User.class);
+        DataBase.addUser(user);
+        return new ModelAndView(new CreatedView("/api/user?id=" + user.getUserId()));
+    }
+
 }
