@@ -10,4 +10,11 @@ public class KeyHolder {
     public long getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "KeyHolder{" +
+                "id=" + id +
+                '}';
+    }
 }

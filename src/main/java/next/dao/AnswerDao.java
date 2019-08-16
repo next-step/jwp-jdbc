@@ -5,21 +5,22 @@ import core.jdbc.KeyHolder;
 import core.jdbc.PreparedStatementCreator;
 import core.jdbc.RowMapper;
 import next.model.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.List;
 
 public class AnswerDao {
-    private static AnswerDao answerDao;
+    private static final Logger logger = LoggerFactory.getLogger( AnswerDao.class );
+
+    private static AnswerDao answerDao = new AnswerDao();
     private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
 
     private AnswerDao() {
     }
 
     public static AnswerDao getInstance() {
-        if (answerDao == null) {
-            answerDao = new AnswerDao();
-        }
         return answerDao;
     }
 
@@ -39,10 +40,12 @@ public class AnswerDao {
 
         KeyHolder keyHolder = new KeyHolder();
         jdbcTemplate.update(psc, keyHolder);
+        logger.debug("KeyHolder : {}", keyHolder);
         return findById(keyHolder.getId());
     }
 
     public Answer findById(long answerId) {
+        logger.debug("find AnswerId : {}", answerId);
         String sql = "SELECT answerId, writer, contents, createdDate, questionId FROM ANSWERS WHERE answerId = ?";
 
         RowMapper<Answer> rm = new RowMapper<Answer>() {
