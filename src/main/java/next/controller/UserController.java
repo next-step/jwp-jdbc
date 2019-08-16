@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.Optional;
-
-import static core.util.IOUtil.getBodyFromServletRequest;
 
 @Controller
 public class UserController {
@@ -56,7 +53,7 @@ public class UserController {
 
     @RequestMapping(value = "/api/user", method = RequestMethod.PUT)
     public ModelAndView put(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        final User updateUser = JsonUtils.toObject(getBodyFromServletRequest(request), User.class);
+        final User updateUser = JsonUtils.toObject(request.getInputStream(), User.class);
         final User user = Optional.of(updateUser.getUserId())
                 .map(DataBase::findUserById)
                 .orElseThrow(IllegalArgumentException::new);
@@ -66,7 +63,7 @@ public class UserController {
 
     @RequestMapping(value = "/api/user", method = RequestMethod.POST)
     public ModelAndView post(HttpServletRequest request, HttpServletResponse response) throws Exception{
-        final User user = JsonUtils.toObject(getBodyFromServletRequest(request), User.class);
+        final User user = JsonUtils.toObject(request.getInputStream(), User.class);
         DataBase.addUser(user);
         return new ModelAndView(new CreatedView("/api/user?id=" + user.getUserId()));
     }
