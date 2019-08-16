@@ -9,7 +9,7 @@
 <body>
 <%@ include file="/include/navigation.jspf" %>
 
-<div class="container" userId="main">
+<div class="container" id="main">
 	<div class="col-md-12 col-sm-12 col-lg-10 col-lg-offset-1">
 		<div class="panel panel-default qna-list">
 			<ul class="list">
@@ -73,7 +73,7 @@
 
 <!--login modal-->
 <!--
-<div userId="loginModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+<div id="loginModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
   <div class="modal-content">
       <div class="modal-header">
@@ -108,7 +108,7 @@
 
 <!--register modal-->
 <!--
-<div userId="registerModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+<div id="registerModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
   <div class="modal-content">
       <div class="modal-header">
@@ -119,19 +119,19 @@
           <form class="form col-md-12 center-block">
               <div class="form-group">
                   <label for="userId">사용자 아이디</label>
-                  <input class="form-control" userId="userId" name="userId" placeholder="User ID">
+                  <input class="form-control" id="userId" name="userId" placeholder="User ID">
               </div>
               <div class="form-group">
                   <label for="password">비밀번호</label>
-                  <input type="password" class="form-control" userId="password" name="password" placeholder="Password">
+                  <input type="password" class="form-control" id="password" name="password" placeholder="Password">
               </div>
               <div class="form-group">
                   <label for="name">이름</label>
-                  <input class="form-control" userId="name" name="name" placeholder="Name">
+                  <input class="form-control" id="name" name="name" placeholder="Name">
               </div>
               <div class="form-group">
                   <label for="email">이메일</label>
-                  <input type="email" class="form-control" userId="email" name="email" placeholder="Email">
+                  <input type="email" class="form-control" id="email" name="email" placeholder="Email">
               </div>
             <div class="form-group">
               <button class="btn btn-primary btn-lg btn-block">회원가입</button>

@@ -56,7 +56,7 @@ public class UserController {
 
     @RequestMapping(value = "/api/user", method = RequestMethod.PUT)
     public ModelAndView put(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        final User updateUser = JsonUtils.toObject(getBodyFromServletRequest(request), User.class);
+        final User updateUser = JsonUtils.toObject(request.getInputStream(), User.class);
         final User user = Optional.of(updateUser.getUserId())
                 .map(DataBase::findUserById)
                 .orElseThrow(IllegalArgumentException::new);
@@ -66,7 +66,7 @@ public class UserController {
 
     @RequestMapping(value = "/api/user", method = RequestMethod.POST)
     public ModelAndView post(HttpServletRequest request, HttpServletResponse response) throws Exception{
-        final User user = JsonUtils.toObject(getBodyFromServletRequest(request), User.class);
+        final User user = JsonUtils.toObject(request.getInputStream(), User.class);
         DataBase.addUser(user);
         return new ModelAndView(new CreatedView("/api/user?id=" + user.getUserId()));
     }
