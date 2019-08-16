@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.util.Optional;
+import java.util.function.Function;
 
 public class JsonUtils {
 
@@ -17,19 +20,33 @@ public class JsonUtils {
                 .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
     }
 
-    public static <T> T toObject(String json, Class<T> clazz) throws ObjectMapperException {
-        try {
-            return objectMapper.readValue(json, clazz);
-        } catch (IOException e) {
-            throw new ObjectMapperException(e);
-        }
+    public static <T> T readValue(String json, Class<T> clazz) throws ObjectMapperException {
+        return Optional.of(objectMapper)
+                .map(wrapper(mapper -> mapper.readValue(json, clazz))).get();
     }
 
-    public static String toString(Object value) throws ObjectMapperException {
-        try {
-            return objectMapper.writeValueAsString(value);
-        } catch (IOException e) {
-            throw new ObjectMapperException(e);
-        }
+    public static <T> T readValue(Reader reader, Class<T> clazz) {
+        return Optional.of(objectMapper)
+                .map(wrapper(mapper -> mapper.readValue(reader, clazz))).get();
+    }
+
+    public static String writeValue(Object value) throws ObjectMapperException {
+        return Optional.of(objectMapper)
+                .map(wrapper(mapper -> mapper.writeValueAsString(value))).get();
+    }
+
+    @FunctionalInterface
+    public interface FunctionWithException<T, R, E extends Exception> {
+        R apply(T t) throws E;
+    }
+
+    private static <T, R, E extends IOException> Function<T, R> wrapper(FunctionWithException<T, R, E> fe) {
+        return arg -> {
+            try {
+                return fe.apply(arg);
+            } catch (IOException e) {
+                throw new ObjectMapperException(e);
+            }
+        };
     }
 }
