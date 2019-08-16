@@ -48,7 +48,7 @@ public class UserAcceptanceTest {
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
 
         // 수정
-        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
+        UserUpdatedDto updateUser = new UserUpdatedDto("password2", "코난", "conan@nextstep.camp");
         client()
                 .put()
                 .uri(location.toString())
@@ -64,6 +64,7 @@ public class UserAcceptanceTest {
                 .expectStatus().isOk()
                 .expectBody(User.class)
                 .returnResult().getResponseBody();
+        assertThat(actual.getPassword()).isEqualTo(updateUser.getPassword());
         assertThat(actual.getName()).isEqualTo(updateUser.getName());
         assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
     }

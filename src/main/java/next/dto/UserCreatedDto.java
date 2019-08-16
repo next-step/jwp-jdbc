@@ -31,4 +31,13 @@ public class UserCreatedDto {
     public String getEmail() {
         return email;
     }
+
+    @Override
+    public String toString() {
+        return "UserCreatedDto{" +
+                "userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

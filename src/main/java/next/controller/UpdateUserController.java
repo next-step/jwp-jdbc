@@ -2,6 +2,7 @@ package next.controller;
 
 import core.db.DataBase;
 import core.mvc.asis.Controller;
+import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,9 @@ public class UpdateUserController implements Controller {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
         }
 
-        User updateUser = new User(req.getParameter("userId"), req.getParameter("password"), req.getParameter("name"),
+        UserUpdatedDto updateUser = new UserUpdatedDto(
+                req.getParameter("password"),
+                req.getParameter("name"),
                 req.getParameter("email"));
         log.debug("Update User : {}", updateUser);
         user.update(updateUser);
