@@ -38,6 +38,9 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        MessageConverters messageConverters = MessageConverters.getInstance();
+        messageConverters.add(new JsonMessageConverter());
     }
 
     @Override
