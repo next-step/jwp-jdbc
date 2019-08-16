@@ -20,7 +20,7 @@ public class Question {
     }
 
     public Question(long questionId, String writer, String title, String contents, Date createdDate,
-                    int countOfComment) {
+            int countOfComment) {
         this.questionId = questionId;
         this.writer = writer;
         this.title = title;
@@ -55,6 +55,15 @@ public class Question {
 
     public int getCountOfComment() {
         return countOfComment;
+    }
+
+    public boolean isSameUser(User user) {
+        return user.isSameUser(this.writer);
+    }
+
+    public void update(Question newQuestion) {
+        this.title = newQuestion.title;
+        this.contents = newQuestion.contents;
     }
 
     @Override
