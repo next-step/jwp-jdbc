@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.Optional;
 import java.util.function.Function;
@@ -20,14 +21,19 @@ public class JsonUtils {
                 .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
     }
 
-    public static <T> T readValue(String json, Class<T> clazz) throws ObjectMapperException {
+    public static <T> T readValue(String content, Class<T> clazz) throws ObjectMapperException {
         return Optional.of(objectMapper)
-                .map(wrapper(mapper -> mapper.readValue(json, clazz))).get();
+                .map(wrapper(mapper -> mapper.readValue(content, clazz))).get();
     }
 
-    public static <T> T readValue(Reader reader, Class<T> clazz) {
+    public static <T> T readValue(InputStream src, Class<T> clazz) throws ObjectMapperException {
         return Optional.of(objectMapper)
-                .map(wrapper(mapper -> mapper.readValue(reader, clazz))).get();
+                .map(wrapper(mapper -> mapper.readValue(src, clazz))).get();
+    }
+
+    public static <T> T readValue(Reader src, Class<T> clazz) {
+        return Optional.of(objectMapper)
+                .map(wrapper(mapper -> mapper.readValue(src, clazz))).get();
     }
 
     public static String writeValue(Object value) throws ObjectMapperException {
