@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class JsonUtils {
 
@@ -20,6 +21,14 @@ public class JsonUtils {
     public static <T> T toObject(String json, Class<T> clazz) throws ObjectMapperException {
         try {
             return objectMapper.readValue(json, clazz);
+        } catch (IOException e) {
+            throw new ObjectMapperException(e);
+        }
+    }
+
+    public static <T> T toObject(InputStream inputStream, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(inputStream, clazz);
         } catch (IOException e) {
             throw new ObjectMapperException(e);
         }

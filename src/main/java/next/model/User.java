@@ -8,12 +8,6 @@ public class User {
 
     public User() { }
 
-    public User(String userId, String name, String email) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-    }
-
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
         this.password = password;

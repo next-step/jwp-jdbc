@@ -9,7 +9,7 @@
 <body>
 <%@ include file="/include/navigation.jspf" %>
 
-<div class="container" userId="main">
+<div class="container" id="main">
     <div class="col-md-6 col-md-offset-3">
         <div class="panel panel-default">
             <div class="panel-heading"><h4>Profiles</h4></div>
