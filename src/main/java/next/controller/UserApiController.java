@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.charset.Charset;
 
 @Controller
@@ -22,8 +23,7 @@ public class UserApiController {
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        String body = IOUtils.toString(req.getInputStream(), Charset.defaultCharset());
-        User user = JsonUtils.toObject(body, User.class);
+        User user = parseUserFromBody(req);
 
         DataBase.addUser(user);
         String location = "/api/users?userId=" + user.getUserId();
@@ -41,5 +41,21 @@ public class UserApiController {
         modelAndView.addObject("User", user);
 
         return modelAndView;
+    }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
+    public ModelAndView update(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        String userId = req.getParameter("userId");
+        User updateUser = parseUserFromBody(req);
+
+        User user = DataBase.findUserById(userId);
+        user.update(updateUser);
+
+        return new ModelAndView(new JsonView());
+    }
+
+    private User parseUserFromBody(HttpServletRequest req) throws IOException {
+        String body = IOUtils.toString(req.getInputStream(), Charset.defaultCharset());
+        return JsonUtils.toObject(body, User.class);
     }
 }
