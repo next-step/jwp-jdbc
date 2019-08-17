@@ -22,8 +22,7 @@ public class UserAcceptanceTest {
     @DisplayName("사용자 회원가입/조회/수정/삭제")
     void crud() {
         // 회원가입
-        UserCreatedDto expected =
-                new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
+        UserCreatedDto expected = new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
         EntityExchangeResult<byte[]> response = client()
                 .post()
                 .uri("/api/users")
