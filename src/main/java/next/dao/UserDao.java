@@ -18,7 +18,7 @@ public class UserDao {
     }
 
     public void create(User user) {
-        template.update(
+        template.refactorUpdate(
                 "INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(),
                 user.getPassword(),
@@ -27,7 +27,7 @@ public class UserDao {
     }
 
     public void update(User user) {
-        template.update(
+        template.refactorUpdate(
                 "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?",
                 user.getPassword(),
                 user.getName(),
@@ -36,7 +36,7 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        List<User> users = template.query(
+        List<User> users = template.refactorQuery(
                 "SELECT userId, password, name, email FROM USERS",
                 rs -> new User(
                         rs.getString("userId"),
