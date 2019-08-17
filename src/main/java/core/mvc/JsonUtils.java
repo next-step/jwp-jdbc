@@ -13,7 +13,6 @@ public class JsonUtils {
     }
     public static <T> T toObject(String json, Class<T> clazz) throws ObjectMapperException {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.setVisibility(objectMapper.getSerializationConfig().getDefaultVisibilityChecker()
                     .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
                     .withGetterVisibility(JsonAutoDetect.Visibility.ANY)
