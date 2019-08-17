@@ -8,9 +8,12 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class UserDaoTest {
     @BeforeEach
@@ -32,6 +35,15 @@ public class UserDaoTest {
         userDao.update(expected);
         actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void delete() throws Exception {
+        UserDao userDao = new UserDao();
+        String userId = "admin";
+        assertNotNull(userDao.findByUserId(userId));
+        userDao.delete(userId);
+        assertNull(userDao.findByUserId(userId));
     }
 
     @Test
