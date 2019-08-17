@@ -4,9 +4,9 @@ import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.db.DataBase;
+import core.mvc.JsonUtils;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
-import next.common.CommonUtil;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 @Controller
 public class UserAcceptanceController {
@@ -31,28 +30,22 @@ public class UserAcceptanceController {
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView userCreate(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Map<String, Object> paramMap = CommonUtil.getParameter(request);
+        User newUser = JsonUtils.getParamterClass(request, User.class);
 
-        DataBase.addUser(new User(paramMap.get("userId").toString(),
-                paramMap.get("password").toString(),
-                paramMap.get("name").toString(),
-                paramMap.get("email").toString()));
+        DataBase.addUser(newUser);
 
-        response.setHeader("location", "/api/users?userId=" + paramMap.get("userId"));
+        response.setHeader("location", "/api/users?userId=" + newUser.getUserId());
         response.setStatus(HttpStatus.CREATED.value());
         return new ModelAndView(new JsonView());
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
     public ModelAndView userModify(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Map<String, Object> paramMap = CommonUtil.getParameter(request);
-        User updateUser = new User(
-                paramMap.get("name").toString(),
-                paramMap.get("email").toString());
+        User modifyUser = JsonUtils.getParamterClass(request, User.class);
 
-        DataBase.modifyUser(request.getParameter("userId"), updateUser);
+        DataBase.modifyUser(request.getParameter("userId"), modifyUser);
 
-        response.setHeader("location", "/api/users?userId=" + request.getParameter("userId"));
+        response.setHeader("location", "/api/users?userId=" + modifyUser.getUserId());
         return new ModelAndView(new JsonView());
     }
 

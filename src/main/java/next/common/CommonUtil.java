@@ -12,26 +12,6 @@ import java.util.Map;
 
 public class CommonUtil {
 
-    public static Map<String, Object> getParameter(HttpServletRequest request) throws IOException {
-        Map<String, Object> map = new HashMap<>();
 
-        StringBuffer jb = new StringBuffer();
-        String line = null;
-        try {
-            BufferedReader reader = request.getReader();
-            while ((line = reader.readLine()) != null)
-                jb.append(line);
-        } catch (Exception e) { /*report an error*/ }
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            map = mapper.readValue(jb.toString(), new TypeReference<Map<String, String>>(){});
-        } catch (JSONException e) {
-            // crash and burn
-            throw new IOException("Error parsing JSON request string");
-        }
-
-        return map;
-    }
 
 }
