@@ -36,12 +36,63 @@ public class UserDao {
     }
 
     public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = ConnectionManager.getConnection();
+            String sql = "UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userId = ?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, user.getUserId());
+            pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getName());
+            pstmt.setString(4, user.getEmail());
+            pstmt.setString(5, user.getUserId());
+
+            pstmt.executeUpdate();
+        } finally {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
     }
 
     public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = ConnectionManager.getConnection();
+            String sql = "SELECT userId, password, name, email FROM USERS";
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            ArrayList<User> users = new ArrayList<>();
+
+            while (rs.next()) {
+                User user = new User(
+                        rs.getString("userId"),
+                        rs.getString("password"),
+                        rs.getString("name"),
+                        rs.getString("email"));
+                users.add(user);
+            }
+
+            return users;
+        } finally {
+            if (con != null) {
+                con.close();
+            }
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (rs != null) {
+                rs.close();
+            }
+        }
     }
 
     public User findByUserId(String userId) throws SQLException {
