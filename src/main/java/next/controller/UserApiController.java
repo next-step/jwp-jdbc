@@ -31,4 +31,15 @@ public class UserApiController {
 
         return new ModelAndView(new JsonView());
     }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.GET)
+    public ModelAndView get(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        String userId = req.getParameter("userId");
+
+        User user = DataBase.findUserById(userId);
+        ModelAndView modelAndView = new ModelAndView(new JsonView());
+        modelAndView.addObject("User", user);
+
+        return modelAndView;
+    }
 }
