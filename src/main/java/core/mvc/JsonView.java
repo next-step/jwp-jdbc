@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 public class JsonView implements View {
-    private static int MINIMUM_MODEL_SIZE = 1;
+    private static final int MINIMUM_MODEL_SIZE = 1;
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
