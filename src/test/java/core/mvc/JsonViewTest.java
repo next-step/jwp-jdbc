@@ -1,5 +1,6 @@
 package core.mvc;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import study.jackson.Car;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +59,7 @@ public class JsonViewTest {
         view.render(model, request, response);
 
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        assertThat(response.getContentAsString()).isEqualTo("{\"car\":{\"color\":\"Black\",\"type\":\"Sonata\"},\"name\":\"포비\"}");
         logger.debug("response body : {}", response.getContentAsString());
     }
 }
