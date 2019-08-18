@@ -18,7 +18,7 @@ public class JsonUtils {
                 .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
     }
 
-    public static <T> T toObject(String json, Class<T> clazz) throws ObjectMapperException {
+    public static <T> T toObject(String json, Class<T> clazz) {
         try {
             return objectMapper.readValue(json, clazz);
         } catch (IOException e) {

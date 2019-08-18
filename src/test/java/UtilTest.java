@@ -1,7 +1,6 @@
 import org.junit.jupiter.api.Test;
 import support.exception.FunctionWithException;
 
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UtilTest {
@@ -20,7 +19,6 @@ class UtilTest {
     }
 
     private Integer positiveLengthMapper(String s) throws Exception {
-
         if (s.length() > 0) {
             return s.length();
         }

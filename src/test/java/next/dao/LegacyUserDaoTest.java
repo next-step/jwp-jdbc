@@ -15,17 +15,20 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class LegacyUserDaoTest {
+
+    private UserDao legacyUserDao;
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.DATA_SOURCE);
+        legacyUserDao = new LegacyUserDao();
     }
 
     @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        LegacyUserDao legacyUserDao = new LegacyUserDao();
         legacyUserDao.insert(expected);
         User actual = legacyUserDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -38,7 +41,6 @@ public class LegacyUserDaoTest {
 
     @Test
     public void delete() throws Exception {
-        LegacyUserDao legacyUserDao = new LegacyUserDao();
         String userId = "admin";
         assertNotNull(legacyUserDao.findByUserId(userId));
         legacyUserDao.delete(userId);
@@ -47,7 +49,6 @@ public class LegacyUserDaoTest {
 
     @Test
     public void findAll() throws Exception {
-        LegacyUserDao legacyUserDao = new LegacyUserDao();
         List<User> users = legacyUserDao.findAll();
         assertThat(users).hasSize(1);
     }

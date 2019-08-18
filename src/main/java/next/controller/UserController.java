@@ -4,7 +4,6 @@ import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.*;
-import next.dao.NewUserDao;
 import next.dao.UserDao;
 import next.model.User;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    UserDao userDao = new NewUserDao();
+    private UserDao userDao;
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
@@ -67,4 +66,8 @@ public class UserController {
         return new ModelAndView(new CreatedView("/api/user?id=" + user.getUserId()));
     }
 
+    public void setUserDao(UserDao userDao) {
+        logger.debug("{} is injected", userDao.getClass());
+        this.userDao = userDao;
+    }
 }
