@@ -9,6 +9,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,21 +22,22 @@ public class UserDaoTest {
     }
 
     @Test
-    public void crud() throws Exception {
+    public void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
         userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
+        Supplier<SqlException> sqlExceptionSupplier = () -> new SqlException("user not exist: " + expected.getUserId());
+        User actual = userDao.findByUserId(expected.getUserId()).orElseThrow(sqlExceptionSupplier);
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        actual = userDao.findByUserId(expected.getUserId()).orElseThrow(sqlExceptionSupplier);
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
-    public void findAll() throws Exception {
+    public void findAll() {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);

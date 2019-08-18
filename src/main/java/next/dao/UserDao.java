@@ -9,96 +9,86 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement("INSERT INTO USERS VALUES (?, ?, ?, ?)")) {
-
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-            pstmt.executeUpdate();
-        }
+    public void insert(User user) {
+        executeSql(
+                "INSERT INTO USERS VALUES (?, ?, ?, ?)",
+                ps -> {
+                    ps.setString(1, user.getUserId());
+                    ps.setString(2, user.getPassword());
+                    ps.setString(3, user.getName());
+                    ps.setString(4, user.getEmail());
+                    ps.executeUpdate();
+                },
+                rs -> null
+        );
     }
 
-    public void update(User user) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement("UPDATE USERS SET password=?, name=?, email=? WHERE userId=?")) {
-
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
-            pstmt.executeUpdate();
-        }
+    public void update(User user) {
+        executeSql(
+                "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?",
+                ps -> {
+                    ps.setString(1, user.getPassword());
+                    ps.setString(2, user.getName());
+                    ps.setString(3, user.getEmail());
+                    ps.setString(4, user.getUserId());
+                    ps.executeUpdate();
+                },
+                rs -> null
+        );
     }
 
     public List<User> findAll() {
-        List<User> users = new ArrayList<>();
-        return excuteSql((preparedStatement) -> {}, rs -> {
-            if (rs.next()) {
-                User user = new User(
-                        rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email"));
-                users.add(user);
-            }
-            return users;
-        });
+        return executeSql(
+                "SELECT userId, password, name, email FROM USERS",
+                ps -> {},
+                rs -> {
+                    List<User> users = new ArrayList<>();
+                    if (rs.next()) {
+                        User user = new User(
+                                rs.getString("userId"),
+                                rs.getString("password"),
+                                rs.getString("name"),
+                                rs.getString("email"));
+                        users.add(user);
+                    }
+                    return users;
+                }
+        ).orElse(new ArrayList<>());
     }
 
-    private <T> T excuteSql(SqlExcuteStrategy excuteStrategy, SqlResultStrategy<T> resultStrategy) {
+    public Optional<User> findByUserId(String userId) {
+        return executeSql(
+                "SELECT userId, password, name, email FROM USERS WHERE userid=?",
+                ps -> ps.setString(1, userId),
+                rs -> {
+                    User user = null;
+                    if (rs.next()) {
+                        user = new User(
+                                rs.getString("userId"),
+                                rs.getString("password"),
+                                rs.getString("name"),
+                                rs.getString("email"));
+                    }
+                    return user;
+                }
+        );
+    }
+
+    private <T> Optional<T> executeSql(String sql, SqlExecuteStrategy excuteStrategy, SqlResultStrategy<T> resultStrategy) {
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement("SELECT userId, password, name, email FROM USERS");
-             ResultSet rs = pstmt.executeQuery()) {
-            return resultStrategy.resultSql(rs);
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            excuteStrategy.executeSql(ps);
+
+            if (sql.contains("SELECT")) {
+                ResultSet rs = ps.executeQuery();
+                return Optional.of(resultStrategy.resultSql(rs));
+            }
+            return Optional.empty();
         } catch (SQLException e) {
-            throw new RuntimeException();
-        }
-    }
-
-    @FunctionalInterface
-    public interface SqlExcuteStrategy {
-        void excuteSql(PreparedStatement pstmt);
-    }
-
-    @FunctionalInterface
-    public interface SqlResultStrategy<T> {
-        T resultSql(ResultSet rs) throws SQLException;
-    }
-
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
-
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
+            throw new SqlException("UserDao executeSql failed: ", e);
         }
     }
 }
