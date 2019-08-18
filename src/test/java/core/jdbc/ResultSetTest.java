@@ -44,20 +44,20 @@ public class ResultSetTest {
         resultSet.next();
         Client client1 = new Client();
         rsRow.populateRow(client1, resultSet);
-        assertNoSetterAgeClient(client1, expectedClient1, false);
+        assertClient(client1, expectedClient1, false);
 
         resultSet.next();
         Client client2 = new Client();
         rsRow.populateRow(client2, resultSet);
-        assertNoSetterAgeClient(client2, expectedClient2, false);
+        assertClient(client2, expectedClient2, false);
     }
 
     @Test
     void resultSetSupportByReflection() throws SQLException {
         final List<Client> clients = rsSupport.getResult(Client.class);
         assertThat(clients.size()).isEqualTo(2);
-        assertNoSetterAgeClient(clients.get(0), expectedClient1, false);
-        assertNoSetterAgeClient(clients.get(1), expectedClient2, false);
+        assertClient(clients.get(0), expectedClient1, false);
+        assertClient(clients.get(1), expectedClient2, false);
 
     }
 
@@ -65,11 +65,11 @@ public class ResultSetTest {
     void resultSetSupportByMapper() throws SQLException {
         final List<Client> clients = rsSupport.getResult(rsMapper);
         assertThat(clients.size()).isEqualTo(2);
-        assertNoSetterAgeClient(clients.get(0), expectedClient1, true);
-        assertNoSetterAgeClient(clients.get(1), expectedClient2, true);
+        assertClient(clients.get(0), expectedClient1, true);
+        assertClient(clients.get(1), expectedClient2, true);
     }
 
-    private void assertNoSetterAgeClient(Client client, Client expected, boolean isCheckAge) {
+    private void assertClient(Client client, Client expected, boolean isCheckAge) {
         assertThat(client.getId()).isEqualTo(expected.getId());
         assertThat(client.getPassword()).isEqualTo(expected.getPassword());
         assertThat(client.getName()).isEqualTo(expected.getName());
