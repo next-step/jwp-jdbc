@@ -48,7 +48,7 @@ public class UserAcceptanceTest {
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
 
         // 수정
-        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
+        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp", "1234");
         client()
                 .put()
                 .uri(location.toString())
