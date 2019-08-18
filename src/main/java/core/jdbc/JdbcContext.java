@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcContext {
 
@@ -34,13 +35,13 @@ public class JdbcContext {
         }
     }
 
-    public <T> T executeOne(String sql, FunctionWithException<ResultSet, T, SQLException> resultSetMapper, Object... parameter) {
+    public <T> Optional<T> executeOne(String sql, FunctionWithException<ResultSet, T, SQLException> resultSetMapper, Object... parameter) {
         List<T> results = execute(sql, resultSetMapper, parameter);
         if (results.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
-        return results.get(0);
+        return Optional.of(results.get(0));
     }
 
     private PreparedStatement populatePrepareStatement(PreparedStatement pstmt, Object[] parameter) throws SQLException {

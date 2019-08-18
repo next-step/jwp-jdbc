@@ -17,6 +17,7 @@ class UtilTest {
                 throw new RuntimeException("converting runtime exception");
             }
         });
+
     }
 
     private Integer positiveLengthMapper(String s) throws Exception {

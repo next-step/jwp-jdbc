@@ -44,6 +44,9 @@ public class NewUserDao implements UserDao {
     }
 
     public User findByUserId(String userId) {
-        return jdbcContext.executeOne("SELECT userId, password, name, email FROM USERS WHERE userId = ?", resultSetMapper, userId);
+        return jdbcContext.executeOne("SELECT userId, password, name, email FROM USERS WHERE userId = ?", resultSetMapper, userId)
+                .orElseThrow(() -> {
+                    throw new IllegalArgumentException("[" + userId + "] user does not exist");
+                });
     }
 }
