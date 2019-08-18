@@ -12,17 +12,17 @@ import java.sql.SQLException;
  */
 public interface QueryExecutor<T, R> {
 
-    default R execute(String sql, QueryResultCallback<T> callback, Object... args) {
+    default R execute(String sql, RowMapper<T> rowMapper, Object... args) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             for (int i = 0; i < args.length; i++) {
                 pstmt.setObject(i + 1, args[i]);
             }
 
-            return internalExecute(pstmt, callback);
+            return internalExecute(pstmt, rowMapper);
         } catch (SQLException e) {
-            throw new JdbcException(e.getMessage(), e);
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
-    R internalExecute(PreparedStatement pstmt, QueryResultCallback<T> callback) throws SQLException;
+    R internalExecute(PreparedStatement pstmt, RowMapper<T> rowMapper) throws SQLException;
 }

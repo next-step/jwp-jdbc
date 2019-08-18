@@ -35,25 +35,191 @@ public class JdbcTemplateTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
-    @DisplayName("query list")
+    @DisplayName("[Mapper] 리스트 쿼리")
     @Test
     public void list() throws Exception {
-        List<User> users = template.query("SELECT userId, password, name, email FROM USERS", User.class);
+
+        // given
+        String listQuery = "SELECT userId, password, name, email FROM USERS";
+
+        // when
+        List<User> users = template.query(
+                listQuery,
+                rs -> new User(
+                        rs.getString("userId"),
+                        rs.getString("password"),
+                        rs.getString("name"),
+                        rs.getString("email")
+                ));
+
+        // then
         logger.debug("list: {}", users);
         assertFalse(users.isEmpty());
     }
 
-    @DisplayName("query single item")
+    @DisplayName("[Mapper] 단일 쿼리")
     @Test
     public void single() throws Exception {
-        String findSingleQuery = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
-        Optional<User> user = template.querySingle(findSingleQuery, User.class, "admin");
+
+        // given
+        String singleQuery = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
+        String expectedUserId = "admin";
+
+        // when
+        Optional<User> user = template.querySingle(
+                singleQuery,
+                rs -> new User(
+                        rs.getString("userId"),
+                        rs.getString("password"),
+                        rs.getString("name"),
+                        rs.getString("email")
+                ), expectedUserId);
+
+
+        // then
         logger.debug("user: {}", user);
         assertTrue(user.isPresent());
-        assertEquals("admin", user.get().getUserId());
+    }
 
-        Optional<User> user2 = template.querySingle(findSingleQuery, User.class, "admin2");
-        logger.debug("user: {}", user2);
-        assertFalse(user2.isPresent());
+    @DisplayName("[Mapper] 단일 쿼리 null 반환")
+    @Test
+    public void returnNull() throws Exception {
+        // given
+        String singleQuery = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
+        String expectedUserId = "unknown";
+
+        // when
+        Optional<User> user = template.querySingle(
+                singleQuery,
+                rs -> new User(
+                        rs.getString("userId"),
+                        rs.getString("password"),
+                        rs.getString("name"),
+                        rs.getString("email")
+                ), expectedUserId);
+
+
+        // then
+        logger.debug("user: {}", user);
+        assertFalse(user.isPresent());
+    }
+
+    @DisplayName("[resultType] 리스트 쿼리")
+    @Test
+    public void listWithClass() throws Exception {
+
+        // given
+        String listQuery = "SELECT userId, password, name, email FROM USERS";
+
+        // when
+        List<User> users = template.query(listQuery, User.class);
+
+        // then
+        logger.debug("list: {}", users);
+        assertFalse(users.isEmpty());
+    }
+
+    @DisplayName("[resultType] 단일 쿼리")
+    @Test
+    public void singleWithClass() throws Exception {
+
+        // given
+        String singleQuery = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
+        String expectedUserId = "admin";
+
+        // when
+        Optional<User> user = template.querySingle(singleQuery, User.class, expectedUserId);
+
+        // then
+        logger.debug("user: {}", user);
+        assertTrue(user.isPresent());
+    }
+
+    @DisplayName("[resultType] 단일 쿼리 null 반환")
+    @Test
+    public void returnNullWithClass() throws Exception {
+
+        // given
+        String singleQuery = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
+        String expectedUserId = "unknown";
+
+        // when
+        Optional<User> user = template.querySingle(singleQuery, User.class, expectedUserId);
+
+        // then
+        logger.debug("user: {}", user);
+        assertFalse(user.isPresent());
+    }
+
+    @DisplayName("[setter] insert 쿼리")
+    @Test
+    public void insertWithSetter() throws Exception {
+
+        // given
+        String insertQuery = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        User user = new User("ppeltny", "123", "yusik", "ppeltny@git");
+
+        // when
+        int result = template.update(
+                "INSERT INTO USERS VALUES (?, ?, ?, ?)",
+                (pstmt) -> {
+                    pstmt.setString(1, user.getUserId());
+                    pstmt.setString(2, user.getPassword());
+                    pstmt.setString(3, user.getName());
+                    pstmt.setString(4, user.getEmail());
+                }
+        );
+
+        // then
+        logger.debug("user: {}", user);
+        assertEquals(1, result);
+    }
+
+    @DisplayName("[setter] update 쿼리")
+    @Test
+    public void updateWithSetter() throws Exception {
+
+        // given
+        String updateQuery = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
+        User user = new User("admin", "123", "yusik", "ppeltny@git");
+
+        // when
+        int result = template.update(
+                updateQuery,
+                (pstmt) -> {
+                    pstmt.setString(1, user.getPassword());
+                    pstmt.setString(2, user.getName());
+                    pstmt.setString(3, user.getEmail());
+                    pstmt.setString(4, user.getUserId());
+                }
+        );
+
+        // then
+        logger.debug("user: {}", user);
+        assertEquals(1, result);
+    }
+
+    @DisplayName("[setter/mapper] select 단일 쿼리")
+    @Test
+    public void selectWithSetterMapper() throws Exception {
+
+        // given
+        String singleQuery = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
+        String expectedUserId = "admin";
+
+        // when
+        Optional<User> user = template.querySingle(
+                singleQuery,
+                rs -> new User(
+                        rs.getString("userId"),
+                        rs.getString("password"),
+                        rs.getString("name"),
+                        rs.getString("email")
+                ),
+                pstmt -> pstmt.setString(1, expectedUserId));
+
+        // then
+        logger.debug("user: {}", user);
+        assertTrue(user.isPresent());
     }
 }

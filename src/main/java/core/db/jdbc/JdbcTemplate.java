@@ -18,13 +18,30 @@ import java.util.Optional;
 public class JdbcTemplate {
 
     public int update(String sql, Object... args) {
-        QueryExecutor<?, Integer> executor = (pstmt, callback) -> pstmt.executeUpdate();
+        QueryExecutor<?, Integer> executor = (pstmt, mapper) -> pstmt.executeUpdate();
         return executor.execute(sql, null, args);
     }
 
-    public <T> List<T> query(String sql, QueryResultCallback<T> callback, Object... args) {
-        QueryExecutor<T, List<T>> executor = (pstmt, cb) -> getItemsByCallback(cb, pstmt);
-        return executor.execute(sql, callback, args);
+    public int update(String sql, PreparedStatementSetter setter) {
+        QueryExecutor<?, Integer> executor = (pstmt, mapper) -> {
+            setter.setValues(pstmt);
+            return pstmt.executeUpdate();
+        };
+
+        return executor.execute(sql, null);
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
+        QueryExecutor<T, List<T>> executor = (pstmt, mapper) -> getItemsByMapper(mapper, pstmt);
+        return executor.execute(sql, rowMapper, args);
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter setter) {
+        QueryExecutor<T, List<T>> executor = (pstmt, mapper) -> {
+            setter.setValues(pstmt);
+            return getItemsByMapper(mapper, pstmt);
+        };
+        return executor.execute(sql, rowMapper);
     }
 
     public <T> List<T> query(String sql, Class<T> resultType, Object... args) {
@@ -32,8 +49,16 @@ public class JdbcTemplate {
         return executor.execute(sql, null, args);
     }
 
-    public <T> Optional<T> querySingle(String sql, QueryResultCallback<T> callback, Object... args) {
-        return Optional.of(query(sql, callback, args))
+    public <T> List<T> query(String sql, Class<T> resultType, PreparedStatementSetter setter) {
+        QueryExecutor<T, List<T>> executor = (pstmt, mapper) -> {
+            setter.setValues(pstmt);
+            return getItemsByType(resultType, pstmt);
+        };
+        return executor.execute(sql, null);
+    }
+
+    public <T> Optional<T> querySingle(String sql, RowMapper<T> rowMapper, Object... args) {
+        return Optional.of(query(sql, rowMapper, args))
                 .filter(list -> !list.isEmpty())
                 .map(list -> list.get(0));
     }
@@ -44,11 +69,23 @@ public class JdbcTemplate {
                 .map(list -> list.get(0));
     }
 
-    private <T> List<T> getItemsByCallback(QueryResultCallback<T> callback, PreparedStatement pstmt) throws SQLException {
+    public <T> Optional<T> querySingle(String sql, RowMapper<T> rowMapper, PreparedStatementSetter setter) {
+        return Optional.of(query(sql, rowMapper, setter))
+                .filter(list -> !list.isEmpty())
+                .map(list -> list.get(0));
+    }
+
+    public <T> Optional<T> querySingle(String sql, Class<T> resultType, PreparedStatementSetter setter) {
+        return Optional.of(query(sql, resultType, setter))
+                .filter(list -> !list.isEmpty())
+                .map(list -> list.get(0));
+    }
+
+    private <T> List<T> getItemsByMapper(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
         try (ResultSet rs = pstmt.executeQuery()) {
             List<T> items = Lists.newArrayList();
             if (rs.next()) {
-                T item = callback.apply(rs);
+                T item = rowMapper.mapRow(rs);
                 items.add(item);
             }
             return items;
@@ -58,16 +95,15 @@ public class JdbcTemplate {
     private <T> List<T> getItemsByType(Class<T> resultType, PreparedStatement pstmt) throws SQLException {
         List<T> items = Lists.newArrayList();
         try (ResultSet rs = pstmt.executeQuery()) {
-            itemMapping(resultType, items, rs);
+            addToList(resultType, items, rs);
         } catch (ReflectiveOperationException e) {
-            throw new JdbcException(e.getMessage(), e);
+            throw new DataAccessException(e.getMessage(), e);
         }
         return items;
     }
 
-    private <T> void itemMapping(Class<T> resultType, List<T> items, ResultSet rs)
+    private <T> void addToList(Class<T> resultType, List<T> items, ResultSet rs)
             throws ReflectiveOperationException, SQLException {
-
         Field[] fields = resultType.getDeclaredFields();
         Constructor<T> constructors = resultType.getDeclaredConstructor();
         ReflectionUtils.makeAccessible(constructors);
