@@ -1,18 +1,16 @@
 package next.dao;
 
 import core.jdbc.JdbcContext;
+import core.jdbc.ResultSetMapper;
 import next.model.User;
-import support.exception.FunctionWithException;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public class NewUserDao implements UserDao {
 
     private final JdbcContext jdbcContext = new JdbcContext();
 
-    private final FunctionWithException<ResultSet, User, SQLException> resultSetMapper = rs -> new User(
+    private final ResultSetMapper<User> resultSetMapper = rs -> new User(
                     rs.getString("userId"),
                     rs.getString("password"),
                     rs.getString("name"),

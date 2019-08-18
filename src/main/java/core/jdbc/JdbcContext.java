@@ -21,7 +21,7 @@ public class JdbcContext {
         }
     }
 
-    public <T> List<T> execute(String sql, FunctionWithException<ResultSet, T, SQLException> resultSetMapper, Object... parameter) {
+    public <T> List<T> execute(String sql, ResultSetMapper<T> resultSetMapper, Object... parameter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = populatePrepareStatement(con.prepareStatement(sql), parameter);
              ResultSet rs = pstmt.executeQuery()) {
@@ -35,7 +35,7 @@ public class JdbcContext {
         }
     }
 
-    public <T> Optional<T> executeOne(String sql, FunctionWithException<ResultSet, T, SQLException> resultSetMapper, Object... parameter) {
+    public <T> Optional<T> executeOne(String sql, ResultSetMapper<T> resultSetMapper, Object... parameter) {
         List<T> results = execute(sql, resultSetMapper, parameter);
         if (results.isEmpty()) {
             return Optional.empty();

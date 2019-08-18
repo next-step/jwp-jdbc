@@ -1,3 +1,4 @@
+import core.jdbc.ResultSetMapper;
 import org.junit.jupiter.api.Test;
 import support.exception.FunctionWithException;
 
