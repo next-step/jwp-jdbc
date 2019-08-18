@@ -14,10 +14,10 @@ public class ResultSetSupport {
         this.resultSet = rs;
     }
 
-    public <T> List<T> getResult(ResultSetMapper<T> resultSetMapper) throws SQLException {
+    public <T> List<T> getResult(RowMapper<T> rowMapper) throws SQLException {
         List<T> result = new ArrayList<>();
         while (resultSet.next()) {
-            result.add(resultSetMapper.apply(resultSet));
+            result.add(rowMapper.apply(resultSet));
         }
         return result;
     }
@@ -26,12 +26,12 @@ public class ResultSetSupport {
         ResultSetRow<T> rsRow = new ResultSetRow<>(clazz);
         List<T> result = new ArrayList<>();
         while (resultSet.next()) {
-            result.add(getRow(resultSet, clazz, rsRow));
+            result.add(createRow(resultSet, clazz, rsRow));
         }
         return result;
     }
 
-    private <T> T getRow(ResultSet resultSet, Class<T> clazz, ResultSetRow<T> rsRow) throws SQLException {
+    private <T> T createRow(ResultSet resultSet, Class<T> clazz, ResultSetRow<T> rsRow) throws SQLException {
         try {
             T row = clazz.getConstructor().newInstance();
             rsRow.populateRow(row, resultSet);

@@ -2,7 +2,6 @@ package core.jdbc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.GenericTypeResolver;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,9 +14,9 @@ import static core.util.ReflectionUtil.getFieldBySetMethodName;
 import static java.util.stream.Collectors.toList;
 
 /**
- * populate object T.
- * if does not have setter method, don't populate it
- * @param <T> Object populated
+ * populate object T with ResultSet columns.
+ * if class does not have setter method, does not populate it
+ * @param <T> target Object
  */
 public class ResultSetRow<T> {
 

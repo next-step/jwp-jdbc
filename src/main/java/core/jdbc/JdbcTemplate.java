@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcContext {
+public class JdbcTemplate {
 
     public void executeUpdate(String sql, Object... parameter) {
         try (Connection con = ConnectionManager.getConnection();
@@ -18,18 +18,18 @@ public class JdbcContext {
         }
     }
 
-    public <T> List<T> execute(String sql, ResultSetMapper<T> resultSetMapper, Object... parameter) {
+    public <T> List<T> execute(String sql, RowMapper<T> rowMapper, Object... parameter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = populatePrepareStatement(con.prepareStatement(sql), parameter);
              ResultSet rs = pstmt.executeQuery()) {
-            return new ResultSetSupport(rs).getResult(resultSetMapper);
+            return new ResultSetSupport(rs).getResult(rowMapper);
         } catch (SQLException ex) {
             throw new JdbcException(ex);
         }
     }
 
-    public <T> Optional<T> executeOne(String sql, ResultSetMapper<T> resultSetMapper, Object... parameter) {
-        List<T> results = execute(sql, resultSetMapper, parameter);
+    public <T> Optional<T> executeOne(String sql, RowMapper<T> rowMapper, Object... parameter) {
+        List<T> results = execute(sql, rowMapper, parameter);
         if (results.isEmpty()) {
             return Optional.empty();
         }
