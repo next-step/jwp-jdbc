@@ -45,7 +45,6 @@ public class JdbcContext {
         } catch (SQLException ex) {
             throw new JdbcException(ex);
         }
-
     }
 
     public <T> Optional<T> executeOne(String sql, Class<T> clazz, Object... parameter) {
