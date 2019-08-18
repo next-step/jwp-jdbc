@@ -3,10 +3,12 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
-import core.db.DataBase;
+import core.db.jdbc.JdbcTemplate;
 import core.mvc.JsonUtils;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
+import next.dao.NewUserDao;
+import next.dao.UserDao;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
@@ -22,12 +24,15 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class UserRestController {
+
     private static final Logger logger = LoggerFactory.getLogger(UserRestController.class);
 
-    UriBuilderFactory uriBuilder = new DefaultUriBuilderFactory();
+    private UriBuilderFactory uriBuilder = new DefaultUriBuilderFactory();
+    // TODO
+    private UserDao userDao = new NewUserDao(new JdbcTemplate());
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
-    public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    public ModelAndView insert(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         UserCreatedDto dto = JsonUtils.readValue(req.getReader(), UserCreatedDto.class);
         User user = new User(
                 dto.getUserId(),
@@ -35,7 +40,8 @@ public class UserRestController {
                 dto.getName(),
                 dto.getEmail());
         logger.debug("User : {}", user);
-        DataBase.addUser(user);
+
+        userDao.insert(user);
 
         String location = uriBuilder.uriString("/api/users").queryParam("userId", dto.getUserId())
                 .build().toString();
@@ -45,10 +51,9 @@ public class UserRestController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
-    public ModelAndView findById(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        String userId = req.getParameter("userId");
+    public ModelAndView findAll(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("user", DataBase.findUserById(userId));
+        mav.addObject("user", userDao.findAll());
         return mav;
     }
 
@@ -56,7 +61,7 @@ public class UserRestController {
     public ModelAndView update(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         UserUpdatedDto dto = JsonUtils.readValue(req.getReader(), UserUpdatedDto.class);
         String userId = req.getParameter("userId");
-        User user = DataBase.findUserById(userId);
+        User user = userDao.findByUserId(userId);
         user.update(dto);
         return new ModelAndView(new JsonView());
     }
