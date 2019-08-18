@@ -1,12 +1,9 @@
 package core.jdbc;
 
-import support.exception.FunctionWithException;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,11 +22,7 @@ public class JdbcContext {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = populatePrepareStatement(con.prepareStatement(sql), parameter);
              ResultSet rs = pstmt.executeQuery()) {
-            List<T> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(resultSetMapper.apply(rs));
-            }
-            return result;
+            return new ResultSetSupport(rs).getResult(resultSetMapper);
         } catch (SQLException ex) {
             throw new JdbcException(ex);
         }
@@ -37,6 +30,26 @@ public class JdbcContext {
 
     public <T> Optional<T> executeOne(String sql, ResultSetMapper<T> resultSetMapper, Object... parameter) {
         List<T> results = execute(sql, resultSetMapper, parameter);
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(results.get(0));
+    }
+
+    public <T> List<T> execute(String sql, Class<T> clazz, Object... parameter) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = populatePrepareStatement(con.prepareStatement(sql), parameter);
+             ResultSet rs = pstmt.executeQuery()) {
+            return new ResultSetSupport(rs).getResult(clazz);
+        } catch (SQLException ex) {
+            throw new JdbcException(ex);
+        }
+
+    }
+
+    public <T> Optional<T> executeOne(String sql, Class<T> clazz, Object... parameter) {
+        List<T> results = execute(sql, clazz, parameter);
         if (results.isEmpty()) {
             return Optional.empty();
         }

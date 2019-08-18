@@ -1,7 +1,5 @@
-import core.jdbc.ResultSetMapper;
 import org.junit.jupiter.api.Test;
 import support.exception.FunctionWithException;
-
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
