@@ -1,5 +1,6 @@
 package next.controller;
 
+import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
@@ -9,6 +10,7 @@ import core.mvc.JsonView;
 import core.mvc.ModelAndView;
 import next.model.User;
 import org.apache.commons.io.IOUtils;
+import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +38,7 @@ public class UserApiController {
         DataBase.addUser(user);
         String location = "/api/users?userId=" + user.getUserId();
         resp.setHeader("location", location);
+        setStatus(resp);
 
         return new ModelAndView(new JsonView());
     }
@@ -53,5 +56,12 @@ public class UserApiController {
     private User getUser(HttpServletRequest req) throws IOException {
         String body = IOUtils.toString(req.getInputStream(), Charset.defaultCharset());
         return JsonUtils.toObject(body, User.class);
+    }
+
+    private void setStatus(HttpServletResponse response) {
+        String location = response.getHeader("location");
+        if (!StringUtils.isEmpty(location)) {
+            response.setStatus(HttpStatus.CREATED.value());
+        }
     }
 }
