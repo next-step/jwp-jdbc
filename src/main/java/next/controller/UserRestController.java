@@ -3,7 +3,7 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
-import core.db.jdbc.JdbcTemplate;
+import core.di.factory.SingletonFactory;
 import core.mvc.JsonUtils;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
@@ -28,8 +28,8 @@ public class UserRestController {
     private static final Logger logger = LoggerFactory.getLogger(UserRestController.class);
 
     private UriBuilderFactory uriBuilder = new DefaultUriBuilderFactory();
-    // TODO
-    private UserDao userDao = new NewUserDao(new JdbcTemplate());
+
+    private UserDao userDao = SingletonFactory.getBean(NewUserDao.class);
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView insert(HttpServletRequest req, HttpServletResponse resp) throws Exception {
