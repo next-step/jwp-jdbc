@@ -33,6 +33,7 @@ public class UserAcceptanceTest {
                 .expectBody()
                 .returnResult();
         URI location = response.getResponseHeaders().getLocation();
+        assertThat(location.toString()).isEqualTo("/api/users?userId=pobi");
         logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
 
         // 조회
@@ -56,7 +57,6 @@ public class UserAcceptanceTest {
                 .exchange()
                 .expectStatus().isOk();
 
-
         actual = client()
                 .get()
                 .uri(location.toString())
@@ -66,53 +66,6 @@ public class UserAcceptanceTest {
                 .returnResult().getResponseBody();
         assertThat(actual.getName()).isEqualTo(updateUser.getName());
         assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
-    }
-
-    @Test
-    void 회원가입() {
-        UserCreatedDto expected =
-                new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
-        EntityExchangeResult<byte[]> response = client()
-                .post()
-                .uri("/api/users")
-                .body(Mono.just(expected), UserCreatedDto.class)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .returnResult();
-        URI location = response.getResponseHeaders().getLocation();
-
-        assertThat(location.toString()).isEqualTo("/api/users?userId=pobi");
-        logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
-    }
-
-    @Test
-    void 조회() {
-        // 생성하고
-        UserCreatedDto expected =
-                new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
-        EntityExchangeResult<byte[]> response = client()
-                .post()
-                .uri("/api/users")
-                .body(Mono.just(expected), UserCreatedDto.class)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .returnResult();
-        URI location = response.getResponseHeaders().getLocation();
-
-        // 조회
-        User actual = client()
-                .get()
-                .uri(location.toString())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(User.class)
-                .returnResult().getResponseBody();
-
-        assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
-        assertThat(actual.getName()).isEqualTo(expected.getName());
-        assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
     }
 
     private WebTestClient client() {

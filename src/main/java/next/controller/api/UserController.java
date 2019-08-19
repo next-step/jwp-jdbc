@@ -8,6 +8,7 @@ import core.mvc.JsonUtils;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
 import next.dto.UserCreatedDto;
+import next.dto.UserUpdatedDto;
 import next.model.User;
 import next.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -42,5 +43,17 @@ public class UserController {
 
         return new ModelAndView(new JsonView(location))
                 .addObject("user", user);
+    }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
+    public ModelAndView update(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+        final String userId = request.getParameter("userId");
+        final String requestBody = HttpServletRequestUtils.getRequestBody(request);
+        final UserUpdatedDto userUpdatedDto = JsonUtils.toObject(requestBody, UserUpdatedDto.class);
+
+        final User user = userService.update(userId, userUpdatedDto);
+        final String location = "/api/users?userId=" + user.getUserId();
+
+        return new ModelAndView(new JsonView(location));
     }
 }
