@@ -68,6 +68,24 @@ public class UserAcceptanceTest {
         assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
     }
 
+    @Test
+    void 회원가입() {
+        UserCreatedDto expected =
+                new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
+        EntityExchangeResult<byte[]> response = client()
+                .post()
+                .uri("/api/users")
+                .body(Mono.just(expected), UserCreatedDto.class)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                .returnResult();
+        URI location = response.getResponseHeaders().getLocation();
+
+        assertThat(location.getRawPath()).isEqualTo("/api/users?userId=pobi");
+        logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
+    }
+
     private WebTestClient client() {
         return WebTestClient
                 .bindToServer()
