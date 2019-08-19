@@ -7,3 +7,12 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+
+## step1
+- [x] JsonViewTest의 모든 테스트를 pass하도록 JsonView를 구현한다.
+    - [참고 : RequestDispatcher](https://dololak.tistory.com/502)
+    - [참고 : Jackson, ObjectMapper](https://nesoy.github.io/articles/2018-04/Java-JSON)
+    - [참고 : ObjectMapper 주의사항](https://github.com/naver/kaist-oss-course/issues/11#issuecomment-101101153)
+    
+- [ ] UserAcceptanceTest 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용한다.

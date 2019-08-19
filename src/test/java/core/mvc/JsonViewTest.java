@@ -1,6 +1,7 @@
 package core.mvc;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JsonViewTest {
-    private static final Logger logger = LoggerFactory.getLogger( JsonViewTest.class );
+    private static final Logger logger = LoggerFactory.getLogger(JsonViewTest.class);
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private View view;
@@ -27,15 +28,17 @@ public class JsonViewTest {
         view = new JsonView();
     }
 
+    @DisplayName("render - no element")
     @Test
-    void render_no_element() throws Exception {
+    void renderNoElement() throws Exception {
         view.render(new HashMap<>(), request, response);
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
         assertThat(response.getContentAsString()).isBlank();
     }
 
+    @DisplayName("render - one element")
     @Test
-    void render_one_element() throws Exception {
+    void renderOneElement() throws Exception {
         Map<String, Object> model = new HashMap<>();
         Car expected = new Car("Black", "Sonata");
         model.put("car", expected);
@@ -47,8 +50,9 @@ public class JsonViewTest {
         assertThat(actual).isEqualTo(expected);
     }
 
+    @DisplayName("render - over two elements")
     @Test
-    void render_over_two_element() throws Exception {
+    void renderOverTwoElements() throws Exception {
         Map<String, Object> model = new HashMap<>();
         Car expected = new Car("Black", "Sonata");
         model.put("car", expected);
