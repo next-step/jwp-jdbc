@@ -54,7 +54,7 @@ public class ResultSetTest {
 
     @Test
     void resultSetSupportByReflection() throws SQLException {
-        final List<Client> clients = rsSupport.getResult(Client.class);
+        final List<Client> clients = rsSupport.getResults(Client.class);
         assertThat(clients.size()).isEqualTo(2);
         assertClient(clients.get(0), expectedClient1, false);
         assertClient(clients.get(1), expectedClient2, false);
@@ -63,7 +63,7 @@ public class ResultSetTest {
 
     @Test
     void resultSetSupportByMapper() throws SQLException {
-        final List<Client> clients = rsSupport.getResult(rsMapper);
+        final List<Client> clients = rsSupport.getResults(rsMapper);
         assertThat(clients.size()).isEqualTo(2);
         assertClient(clients.get(0), expectedClient1, true);
         assertClient(clients.get(1), expectedClient2, true);

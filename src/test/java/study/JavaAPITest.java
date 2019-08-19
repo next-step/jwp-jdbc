@@ -34,7 +34,6 @@ public class JavaAPITest {
 
         try {
             final Method setSuperOne = client.getClass().getMethod("setSuperOne", SuperOne.class);
-            System.out.println(setSuperOne.getName());
             assertNotNull(setSuperOne.getName());
         } catch (NoSuchMethodException ignored) {
             fail();

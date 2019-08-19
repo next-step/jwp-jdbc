@@ -14,7 +14,7 @@ public class ResultSetSupport {
         this.resultSet = rs;
     }
 
-    public <T> List<T> getResult(RowMapper<T> rowMapper) throws SQLException {
+    public <T> List<T> getResults(RowMapper<T> rowMapper) throws SQLException {
         List<T> result = new ArrayList<>();
         while (resultSet.next()) {
             result.add(rowMapper.apply(resultSet));
@@ -22,7 +22,12 @@ public class ResultSetSupport {
         return result;
     }
 
-    public <T> List<T> getResult(Class<T> clazz) throws SQLException {
+    public <T> T getResult(Class<T> clazz) throws SQLException {
+        ResultSetRow<T> rsRow = new ResultSetRow<>(clazz);
+        return createRow(resultSet, clazz, rsRow);
+    }
+
+    public <T> List<T> getResults(Class<T> clazz) throws SQLException {
         ResultSetRow<T> rsRow = new ResultSetRow<>(clazz);
         List<T> result = new ArrayList<>();
         while (resultSet.next()) {

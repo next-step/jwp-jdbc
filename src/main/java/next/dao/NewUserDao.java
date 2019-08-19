@@ -1,7 +1,7 @@
 package next.dao;
 
+import core.jdbc.JdbcRowMapper;
 import core.jdbc.JdbcTemplate;
-import core.jdbc.RowMapper;
 import next.model.User;
 
 import java.util.List;
@@ -13,12 +13,6 @@ public class NewUserDao implements UserDao {
     public NewUserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
-    private final RowMapper<User> rsMapper = rs -> new User(
-                    rs.getString("userId"),
-                    rs.getString("password"),
-                    rs.getString("name"),
-                    rs.getString("email"));
 
     public void insert(User user) {
         jdbcTemplate.executeUpdate("INSERT INTO USERS VALUES (?, ?, ?, ?)",
@@ -41,22 +35,11 @@ public class NewUserDao implements UserDao {
     }
 
     public List<User> findAll() {
-        return jdbcTemplate.execute("SELECT userId, password, name, email FROM USERS", User.class);
-    }
-
-    public List<User> findAllByRsMapper() {
-        return jdbcTemplate.execute("SELECT userId, password, name, email FROM USERS", rsMapper);
+        return jdbcTemplate.execute("SELECT userId, password, name, email FROM USERS", new JdbcRowMapper<>(User.class));
     }
 
     public User findByUserId(String userId) {
-        return jdbcTemplate.executeOne("SELECT userId, password, name, email FROM USERS WHERE userId = ?", User.class, userId)
-                .orElseThrow(() -> {
-                    throw new IllegalArgumentException("[" + userId + "] user does not exist");
-                });
-    }
-
-    public User findByUserIdByRsMapper(String userId) {
-        return jdbcTemplate.executeOne("SELECT userId, password, name, email FROM USERS WHERE userId = ?", rsMapper, userId)
+        return jdbcTemplate.executeOne("SELECT userId, password, name, email FROM USERS WHERE userId = ?", new JdbcRowMapper<>(User.class), userId)
                 .orElseThrow(() -> {
                     throw new IllegalArgumentException("[" + userId + "] user does not exist");
                 });

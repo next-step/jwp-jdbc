@@ -49,10 +49,4 @@ public class NewUserDaoTest {
         assertThat(users).hasSize(1);
     }
 
-    @Test
-    public void findAllByRsMapper() throws SQLException {
-        List<User> users = userDao.findAllByRsMapper();
-        assertThat(users).hasSize(1);
-    }
-
 }
