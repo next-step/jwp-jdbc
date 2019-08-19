@@ -1,6 +1,7 @@
 package core.db;
 
 import core.db.jdbc.JdbcTemplate;
+import core.db.jdbc.ResultTypeRowMapper;
 import core.jdbc.ConnectionManager;
 import next.model.User;
 import org.junit.jupiter.api.BeforeAll;
@@ -112,7 +113,7 @@ public class JdbcTemplateTest {
         String listQuery = "SELECT userId, password, name, email FROM USERS";
 
         // when
-        List<User> users = template.query(listQuery, User.class);
+        List<User> users = template.query(listQuery, new ResultTypeRowMapper<>(User.class));
 
         // then
         logger.debug("list: {}", users);
@@ -128,7 +129,7 @@ public class JdbcTemplateTest {
         String expectedUserId = "admin";
 
         // when
-        Optional<User> user = template.querySingle(singleQuery, User.class, expectedUserId);
+        Optional<User> user = template.querySingle(singleQuery, new ResultTypeRowMapper<>(User.class), expectedUserId);
 
         // then
         logger.debug("user: {}", user);
@@ -144,7 +145,7 @@ public class JdbcTemplateTest {
         String expectedUserId = "unknown";
 
         // when
-        Optional<User> user = template.querySingle(singleQuery, User.class, expectedUserId);
+        Optional<User> user = template.querySingle(singleQuery, new ResultTypeRowMapper<>(User.class), expectedUserId);
 
         // then
         logger.debug("user: {}", user);
