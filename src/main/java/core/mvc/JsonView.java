@@ -18,8 +18,11 @@ public class JsonView implements View {
     private final URI uri;
 
     public JsonView() {
-        this.httpStatus = HttpStatus.OK;
-        this.uri = URI.create("/");
+        this(HttpStatus.OK, "/");
+    }
+
+    public JsonView(final String uri) {
+        this(HttpStatus.OK, uri);
     }
 
     public JsonView(final HttpStatus httpStatus, final String uri) {

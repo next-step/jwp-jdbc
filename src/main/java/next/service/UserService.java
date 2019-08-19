@@ -10,8 +10,12 @@ public class UserService {
 
     private static final  UserDao userDao = new UserDao();
 
-    public User create(UserCreatedDto userCreatedDto) throws SQLException {
+    public User create(final UserCreatedDto userCreatedDto) throws SQLException {
         userDao.insert(userCreatedDto.toUser());
         return userDao.findByUserId(userCreatedDto.getUserId());
+    }
+
+    public User findByUserId(final String userId) throws SQLException {
+        return userDao.findByUserId(userId);
     }
 }

@@ -32,4 +32,15 @@ public class UserController {
 
         return new ModelAndView(new JsonView(HttpStatus.CREATED, location));
     }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.GET)
+    public ModelAndView show(HttpServletRequest request, HttpServletResponse response) throws SQLException {
+        final String userId = request.getParameter("userId");
+
+        final User user = userService.findByUserId(userId);
+        final String location = "/api/users?userId=" + user.getUserId();
+
+        return new ModelAndView(new JsonView(location))
+                .addObject("user", user);
+    }
 }
