@@ -11,7 +11,7 @@ public class UserDao {
     private JdbcTemplate jdbcTemplate;
 
     public UserDao() {
-        this.jdbcTemplate = new JdbcTemplate();
+        this.jdbcTemplate = JdbcTemplate.getInstance();
     }
 
     public void insert(User user) throws SQLException {

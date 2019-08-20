@@ -20,6 +20,19 @@ import java.util.function.Function;
 
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
+    private static JdbcTemplate jdbcTemplate;
+
+    private JdbcTemplate() {
+    }
+
+    public synchronized static JdbcTemplate getInstance() {
+        if (Objects.nonNull(jdbcTemplate)) {
+            return jdbcTemplate;
+        }
+
+        jdbcTemplate = new JdbcTemplate();
+        return jdbcTemplate;
+    }
 
     public void update(String sql, @Nullable Object... params) {
         Consumer<PreparedStatement> consumer = ExceptionConsumer.wrap(
