@@ -11,63 +11,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+
     public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
+        final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        try (final Connection con = ConnectionManager.getConnection();
+             final PreparedStatement pstmt = con.prepareStatement(sql)) {
+
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
             pstmt.setString(4, user.getEmail());
 
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
     public void update(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
+        final String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
+
+        try (final Connection con = ConnectionManager.getConnection();
+             final PreparedStatement pstmt = con.prepareStatement(sql)) {
+
             pstmt.setString(1, user.getName());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getUserId());
 
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
     public List<User> findAll() throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS";
-            pstmt = con.prepareStatement(sql);
+        final String sql = "SELECT userId, password, name, email FROM USERS";
 
-            rs = pstmt.executeQuery();
+        try (final Connection con = ConnectionManager.getConnection();
+             final PreparedStatement pstmt = con.prepareStatement(sql);
+             final ResultSet rs = pstmt.executeQuery()) {
 
             final List<User> users = new ArrayList<>();
             while (rs.next()) {
@@ -78,30 +56,17 @@ public class UserDao {
             }
 
             return users;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
     public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-            rs = pstmt.executeQuery();
+        try (final Connection con = ConnectionManager.getConnection();
+             final PreparedStatement pstmt = con.prepareStatement(sql);
+             final ResultSet rs = pstmt.executeQuery()) {
+
+            pstmt.setString(1, userId);
 
             User user = null;
             if (rs.next()) {
@@ -110,16 +75,6 @@ public class UserDao {
             }
 
             return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
     }
 }
