@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
-import static core.mvc.FunctionalExceptionWrapper.wrap;
+import static support.exception.ExceptionFunction.wrap;
 
 public class JsonView implements View {
     @Override
