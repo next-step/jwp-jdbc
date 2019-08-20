@@ -1,6 +1,6 @@
 package study.jackson;
 
-import core.mvc.JsonUtils;
+import core.mvc.util.JsonUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

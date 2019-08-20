@@ -1,7 +1,8 @@
-package core.mvc;
+package core.mvc.util;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import core.mvc.ObjectMapperException;
 
 import java.io.IOException;
 

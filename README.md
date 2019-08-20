@@ -15,4 +15,7 @@
     - [참고 : Jackson, ObjectMapper](https://nesoy.github.io/articles/2018-04/Java-JSON)
     - [참고 : ObjectMapper 주의사항](https://github.com/naver/kaist-oss-course/issues/11#issuecomment-101101153)
     
-- [ ] UserAcceptanceTest 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용한다.
+- [x] UserAcceptanceTest 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용한다.
+    - [x] api용 controller 추가 ( UserApiController )
+    - [x] CRUD 기능 구현
+    - [x] 공통기능 분리
