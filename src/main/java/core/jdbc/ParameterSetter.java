@@ -16,7 +16,7 @@ public class ParameterSetter {
     	
         for (int i = 0; i < args.length; i++) {
             Object arg = args[i];
-            JdbcTypeHandler<?> jdbcTypeHandler = jdbcTypeHandlers.getTypeHandler(arg);
+            JdbcTypeHandler<?> jdbcTypeHandler = jdbcTypeHandlers.getTypeHandler(arg.getClass());
             jdbcTypeHandler.setParameter(ps, i + 1, arg);
         }
     }

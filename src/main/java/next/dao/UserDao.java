@@ -1,11 +1,11 @@
 package next.dao;
 
 import core.jdbc.JdbcTemplate;
+import core.jdbc.TypeRowMapper;
 import next.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.List;
 
 public class UserDao {
@@ -28,12 +28,12 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS";
-        return jdbcTemplate.selectList(sql, this::mappingToUser);
+        return jdbcTemplate.selectList(sql, new TypeRowMapper<>(User.class));
     }
 
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.select(sql, this::mappingToUser , userId);
+        return jdbcTemplate.select(sql, new TypeRowMapper<>(User.class) , userId);
     }
 
     public User mappingToUser(ResultSet rs) throws SQLException {

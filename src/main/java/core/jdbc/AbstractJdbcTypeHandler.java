@@ -14,8 +14,8 @@ public abstract class AbstractJdbcTypeHandler<T> implements JdbcTypeHandler<T>{
 	}
 
 	@Override
-	public boolean supports(Object obj) {
-		return this.paramterizedType.isAssignableFrom(obj.getClass());
+	public boolean supports(Class<?> clazz) {
+		return this.paramterizedType.isAssignableFrom(clazz);
 	}
 	
 	@Override

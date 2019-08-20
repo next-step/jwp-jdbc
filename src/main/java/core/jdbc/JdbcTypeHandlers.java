@@ -27,13 +27,13 @@ public class JdbcTypeHandlers {
 		this.typeHandlers.add(typeHandler);
 	}
 	
-	public JdbcTypeHandler<?> getTypeHandler(Object obj) {
+	public JdbcTypeHandler<?> getTypeHandler(Class<?> clazz) {
 		
-		return cache.computeIfAbsent(obj.getClass(), (key) -> {
+		return cache.computeIfAbsent(clazz, (key) -> {
 			return typeHandlers.stream()
-			.filter(handler -> handler.supports(obj))
+			.filter(handler -> handler.supports(clazz))
 			.findFirst()
-			.orElseThrow(() -> new RuntimeException("JdbcTypeHandler 를 찾을수 없습니다. : " + obj.getClass()));
+			.orElseThrow(() -> new RuntimeException("JdbcTypeHandler 를 찾을수 없습니다. : " + clazz));
 		});
 	}
 	

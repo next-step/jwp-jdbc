@@ -20,4 +20,9 @@ public class StringJdbcTypeHandler extends AbstractJdbcTypeHandler<String>{
 	public String getParameter(ResultSet rs, int index) throws SQLException {
 		return rs.getString(index);
 	}
+
+	@Override
+	public String getParameter(ResultSet rs, String columnLabel) throws SQLException {
+		return rs.getString(columnLabel);
+	}
 }

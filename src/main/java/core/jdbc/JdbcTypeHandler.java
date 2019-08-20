@@ -6,10 +6,12 @@ import java.sql.SQLException;
 
 public interface JdbcTypeHandler<T> {
 
-	public boolean supports(Object obj);
+	public boolean supports(Class<?> clazz);
 	
 	public void setParameter(PreparedStatement ps, int index, Object value) throws SQLException;
 	
 	public T getParameter(ResultSet rs, int index) throws SQLException;
+
+	public T getParameter(ResultSet rs, String columnLabel) throws SQLException;
 	
 }
