@@ -10,19 +10,19 @@ import java.sql.SQLException;
  * @author : yusik
  * @date : 2019-08-17
  */
-public interface QueryExecutor {
+public interface QueryExecutor<T, R> {
 
-    default Object execute(String sql, QueryResultCallback<?> callback, Object... args) {
+    default R execute(String sql, RowMapper<T> rowMapper, Object... args) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             for (int i = 0; i < args.length; i++) {
                 pstmt.setObject(i + 1, args[i]);
             }
 
-            return internalExecute(pstmt, callback);
+            return internalExecute(pstmt, rowMapper);
         } catch (SQLException e) {
-            throw new JdbcException(e.getMessage(), e);
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
-    Object internalExecute(PreparedStatement pstmt, QueryResultCallback<?> callback) throws SQLException;
+    R internalExecute(PreparedStatement pstmt, RowMapper<T> rowMapper) throws SQLException;
 }

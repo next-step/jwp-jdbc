@@ -1,13 +1,12 @@
 package core.db.jdbc;
 
 import com.google.common.collect.Lists;
-import core.jdbc.ConnectionManager;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author : yusik
@@ -15,56 +14,53 @@ import java.util.List;
  */
 public class JdbcTemplate {
 
-    public int refactorUpdate(String sql, Object... args) {
-        QueryExecutor executor = (pstmt, callback) -> pstmt.executeUpdate();
-        return (int) executor.execute(sql, null, args);
-    }
-
-    public <T> List<T> refactorQuery(String sql, QueryResultCallback<T> callback, Object... args) {
-        QueryExecutor executor = (pstmt, cb) -> getItemsFromResultSet(cb, pstmt);
-        return (List<T>) executor.execute(sql, callback, args);
-    }
-
     public int update(String sql, Object... args) {
-        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            for (int i = 0; i < args.length; i++) {
-                pstmt.setObject(i + 1, args[i]);
-            }
+        QueryExecutor<?, Integer> executor = (pstmt, mapper) -> pstmt.executeUpdate();
+        return executor.execute(sql, null, args);
+    }
+
+    public int update(String sql, PreparedStatementSetter setter) {
+        QueryExecutor<?, Integer> executor = (pstmt, mapper) -> {
+            setter.setValues(pstmt);
             return pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new JdbcException(e.getMessage(), e);
-        }
+        };
+
+        return executor.execute(sql, null);
     }
 
-    public <T> List<T> query(String sql, QueryResultCallback<T> callback, Object... args) {
-        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            for (int i = 0; i < args.length; i++) {
-                pstmt.setObject(i + 1, args[i]);
-            }
-            return getItemsFromResultSet(callback, pstmt);
-        } catch (SQLException e) {
-            throw new JdbcException(e.getMessage(), e);
-        }
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
+        QueryExecutor<T, List<T>> executor = (pstmt, mapper) -> getListByMapper(mapper, pstmt);
+        return executor.execute(sql, rowMapper, args);
     }
 
-    private <T> List<T> getItemsFromResultSet(QueryResultCallback<T> callback, PreparedStatement pstmt) throws SQLException {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter setter) {
+        QueryExecutor<T, List<T>> executor = (pstmt, mapper) -> {
+            setter.setValues(pstmt);
+            return getListByMapper(mapper, pstmt);
+        };
+        return executor.execute(sql, rowMapper);
+    }
+
+    public <T> Optional<T> querySingle(String sql, RowMapper<T> rowMapper, Object... args) {
+        return Optional.of(query(sql, rowMapper, args))
+                .filter(list -> !list.isEmpty())
+                .map(list -> list.get(0));
+    }
+
+    public <T> Optional<T> querySingle(String sql, RowMapper<T> rowMapper, PreparedStatementSetter setter) {
+        return Optional.of(query(sql, rowMapper, setter))
+                .filter(list -> !list.isEmpty())
+                .map(list -> list.get(0));
+    }
+
+    private <T> List<T> getListByMapper(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
         try (ResultSet rs = pstmt.executeQuery()) {
             List<T> items = Lists.newArrayList();
-
             if (rs.next()) {
-                T item = callback.apply(rs);
+                T item = rowMapper.mapRow(rs);
                 items.add(item);
             }
             return items;
         }
     }
-
-    public <T> T querySingle(String sql, QueryResultCallback<T> callback, Object... args) {
-        List<T> result = query(sql, callback, args);
-        if (result.size() < 1) {
-            return null;
-        }
-        return result.get(0);
-    }
-
 }

@@ -12,10 +12,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class LegacyUserDao {
+public class LegacyUserDao implements UserDao {
 
     private static final Logger logger = LoggerFactory.getLogger(LegacyUserDao.class);
 
+    @Override
     public void insert(User user) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -41,6 +42,7 @@ public class LegacyUserDao {
         }
     }
 
+    @Override
     public void update(User user) throws SQLException {
 
         String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
@@ -57,6 +59,7 @@ public class LegacyUserDao {
         }
     }
 
+    @Override
     public List<User> findAll() throws SQLException {
         List<User> users = Lists.newArrayList();
         Connection con = null;
@@ -93,6 +96,7 @@ public class LegacyUserDao {
         }
     }
 
+    @Override
     public User findByUserId(String userId) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
