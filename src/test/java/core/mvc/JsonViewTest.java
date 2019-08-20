@@ -50,13 +50,17 @@ public class JsonViewTest {
     @Test
     void render_over_two_element() throws Exception {
         Map<String, Object> model = new HashMap<>();
-        Car expected = new Car("Black", "Sonata");
-        model.put("car", expected);
+        Car car = new Car("Black", "Sonata");
+        model.put("car", car);
         model.put("name", "포비");
 
         view.render(model, request, response);
 
+        final String expected = JsonUtils.toString(model);
+        final String actual = response.getContentAsString();
+
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        assertThat(actual).isEqualTo(expected);
         logger.debug("response body : {}", response.getContentAsString());
     }
 }

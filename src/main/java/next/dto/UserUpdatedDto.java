@@ -1,5 +1,7 @@
 package next.dto;
 
+import next.model.User;
+
 public class UserUpdatedDto {
     private String name;
     private String email;
@@ -18,5 +20,9 @@ public class UserUpdatedDto {
 
     public String getEmail() {
         return email;
+    }
+
+    public User toUser(final String userId, final String password) {
+        return new User(userId, password, name, email);
     }
 }

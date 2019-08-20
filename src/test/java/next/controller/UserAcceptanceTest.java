@@ -33,6 +33,7 @@ public class UserAcceptanceTest {
                 .expectBody()
                 .returnResult();
         URI location = response.getResponseHeaders().getLocation();
+        assertThat(location.toString()).isEqualTo("/api/users?userId=pobi");
         logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
 
         // 조회
@@ -55,7 +56,6 @@ public class UserAcceptanceTest {
                 .body(Mono.just(updateUser), UserUpdatedDto.class)
                 .exchange()
                 .expectStatus().isOk();
-
 
         actual = client()
                 .get()
