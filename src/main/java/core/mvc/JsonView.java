@@ -16,18 +16,20 @@ public class JsonView implements View {
         logger.debug("JsonView");
         response.addHeader("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
 
-        Set<String> keys = model.keySet();
-        if (keys.size() <= 1) {
-            for (Object value : model.values()) {
-                String serializedValue = JsonUtils.toJsonString(value);
-                response.getWriter().write(serializedValue);
-            }
-        } else {
-            String serializedModel = JsonUtils.toJsonString(model);
-            response.getWriter().write(serializedModel);
-        }
-
+        response.getWriter().write(serializedModel(model));
         response.getWriter().flush();
         response.getWriter().close();
+    }
+
+    private String serializedModel(Map<String,?> model) {
+        if (model.size() > 1) {
+            return JsonUtils.toJsonString(model);
+        }
+
+        return model.values()
+                .stream()
+                .findFirst()
+                .map(value -> JsonUtils.toJsonString(value))
+                .orElse("");
     }
 }
