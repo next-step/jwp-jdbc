@@ -13,4 +13,12 @@ public class JsonUtilsTest {
         assertThat(car.getColor()).isEqualTo("Black");
         assertThat(car.getType()).isEqualTo("BMW");
     }
+
+    @Test
+    void toJson() throws Exception {
+        Car car = new Car("Black","BMW");
+        String jsonStr = JsonUtils.toJson(car);
+        String json = "{\"color\":\"Black\",\"type\":\"BMW\"}";
+        assertThat(jsonStr).isEqualTo(json);
+    }
 }
