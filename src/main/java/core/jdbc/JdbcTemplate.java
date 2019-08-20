@@ -17,8 +17,8 @@ public class JdbcTemplate {
 		this.dataSource = dataSource;
 	}
 
-	public <T> List<T> selectList(String sql, Object[] args, int[] argTypes, RowMapper<T> rowMapper) {
-		return execute(sql, new SelectQueryAction(), new ParameterSetter(args, argTypes), (rs) -> {
+	public <T> List<T> selectList(String sql, RowMapper<T> rowMapper, Object... args) {
+		return execute(sql, new SelectQueryAction(), new ParameterSetter(args), (rs) -> {
 				List<T> tempList = new ArrayList<>();
 				while(rs.next()) {
 					tempList.add(rowMapper.resultMapping(rs));
@@ -28,8 +28,8 @@ public class JdbcTemplate {
 		);
 	}
 
-	public <T> T select(String sql, Object[] args, int[] argTypes, RowMapper<T> rowMapper) {
-		return execute(sql, new SelectQueryAction(), new ParameterSetter(args, argTypes), (rs) -> {
+	public <T> T select(String sql, RowMapper<T> rowMapper, Object... args) {
+		return execute(sql, new SelectQueryAction(), new ParameterSetter(args), (rs) -> {
 				T value = null;
 
 		        while(rs.next()) {
@@ -46,8 +46,8 @@ public class JdbcTemplate {
 		);
 	}
 
-	public int update(String sql, Object[] args, int[] argTypes) {
-		return execute(sql, new UpdateQueryAction(), new ParameterSetter(args, argTypes), new ResultMapper<Integer, Integer>() {
+	public int update(String sql, Object... args) {
+		return execute(sql, new UpdateQueryAction(), new ParameterSetter(args), new ResultMapper<Integer, Integer>() {
 
 			@Override
 			public Integer resultMapping(Integer result) throws SQLException {
