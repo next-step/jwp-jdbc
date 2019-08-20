@@ -1,15 +1,13 @@
 package core.jdbc;
 
-import support.exception.FunctionWithException;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class JdbcContext {
+public class JdbcTemplate {
 
     public void executeUpdate(String sql, Object... parameter) {
         try (Connection con = ConnectionManager.getConnection();
@@ -20,27 +18,19 @@ public class JdbcContext {
         }
     }
 
-    public <T> List<T> execute(String sql, FunctionWithException<ResultSet, T, SQLException> resultSetMapper, Object... parameter) {
+    public <T> List<T> execute(String sql, RowMapper<T> rowMapper, Object... parameter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = populatePrepareStatement(con.prepareStatement(sql), parameter);
              ResultSet rs = pstmt.executeQuery()) {
-            List<T> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(resultSetMapper.apply(rs));
-            }
-            return result;
+            return new ResultSetSupport(rs).getResults(rowMapper);
         } catch (SQLException ex) {
             throw new JdbcException(ex);
         }
     }
 
-    public <T> T executeOne(String sql, FunctionWithException<ResultSet, T, SQLException> resultSetMapper, Object... parameter) {
-        List<T> results = execute(sql, resultSetMapper, parameter);
-        if (results.isEmpty()) {
-            return null;
-        }
-
-        return results.get(0);
+    public <T> Optional<T> executeOne(String sql, RowMapper<T> rowMapper, Object... parameter) {
+        List<T> results = execute(sql, rowMapper, parameter);
+        return results.stream().findFirst();
     }
 
     private PreparedStatement populatePrepareStatement(PreparedStatement pstmt, Object[] parameter) throws SQLException {
