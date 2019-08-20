@@ -2,13 +2,15 @@ package next.dto;
 
 public class UserUpdatedDto {
     private String name;
+    private String password;
     private String email;
 
     private UserUpdatedDto() {
     }
 
-    public UserUpdatedDto(String name, String email) {
+    public UserUpdatedDto(String name, String password, String email) {
         this.name = name;
+        this.password = password;
         this.email = email;
     }
 
@@ -18,5 +20,9 @@ public class UserUpdatedDto {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }

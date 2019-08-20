@@ -7,6 +7,7 @@ import core.db.DataBase;
 import core.mvc.JsonUtils;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
+import next.dao.UserDao;
 import next.model.User;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -20,12 +21,13 @@ import java.nio.charset.Charset;
 @Controller
 public class UserApiController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private UserDao userDao = UserDao.getInstance();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         User user = parseUserFromBody(req);
 
-        DataBase.addUser(user);
+        userDao.insert(user);
         String location = "/api/users?userId=" + user.getUserId();
         resp.setHeader("location", location);
 
@@ -36,7 +38,7 @@ public class UserApiController {
     public ModelAndView get(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         String userId = req.getParameter("userId");
 
-        User user = DataBase.findUserById(userId);
+        User user = userDao.findByUserId(userId);
         ModelAndView modelAndView = new ModelAndView(new JsonView());
         modelAndView.addObject("User", user);
 
@@ -48,8 +50,9 @@ public class UserApiController {
         String userId = req.getParameter("userId");
         User updateUser = parseUserFromBody(req);
 
-        User user = DataBase.findUserById(userId);
+        User user = userDao.findByUserId(userId);
         user.update(updateUser);
+        userDao.update(user);
 
         return new ModelAndView(new JsonView());
     }

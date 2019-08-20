@@ -33,7 +33,7 @@ public class UserAcceptanceTest extends AcceptanceTest {
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
 
         // 수정
-        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
+        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "password2", "conan@nextstep.camp");
         updateResource(location, updateUser, UserUpdatedDto.class);
 
         actual = getResource(location, User.class);

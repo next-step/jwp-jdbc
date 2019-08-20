@@ -6,12 +6,23 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 public class UserDao {
+    private static UserDao userDao;
     private JdbcTemplate jdbcTemplate;
 
-    public UserDao() {
+    private UserDao() {
         this.jdbcTemplate = JdbcTemplate.getInstance();
+    }
+
+    public static synchronized UserDao getInstance() {
+        if (Objects.nonNull(userDao)) {
+            return userDao;
+        }
+
+        userDao = new UserDao();
+        return userDao;
     }
 
     public void insert(User user) throws SQLException {
@@ -20,8 +31,8 @@ public class UserDao {
     }
 
     public void update(User user) throws SQLException {
-        String sql = "UPDATE USERS SET userId=?, password=?, name=?, email=? WHERE userId=?";
-        jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
+        jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() throws SQLException {

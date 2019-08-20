@@ -2,8 +2,8 @@ package core.db;
 
 import com.google.common.collect.Lists;
 import core.jdbc.ConnectionManager;
-import core.mvc.ExceptionConsumer;
-import core.mvc.ExceptionFunction;
+import support.exception.ExceptionConsumer;
+import support.exception.ExceptionFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
@@ -25,7 +25,7 @@ public class JdbcTemplate {
     private JdbcTemplate() {
     }
 
-    public synchronized static JdbcTemplate getInstance() {
+    public static synchronized JdbcTemplate getInstance() {
         if (Objects.nonNull(jdbcTemplate)) {
             return jdbcTemplate;
         }
