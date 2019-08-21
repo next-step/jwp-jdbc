@@ -1,7 +1,5 @@
 package core.jdbc;
 
-import next.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,7 +23,7 @@ public abstract class SelectJdbcTemplate {
         }
     }
 
-    public abstract User mapRow(ResultSet rs) throws SQLException;
+    public abstract Object mapRow(ResultSet rs) throws SQLException;
 
     public abstract void setValues(PreparedStatement pstmt) throws SQLException;
 
