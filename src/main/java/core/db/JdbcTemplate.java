@@ -2,12 +2,11 @@ package core.db;
 
 import com.google.common.collect.Lists;
 import core.jdbc.ConnectionManager;
-import org.springframework.util.CollectionUtils;
-import support.exception.ExceptionConsumer;
-import support.exception.ExceptionFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
+import support.exception.ExceptionConsumer;
+import support.exception.ExceptionFunction;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
@@ -47,6 +46,16 @@ public class JdbcTemplate {
         return applyFunction(function, sql);
     }
 
+    public <T> Optional<T> selectOne(String sql, RowMapper<T> rowMapper, @Nullable Object... params) {
+        Function<PreparedStatement, Optional<T>> function = ExceptionFunction.wrap(
+                preparedStatement ->
+                        queryForList(preparedStatement, rowMapper, params).stream()
+                                .findFirst()
+        );
+
+        return applyFunction(function, sql);
+    }
+
     private <T> List<T> queryForList(PreparedStatement preparedStatement, RowMapper<T> rowMapper, Object[] params) throws SQLException {
         List<T> result = Lists.newArrayList();
         setParams(preparedStatement, params);
@@ -58,16 +67,6 @@ public class JdbcTemplate {
         }
 
         return result;
-    }
-
-    public <T> Optional<T> selectOne(String sql, RowMapper<T> rowMapper, Object... params) {
-        Function<PreparedStatement, Optional<T>> function = ExceptionFunction.wrap(
-                preparedStatement ->
-                        queryForList(preparedStatement, rowMapper, params).stream()
-                                .findFirst()
-        );
-
-        return applyFunction(function, sql);
     }
 
     private void setParams(PreparedStatement preparedStatement, Object[] params) throws SQLException {

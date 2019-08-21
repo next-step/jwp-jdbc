@@ -1,5 +1,6 @@
 package next.dao;
 
+import core.db.AllArgumentRowMapper;
 import core.db.JdbcTemplate;
 import next.model.User;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,9 +12,12 @@ import java.util.Optional;
 public class UserDao {
     private static UserDao INSTANCE = new UserDao();
     private JdbcTemplate jdbcTemplate;
+    private RowMapper<User> rowMapper;
 
+    @SuppressWarnings("unchecked")
     private UserDao() {
         this.jdbcTemplate = JdbcTemplate.getInstance();
+        this.rowMapper = new AllArgumentRowMapper(User.class);
     }
 
     public static UserDao getInstance() {
@@ -32,22 +36,11 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS";
-        return jdbcTemplate.selectMany(sql, getUserRowMapper());
+        return jdbcTemplate.selectMany(sql, rowMapper);
     }
 
     public Optional<User> findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.selectOne(sql, getUserRowMapper(), userId);
-    }
-
-    private RowMapper<User> getUserRowMapper() {
-        return (resultSet, row) -> {
-            String userId = resultSet.getString("userId");
-            String password = resultSet.getString("password");
-            String name = resultSet.getString("name");
-            String email = resultSet.getString("email");
-
-            return new User(userId, password, name, email);
-        };
+        return jdbcTemplate.selectOne(sql, rowMapper, userId);
     }
 }
