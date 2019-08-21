@@ -56,7 +56,6 @@ public class UserAcceptanceTest {
                 .exchange()
                 .expectStatus().isOk();
 
-
         actual = client()
                 .get()
                 .uri(location.toString())
@@ -66,6 +65,22 @@ public class UserAcceptanceTest {
                 .returnResult().getResponseBody();
         assertThat(actual.getName()).isEqualTo(updateUser.getName());
         assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
+
+        //삭제
+        client()
+                .delete()
+                .uri(location.toString())
+                .exchange()
+                .expectStatus().isOk();
+
+        actual = client()
+                .get()
+                .uri(location.toString())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(User.class)
+                .returnResult().getResponseBody();
+        assertThat(actual).isNull();
     }
 
     private WebTestClient client() {
