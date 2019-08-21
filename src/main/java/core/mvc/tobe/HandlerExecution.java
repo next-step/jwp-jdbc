@@ -25,7 +25,7 @@ public class HandlerExecution {
             return (ModelAndView) method.invoke(declaredObject, request, response);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             logger.error("{} method invoke fail. error message : {}", method, e.getMessage());
-            throw new RuntimeException(e);
+            throw e;
         }
     }
 }

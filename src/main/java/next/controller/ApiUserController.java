@@ -3,6 +3,7 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
+import core.exception.EntityNotFoundException;
 import core.mvc.JsonUtils;
 import core.mvc.JsonView;
 import core.mvc.JspView;
@@ -16,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,8 +52,9 @@ public class ApiUserController {
     public ModelAndView show(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         String userId = req.getParameter(PARAMETER_USER_ID);
 
-        User user = userDao.findByUserId(userId);
-
+        User user = userDao.findByUserId(userId)
+        			.orElseThrow(() -> new EntityNotFoundException());
+        
         ModelAndView modelAndView = new ModelAndView(new JsonView());
         logger.debug(">>>>{}", user);
         modelAndView.addObject(ATTR_NAME_USER, user);
@@ -62,7 +66,9 @@ public class ApiUserController {
         String userId = req.getParameter(PARAMETER_USER_ID);
         UserUpdatedDto userUpdatedDto = JsonUtils.toObject(req.getInputStream(), UserUpdatedDto.class);
 
-        User user = userDao.findByUserId(userId);
+        User user = userDao.findByUserId(userId)
+    			.orElseThrow(() -> new EntityNotFoundException());
+        
         user.update(userUpdatedDto);
         userDao.update(user);
 
