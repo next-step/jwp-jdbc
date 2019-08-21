@@ -7,71 +7,76 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserAcceptanceTest {
+public class UserAcceptanceTest extends AbstractAcceptance {
+
     private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceTest.class);
 
+    private static final String URL_USERS = "/api/users";
+
+    @DisplayName("사용자 회원가입")
     @Test
+    void createUser() {
+        UserCreatedDto expected =
+                new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
+
+        EntityExchangeResult<byte[]> createResult = create(URL_USERS, expected, UserCreatedDto.class);
+        URI location = createResult.getResponseHeaders().getLocation();
+        logger.debug("location : {}", location);
+
+        // 조회
+        User actual = get(location, User.class).getResponseBody();
+        assertThat(createResult.getStatus()).isEqualTo(HttpStatus.CREATED);
+        assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
+        assertThat(actual.getName()).isEqualTo(expected.getName());
+        assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
+    }
+
+    @DisplayName("사용자 수정")
+    @Test
+    void updateUser() {
+        createUser();
+        URI location = URI.create(URL_USERS + "?userId=pobi");
+        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
+
+        EntityExchangeResult<User> result = put(location, updateUser, UserUpdatedDto.class, User.class);
+        User expected = get(location, User.class).getResponseBody();
+
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.OK);
+        assertThat(expected.getName()).isEqualTo(updateUser.getName());
+        assertThat(expected.getEmail()).isEqualTo(updateUser.getEmail());
+    }
+
     @DisplayName("사용자 회원가입/조회/수정/삭제")
+    @Test
     void crud() {
         // 회원가입
         UserCreatedDto expected =
                 new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
-        EntityExchangeResult<byte[]> response = client()
-                .post()
-                .uri("/api/users")
-                .body(Mono.just(expected), UserCreatedDto.class)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .returnResult();
+        EntityExchangeResult<byte[]> response = create(URL_USERS, expected, UserCreatedDto.class);
+
         URI location = response.getResponseHeaders().getLocation();
-        logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
+        logger.debug("location : {}", location);
 
         // 조회
-        User actual = client()
-                .get()
-                .uri(location.toString())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(User.class)
-                .returnResult().getResponseBody();
+        User actual = get(location, User.class).getResponseBody();
         assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
         assertThat(actual.getName()).isEqualTo(expected.getName());
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
 
         // 수정
-        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
-        client()
-                .put()
-                .uri(location.toString())
-                .body(Mono.just(updateUser), UserUpdatedDto.class)
-                .exchange()
-                .expectStatus().isOk();
+        UserUpdatedDto updateExpectedUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
+        EntityExchangeResult<User> updateResult = put(location, updateExpectedUser, UserUpdatedDto.class, User.class);
+        actual = get(location, User.class).getResponseBody();
 
-
-        actual = client()
-                .get()
-                .uri(location.toString())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(User.class)
-                .returnResult().getResponseBody();
-        assertThat(actual.getName()).isEqualTo(updateUser.getName());
-        assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
-    }
-
-    private WebTestClient client() {
-        return WebTestClient
-                .bindToServer()
-                .baseUrl("http://localhost:8080")
-                .build();
+        assertThat(updateResult.getStatus()).isEqualTo(HttpStatus.OK);
+        assertThat(actual.getName()).isEqualTo(updateExpectedUser.getName());
+        assertThat(actual.getEmail()).isEqualTo(updateExpectedUser.getEmail());
     }
 }
