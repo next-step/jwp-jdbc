@@ -1,6 +1,6 @@
 package core.di.factory.example;
 
-import core.mvc.View;
+import core.mvc.view.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +12,11 @@ public class MockView implements View {
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
+    }
+
+    @Override
+    public String getViewName() {
+        return null;
     }
 
 }

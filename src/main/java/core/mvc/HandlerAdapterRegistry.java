@@ -1,13 +1,15 @@
 package core.mvc;
 
+import core.web.context.WebApplicationContext;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class HandlerAdapterRegistry {
     private final List<HandlerAdapter> handlerAdapters = new ArrayList<>();
 
-    public void addHandlerAdapter(HandlerAdapter handlerAdapter) {
-        handlerAdapters.add(handlerAdapter);
+    public HandlerAdapterRegistry(WebApplicationContext webApplicationContext) {
+        handlerAdapters.addAll(webApplicationContext.getHandlerAdapters());
     }
 
     public HandlerAdapter getHandlerAdapter(Object handler) {

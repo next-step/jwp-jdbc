@@ -1,5 +1,6 @@
 package core.mvc;
 
+import core.web.context.WebApplicationContext;
 import next.controller.UserSessionUtils;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import static core.web.WebApplicationInitializer.DEFAULT_CONTROLLER_PACKAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DispatcherServletTest {
@@ -16,7 +18,7 @@ class DispatcherServletTest {
 
     @BeforeEach
     void setUp() {
-        dispatcher = new DispatcherServlet();
+        dispatcher = new DispatcherServlet(new WebApplicationContext(DEFAULT_CONTROLLER_PACKAGE));
         dispatcher.init();
 
         request = new MockHttpServletRequest();
