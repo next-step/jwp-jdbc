@@ -58,8 +58,8 @@ public class UserApiController {
         String userId = request.getParameter("userId");
         UserUpdatedDto updatedDto = JsonUtils.toObject(request.getReader(), UserUpdatedDto.class);
 
-        userService.updateUser(updatedDto);
-        return new ModelAndView(new JsonView());
+        userService.updateUser(userId, updatedDto);
+        return new ModelAndView(JsonView.ok());
     }
 
 }

@@ -13,13 +13,13 @@ import java.util.Map;
 
 public class JsonView implements View {
 
-    private static final int SINGLE_VALUE = 1;
+    private static final String CONTENT_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
 
-    private final HttpStatus httpStatus;
-    private final Map<String, String> header;
+    private HttpStatus httpStatus;
+    private Map<String, String> header;
 
     public JsonView() {
-        this(HttpStatus.OK, Collections.EMPTY_MAP);
+        this(HttpStatus.OK, Collections.emptyMap());
     }
 
     private JsonView(HttpStatus httpStatus, Map<String, String> header) {
@@ -28,7 +28,7 @@ public class JsonView implements View {
     }
 
     public static JsonView ok() {
-        return jsonView(HttpStatus.OK, Collections.EMPTY_MAP);
+        return jsonView(HttpStatus.OK, Collections.emptyMap());
     }
 
     public static JsonView ok(Map<String, String> header) {
@@ -45,29 +45,22 @@ public class JsonView implements View {
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        response.setStatus(httpStatus.value());
-        header.forEach(response::addHeader);
+        setHeaders(response);
 
         if (CollectionUtils.isEmpty(model)) {
             return;
         }
 
-        String jsonString = convertJsonString(model);
-        writeBody(response, jsonString);
+        writeBody(response, JsonResponseConverter.convert(model));
     }
 
-    private String convertJsonString(Map<String, ?> model) {
-        if (model.size() == SINGLE_VALUE) {
-            return JsonUtils.convertToJsonString(model.values().iterator().next());
-        }
-
-        return JsonUtils.convertToJsonString(model);
+    private void setHeaders(HttpServletResponse response) {
+        response.setContentType(CONTENT_TYPE);
+        response.setStatus(httpStatus.value());
+        header.forEach(response::setHeader);
     }
 
     private void writeBody(HttpServletResponse response, String jsonString) throws IOException {
-//        response.setContentLength(jsonString.length());
-
         PrintWriter writer = response.getWriter();
         writer.println(jsonString);
         writer.flush();

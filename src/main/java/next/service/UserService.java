@@ -6,6 +6,7 @@ import next.dto.UserUpdatedDto;
 import next.model.User;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class UserService {
 
@@ -32,7 +33,16 @@ public class UserService {
         }
     }
 
-    public void updateUser(UserUpdatedDto updatedDto) {
+    public void updateUser(String userId, UserUpdatedDto updatedDto) {
+        try {
+            User user = userDao.findByUserId(userId);
 
+            if (Objects.isNull(user)) {
+                throw new IllegalArgumentException("userId 가 없습니다. userId : ["+ userId + "]");
+            }
+            userDao.update(new User(user.getUserId(), user.getPassword(), updatedDto.getName(), updatedDto.getEmail()));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
