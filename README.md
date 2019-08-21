@@ -24,8 +24,8 @@ ResultSet에서 데이터 추출
 - 트랜잭션 관리
 ```
 
--[ ] UserDao 회원목록 리스트 구현
--[ ] UserDao 개인정보수정 구현 
+-[x] UserDao 회원목록 리스트 구현
+-[x] UserDao 개인정보수정 구현 
 -[ ] UserDaoTest 이용하여 리팩토링 (SQL문, 파라미터, SELECT 일 경우 조회한 데이터 추출)
 
 > 아래 기능을 이용하여 클린코드 구현
