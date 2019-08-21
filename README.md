@@ -11,3 +11,6 @@
 ## 요구사항
 
 ### [1단계 - REST API 및 테스트 리팩토링](./docs/step1.md)
+
+### [2단계 - JDBC 라이브러리 구현](./docs/step2.md)
+
