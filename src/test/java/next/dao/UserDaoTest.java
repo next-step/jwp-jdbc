@@ -9,6 +9,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,12 +26,14 @@ public class UserDaoTest {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = UserDao.getInstance();
         userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
+        User actual = userDao.findByUserId(expected.getUserId())
+                .orElseThrow(NoSuchElementException::new);
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        actual = userDao.findByUserId(expected.getUserId())
+                .orElseThrow(NoSuchElementException::new);
         assertThat(actual).isEqualTo(expected);
     }
 

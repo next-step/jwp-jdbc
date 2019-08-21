@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
     private static UserDao INSTANCE = new UserDao();
@@ -34,7 +35,7 @@ public class UserDao {
         return jdbcTemplate.selectMany(sql, getUserRowMapper());
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public Optional<User> findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         return jdbcTemplate.selectOne(sql, getUserRowMapper(), userId);
     }

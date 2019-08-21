@@ -2,6 +2,7 @@ package core.db;
 
 import com.google.common.collect.Lists;
 import core.jdbc.ConnectionManager;
+import org.springframework.util.CollectionUtils;
 import support.exception.ExceptionConsumer;
 import support.exception.ExceptionFunction;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -58,25 +60,14 @@ public class JdbcTemplate {
         return result;
     }
 
-    public <T> T selectOne(String sql, RowMapper<T> rowMapper, Object... params) {
-        Function<PreparedStatement, T> function = ExceptionFunction.wrap(
-                preparedStatement -> queryForObject(preparedStatement, rowMapper, params)
+    public <T> Optional<T> selectOne(String sql, RowMapper<T> rowMapper, Object... params) {
+        Function<PreparedStatement, Optional<T>> function = ExceptionFunction.wrap(
+                preparedStatement ->
+                        queryForList(preparedStatement, rowMapper, params).stream()
+                                .findFirst()
         );
 
         return applyFunction(function, sql);
-    }
-
-    private <T> T queryForObject(PreparedStatement preparedStatement, RowMapper<T> rowMapper, Object[] params) throws SQLException {
-        setParams(preparedStatement, params);
-
-        T object = null;
-        try (ResultSet resultSet = preparedStatement.executeQuery()) {
-            if (resultSet.next()) {
-                object = rowMapper.mapRow(resultSet, resultSet.getRow());
-            }
-        }
-
-        return object;
     }
 
     private void setParams(PreparedStatement preparedStatement, Object[] params) throws SQLException {
