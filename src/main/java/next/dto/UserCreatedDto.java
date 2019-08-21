@@ -1,6 +1,9 @@
 package next.dto;
 
+import next.model.User;
+
 public class UserCreatedDto {
+
     private String userId;
     private String password;
     private String name;
@@ -30,5 +33,10 @@ public class UserCreatedDto {
 
     public String getEmail() {
         return email;
+    }
+
+
+    public User toEntity() {
+        return new User(userId, password, name, email);
     }
 }
