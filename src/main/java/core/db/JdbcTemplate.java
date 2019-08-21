@@ -20,18 +20,13 @@ import java.util.function.Function;
 
 public class JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
-    private static JdbcTemplate jdbcTemplate;
+    private static JdbcTemplate INSTANCE = new JdbcTemplate();
 
     private JdbcTemplate() {
     }
 
-    public static synchronized JdbcTemplate getInstance() {
-        if (Objects.nonNull(jdbcTemplate)) {
-            return jdbcTemplate;
-        }
-
-        jdbcTemplate = new JdbcTemplate();
-        return jdbcTemplate;
+    public static JdbcTemplate getInstance() {
+        return JdbcTemplate.INSTANCE;
     }
 
     public void update(String sql, @Nullable Object... params) {

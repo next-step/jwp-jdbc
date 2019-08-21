@@ -6,23 +6,17 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 public class UserDao {
-    private static UserDao userDao;
+    private static UserDao INSTANCE = new UserDao();
     private JdbcTemplate jdbcTemplate;
 
     private UserDao() {
         this.jdbcTemplate = JdbcTemplate.getInstance();
     }
 
-    public static synchronized UserDao getInstance() {
-        if (Objects.nonNull(userDao)) {
-            return userDao;
-        }
-
-        userDao = new UserDao();
-        return userDao;
+    public static UserDao getInstance() {
+       return UserDao.INSTANCE;
     }
 
     public void insert(User user) throws SQLException {
