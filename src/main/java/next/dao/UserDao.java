@@ -59,7 +59,7 @@ public class UserDao {
             rs = pstmt.executeQuery();
 
             List<User> users = new ArrayList<>();
-            if (rs.next()) {
+            while (rs.next()) {
                 users.add(new User(
                         rs.getString("userId"),
                         rs.getString("password"),
