@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class SelectJdbcTemplate {
-    public Object queryForObject(String sql) throws SQLException {
+    public Object select(String sql) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

@@ -89,7 +89,7 @@ public class UserDao {
                 pstmt.setString(1, userId);
             }
         };
-        return (User)jdbcTemplate.queryForObject(sql);
+        return (User)jdbcTemplate.select(sql);
     }
 
     private void close(ResultSet rs) throws SQLException {
