@@ -22,7 +22,31 @@ public class JdbcTemplate {
         }
     }
 
+    public static void command(String sql, Object... parameters) {
+        PreparedStatementCreator preparedStatementCreator = PreparedStatementCreator.createByQuery(sql, parameters);
+
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = preparedStatementCreator.createPreparedStatement(con)) {
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new JdbcSQLException(e);
+        }
+    }
+
     public static <T> T query(PreparedStatementCreator preparedStatementCreator, ResultMapper<T> resultMapper) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = preparedStatementCreator.createPreparedStatement(con);
+             ResultSet rs = pstmt.executeQuery()
+        ) {
+            return resultMapper.map(rs);
+        } catch (SQLException e) {
+            throw new JdbcSQLException(e);
+        }
+    }
+
+    public static <T> T query(String sql, ResultMapper<T> resultMapper, Object... parameters) {
+        PreparedStatementCreator preparedStatementCreator = PreparedStatementCreator.createByQuery(sql, parameters);
+
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = preparedStatementCreator.createPreparedStatement(con);
              ResultSet rs = pstmt.executeQuery()
