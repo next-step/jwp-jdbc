@@ -2,6 +2,7 @@ package core.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class JdbcTemplate {
 	}
 
 	public <T> List<T> selectList(String sql, RowMapper<T> rowMapper, Object... args) {
-		return execute(sql, new SelectQueryAction(), new ParameterSetter(args), (rs) -> {
+		return executeQuery(sql , new ParameterSetter(args), (rs) -> {
 			List<T> tempList = new ArrayList<>();
 			while(rs.next()) {
 				tempList.add(rowMapper.resultMapping(rs));
@@ -29,7 +30,6 @@ public class JdbcTemplate {
 	}
 
 	public <T> Optional<T> select(String sql, RowMapper<T> rowMapper, Object... args) {
-
 		List<T> values = selectList(sql, rowMapper, args);
 
 		if(values.size() > 1) {
@@ -42,18 +42,27 @@ public class JdbcTemplate {
 	}
 
 	public int update(String sql, Object... args) {
-		return execute(sql, new UpdateQueryAction(), new ParameterSetter(args), (count) -> count);
+		return executeUpdate(sql, new ParameterSetter(args));
 	}
 
-	private<T, R> R execute(String sql, QueryAction<T> queryAction, ParameterSetter parameterSetter, ResultMapper<T, R> resultMapper) {
+	private<T> T executeQuery(String sql, ParameterSetter parameterSetter, ResultMapper<ResultSet, T> resultMapper) {
 		try(Connection connection = this.dataSource.getConnection();
 				PreparedStatement preparedStatement = connection.prepareStatement(sql)
 				) {
-
 			setArgsIfSupport(preparedStatement, parameterSetter);
-			T result = queryAction.action(preparedStatement);
+			ResultSet rs = preparedStatement.executeQuery();
+			return resultMapper.resultMapping(rs);
+		} catch (SQLException e) {
+			throw new JdbcException(e);
+		}
+	}
 
-			return resultMapper.resultMapping(result);
+	private int executeUpdate(String sql, ParameterSetter parameterSetter) {
+		try(Connection connection = this.dataSource.getConnection();
+			PreparedStatement preparedStatement = connection.prepareStatement(sql)
+		) {
+			setArgsIfSupport(preparedStatement, parameterSetter);
+			return preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			throw new JdbcException(e);
 		}
