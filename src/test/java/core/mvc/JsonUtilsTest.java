@@ -37,7 +37,7 @@ public class JsonUtilsTest {
         assertThat(response.getContentAsString()).isEqualTo(json);
     }
 
-    @DisplayName("Object 1개인 경우")
+    @DisplayName("Object 여러개인 경우")
     @Test
     void to_json_multi_object() throws IOException {
         List<Car> cars = Arrays.asList(
