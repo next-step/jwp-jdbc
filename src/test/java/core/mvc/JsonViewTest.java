@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import study.jackson.Car;
+import study.jackson.Color;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class JsonViewTest {
     @Test
     void render_one_element() throws Exception {
         Map<String, Object> model = new HashMap<>();
-        Car expected = new Car("Black", "Sonata");
+        Car expected = new Car(Color.Black, "Sonata");
         model.put("car", expected);
 
         view.render(model, request, response);
@@ -50,13 +51,14 @@ public class JsonViewTest {
     @Test
     void render_over_two_element() throws Exception {
         Map<String, Object> model = new HashMap<>();
-        Car expected = new Car("Black", "Sonata");
+        Car expected = new Car(Color.Black, "Sonata");
         model.put("car", expected);
         model.put("name", "포비");
 
         view.render(model, request, response);
 
+        final String contentAsString = response.getContentAsString();
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        logger.debug("response body : {}", response.getContentAsString());
+        assertThat(contentAsString).isEqualTo("{\"car\":{\"color\":\"Black\",\"type\":\"Sonata\"},\"name\":\"포비\"}");
     }
 }

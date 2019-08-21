@@ -3,17 +3,17 @@ package study.jackson;
 import java.util.Objects;
 
 public class Car {
-    private String color;
+    private Color color;
     private String type;
 
     private Car() {}
 
-    public Car(String color, String type) {
+    public Car(Color color, String type) {
         this.color = color;
         this.type = type;
     }
 
-    public String getColor() {
+    public Color getColor() {
         return color;
     }
 

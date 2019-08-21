@@ -1,6 +1,7 @@
 package core.mvc;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -17,5 +18,10 @@ public class JsonUtils {
         } catch (IOException e) {
             throw new ObjectMapperException(e);
         }
+    }
+
+    public static String toString(Object value) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(value);
     }
 }
