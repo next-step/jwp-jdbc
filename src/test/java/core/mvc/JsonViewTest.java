@@ -59,4 +59,18 @@ public class JsonViewTest {
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
         logger.debug("response body : {}", response.getContentAsString());
     }
+
+    @Test
+    void arguTest(){
+        String x = null;
+        str(x);
+    }
+
+    public void str(String... aa){
+        if(aa == null){
+            logger.debug("error");
+        }else{
+            logger.debug("success");
+        }
+    }
 }

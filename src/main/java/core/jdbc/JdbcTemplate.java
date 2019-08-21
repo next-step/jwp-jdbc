@@ -1,52 +1,58 @@
 package core.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 
-public class JdbcTemplate {
+import java.util.List;
 
-    public static void insert(String query, Object... values) throws SQLException {
+public class JdbcTemplate extends AbstractJdbcTemplate{
+
+    public void insert(String query, Object... values) throws DataAccessException {
         modify(query, values);
     }
 
-    public static void update(String query, Object... values) throws SQLException {
+    public void insert(String query, PreparedStatementSetter setter) throws DataAccessException {
+        modify(query, setter);
+    }
+
+    public void update(String query, Object... values) throws DataAccessException {
         modify(query, values);
     }
 
-    private static void modify(String query, Object... values) throws SQLException{
-        init(query, values).executeUpdate();
+    public void update(String query, PreparedStatementSetter setter) throws DataAccessException {
+        modify(query, setter);
     }
 
-    public static ResultSet select(String query, Object... values) throws SQLException{
-        return init(query, values).executeQuery();
+    public List<?> queryForList(String query, RowMapper<?> rowMapper, Object... values) throws DataAccessException{
+        return connectionAndSelect(query, rowMapper, values);
     }
 
-    private static PreparedStatement init(String query, Object... values) throws SQLException{
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        con = ConnectionManager.getConnection();
-        pstmt = con.prepareStatement(query);
-        initValue(pstmt, values);
-        return pstmt;
+    public List<?> queryForList(String query, RowMapper<?> rowMapper, PreparedStatementSetter setter) throws DataAccessException{
+        return connectionAndSelect(query, rowMapper, setter);
     }
 
-    private static void initValue(PreparedStatement pstmt, Object... values) throws SQLException{
-        if(values == null){
-            return;
+    public Object queryForObject(String query, RowMapper<?> rowMapper, Object... values) throws DataAccessException{
+        return getReturnObject(connectionAndSelect(query, rowMapper, values));
+    }
+
+    public Object queryForObject(String query, RowMapper<?> rowMapper, PreparedStatementSetter setter) throws DataAccessException{
+        return getReturnObject(connectionAndSelect(query, rowMapper, setter));
+    }
+
+    private void modify(String query, Object... values) throws DataAccessException{
+        connectionAndModify(query, values);
+    }
+
+    private void modify(String query, PreparedStatementSetter setter) throws DataAccessException{
+        connectionAndModify(query, setter);
+    }
+
+    private Object getReturnObject(List<?> items){
+        if(items.size() > 1){
+            throw new IncorrectResultSizeDataAccessException(1);
         }
 
-        for (int i = 0; i < values.length; i++) {
-            initVariableValue(pstmt, values[i], (i+1));
-        }
+        return items.get(0);
     }
 
-    private static void initVariableValue(PreparedStatement pstmt, Object value, int index) throws SQLException{
-        if(value instanceof Integer){
-            pstmt.setInt(index, Integer.parseInt(value.toString()));
-        }else{
-            pstmt.setString(index, String.valueOf(value));
-        }
-    }
 }
