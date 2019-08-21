@@ -19,3 +19,7 @@
     - [x] api용 controller 추가 ( UserApiController )
     - [x] CRUD 기능 구현
     - [x] 공통기능 분리
+
+
+## step2
+- [ ] 의존관계를 고려하여 개발하기 ( 변경이 잦은 쪽이 변경이 적은 쪽을 의존하도록 )

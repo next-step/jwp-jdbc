@@ -24,7 +24,7 @@ public class UserApiController {
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) {
         UserCreatedDto dto = (UserCreatedDto) HttpServletUtils.jsonBodyToObject(request, UserCreatedDto.class);
 
-        User user = new User(dto);
+        User user = dto.toEntity();
         DataBase.addUser(user);
         User registeredUser = DataBase.findUserById(user.getUserId());
         if (!user.isSameUser(registeredUser)) {
@@ -54,7 +54,7 @@ public class UserApiController {
         UserUpdatedDto dto = (UserUpdatedDto) HttpServletUtils.jsonBodyToObject(request, UserUpdatedDto.class);
 
         User user = DataBase.findUserById(userId);
-        user.update(dto);
+        dto.update(user);
 
         logger.debug("user updated : {}", user.toString());
         return new ModelAndView(new JsonView());
