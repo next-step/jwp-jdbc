@@ -3,8 +3,10 @@ package next.dao;
 import core.db.AllArgumentRowMapper;
 import core.db.JdbcTemplate;
 import next.model.User;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +23,7 @@ public class UserDao {
     }
 
     public static UserDao getInstance() {
-       return UserDao.INSTANCE;
+        return UserDao.INSTANCE;
     }
 
     public void insert(User user) throws SQLException {
@@ -31,7 +33,14 @@ public class UserDao {
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
-        jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        PreparedStatementSetter preparedStatementSetter = (PreparedStatement preparedStatement) -> {
+            preparedStatement.setString(1, user.getPassword());
+            preparedStatement.setString(2, user.getName());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setString(4, user.getUserId());
+        };
+
+        jdbcTemplate.update(sql, preparedStatementSetter);
     }
 
     public List<User> findAll() throws SQLException {

@@ -2,8 +2,10 @@ package core.db;
 
 import com.google.common.collect.Lists;
 import core.jdbc.ConnectionManager;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import support.exception.ExceptionConsumer;
 import support.exception.ExceptionFunction;
@@ -14,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -56,7 +57,7 @@ public class JdbcTemplate {
         return applyFunction(function, sql);
     }
 
-    private <T> List<T> queryForList(PreparedStatement preparedStatement, RowMapper<T> rowMapper, Object[] params) throws SQLException {
+    private <T> List<T> queryForList(PreparedStatement preparedStatement, RowMapper<T> rowMapper, @Nullable Object... params) throws SQLException {
         List<T> result = Lists.newArrayList();
         setParams(preparedStatement, params);
 
@@ -70,7 +71,13 @@ public class JdbcTemplate {
     }
 
     private void setParams(PreparedStatement preparedStatement, Object[] params) throws SQLException {
-        if (Objects.isNull(params)) {
+        if (ArrayUtils.isEmpty(params)) {
+            return;
+        }
+
+        if (params[0] instanceof PreparedStatementSetter) {
+            PreparedStatementSetter preparedStatementSetter = (PreparedStatementSetter) params[0];
+            preparedStatementSetter.setValues(preparedStatement);
             return;
         }
 
@@ -79,7 +86,7 @@ public class JdbcTemplate {
         }
     }
 
-    private void executeQuery(PreparedStatement preparedStatement, Object[] params) throws SQLException {
+    private void executeQuery(PreparedStatement preparedStatement, Object... params) throws SQLException {
         setParams(preparedStatement, params);
         int result = preparedStatement.executeUpdate();
         logger.debug("result count : {}", result);
