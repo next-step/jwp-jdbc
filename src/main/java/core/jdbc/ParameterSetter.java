@@ -6,17 +6,18 @@ import java.sql.SQLException;
 public class ParameterSetter {
 
     private final Object[] args;
-    private final  int[] argTypes;
 
-    public ParameterSetter(Object[] args, int[] argTypes) {
+    public ParameterSetter(Object[] args) {
         this.args = args;
-        this.argTypes = argTypes;
     }
 
     public void setArgs(PreparedStatement ps) throws SQLException {
+    	JdbcTypeHandlers jdbcTypeHandlers = JdbcTypeHandlers.getInstance();
+    	
         for (int i = 0; i < args.length; i++) {
             Object arg = args[i];
-            ps.setObject(i+1, arg, argTypes[i]);
+            JdbcTypeHandler<?> jdbcTypeHandler = jdbcTypeHandlers.getTypeHandler(arg.getClass());
+            jdbcTypeHandler.setParameter(ps, i + 1, arg);
         }
     }
 }

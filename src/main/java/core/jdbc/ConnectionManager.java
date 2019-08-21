@@ -1,6 +1,11 @@
 package core.jdbc;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.init.DatabasePopulator;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -18,6 +23,13 @@ public class ConnectionManager {
         ds.setUrl(DB_URL);
         ds.setUsername(DB_USERNAME);
         ds.setPassword(DB_PW);
+
+        // schema init
+        Resource initData = new ClassPathResource("jwp.sql");
+        DatabasePopulator databasePopulator = new ResourceDatabasePopulator(initData);
+        DatabasePopulatorUtils.execute(databasePopulator, ds);
+
+
         return ds;
     }
 
