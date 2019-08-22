@@ -6,40 +6,41 @@ public class Car {
     private Color color;
     private String type;
 
-    private Car() {}
+    private Car() {
+    }
 
-    public Car(Color color, String type) {
+    public Car(final Color color, final String type) {
         this.color = color;
         this.type = type;
     }
 
     public Color getColor() {
-        return color;
+        return this.color;
     }
 
     public String getType() {
-        return type;
+        return this.type;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Car car = (Car) o;
-        return color.equals(car.color) &&
-                type.equals(car.type);
+        if (o == null || this.getClass() != o.getClass()) return false;
+        final Car car = (Car) o;
+        return this.color.equals(car.color) &&
+                this.type.equals(car.type);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(color, type);
+        return Objects.hash(this.color, this.type);
     }
 
     @Override
     public String toString() {
         return "Car{" +
-                "color='" + color + '\'' +
-                ", type='" + type + '\'' +
+                "color='" + this.color + '\'' +
+                ", type='" + this.type + '\'' +
                 '}';
     }
 }

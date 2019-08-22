@@ -3,7 +3,6 @@ package study.jackson;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -35,9 +34,9 @@ public class UsingJacksonTest {
     @DisplayName("Java Object에서 JSON 문자열로 변환")
     @ParameterizedTest(name = "Color: {0}, Type: {1}, Json: {2}")
     @MethodSource("objectToJsonProvider")
-    void objectToJsonString(Color color, String type, String json) throws JsonProcessingException {
-        Car car = new Car(color, type);
-        ObjectMapper mapper = new ObjectMapper();
+    void objectToJsonString(final Color color, final String type, final String json) throws JsonProcessingException {
+        final Car car = new Car(color, type);
+        final ObjectMapper mapper = new ObjectMapper();
         final String jsonString = mapper.writeValueAsString(car);
         assertThat(jsonString).isEqualTo(json);
     }
@@ -45,8 +44,8 @@ public class UsingJacksonTest {
     @DisplayName("JSON 문자열에서 Java Object 문자열로 변환")
     @ParameterizedTest(name = "Color: {0}, Type: {1}, Json: {2}")
     @MethodSource("objectToJsonProvider")
-    void jsonStringToObject(Color color, String type, String json) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+    void jsonStringToObject(final Color color, final String type, final String json) throws IOException {
+        final ObjectMapper mapper = new ObjectMapper();
         final Car car = mapper.readValue(json, Car.class);
         assertThat(car)
                 .hasFieldOrPropertyWithValue("color", color)
