@@ -5,8 +5,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
+
+    private static final StatementSupplier DEFAULT_SUPPLIER = ignore -> { };
 
     private final DataSource dataSource;
 
@@ -26,33 +31,57 @@ public class JdbcTemplate {
         call(sql, handler);
     }
 
-    public <T> T query(final String sql,
-                       final ResultMapper<T> mapper) {
-        final Handler<T> handler = preparedStatement -> {
-            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
-                return mapper.mapping(resultSet);
-            }
-        };
-
-        return call(sql, handler);
+    public <T> List<T> queryList(final String sql,
+                                 final ResultMapper<T> mapper) {
+        return queryList(sql, DEFAULT_SUPPLIER, mapper);
     }
 
-    public <T> T query(final String sql,
-                       final StatementSupplier supplier,
-                       final ResultMapper<T> mapper) {
-        final Handler<T> handler = preparedStatement -> {
+    public <T> List<T> queryList(final String sql,
+                                 final StatementSupplier supplier,
+                                 final ResultMapper<T> mapper) {
+        final Handler<List<T>> handler = preparedStatement -> {
             supplier.supply(preparedStatement);
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
-                return mapper.mapping(resultSet);
+                final List<T> results = new ArrayList<>();
+                while (resultSet.next()) {
+                    final T result = mapper.mapping(resultSet);
+                    results.add(result);
+                }
+
+                return results;
             }
         };
 
         return call(sql, handler);
     }
 
-     private <R> R call(final String sql,
-                        final Handler<R> handler) {
+    public <T> Optional<T> querySingle(final String sql,
+                                       final ResultMapper<T> mapper) {
+        return querySingle(sql, DEFAULT_SUPPLIER, mapper);
+    }
+
+    public <T> Optional<T> querySingle(final String sql,
+                                       final StatementSupplier supplier,
+                                       final ResultMapper<T> mapper) {
+        final Handler<Optional<T>> handler = preparedStatement -> {
+            supplier.supply(preparedStatement);
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (!resultSet.next()) {
+                    return Optional.empty();
+                }
+
+                final T result = mapper.mapping(resultSet);
+                return Optional.ofNullable(result);
+            }
+        };
+
+        return call(sql, handler);
+    }
+
+    private <R> R call(final String sql,
+                       final Handler<R> handler) {
          try (final Connection connection = dataSource.getConnection();
               final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
              return handler.handle(preparedStatement);
