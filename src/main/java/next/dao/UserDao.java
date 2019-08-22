@@ -36,43 +36,32 @@ public class UserDao {
     public List<User> findAll() throws DataAccessException {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        return (List<User>) jdbcTemplate.queryForList(sql, rs -> {
-            ArrayList<User> userArrayList = new ArrayList<>();
-            while (rs.next()){
-                User userCreate = new User(rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email"));
-                userArrayList.add(userCreate);
-            }
-            return userArrayList;
-        });
+        return jdbcTemplate.queryForList(sql, rs -> new User(rs.getString("userId"),
+                rs.getString("password"),
+                rs.getString("name"),
+                rs.getString("email")));
     }
 
     public User findByUserId(String userId) throws DataAccessException{
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
-        User paramMap = (User) jdbcTemplate.queryForObject(sql, rs -> {
-            User userCreate = new User(rs.getString("userId"),
+        User paramMap = jdbcTemplate.queryForObject(sql, rs ->
+            new User(rs.getString("userId"),
                     rs.getString("password"),
                     rs.getString("name"),
-                    rs.getString("email"));
-
-            return userCreate;
-        }, userId);
+                    rs.getString("email"))
+        , userId);
 
         return paramMap;
     }
 
     public User findByUserIdSetter(String userId) throws DataAccessException{
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
-        User paramMap = (User) jdbcTemplate.queryForObject(sql, rs -> {
-            User userCreate = new User(rs.getString("userId"),
+        User paramMap = jdbcTemplate.queryForObject(sql, rs ->
+            new User(rs.getString("userId"),
                     rs.getString("password"),
                     rs.getString("name"),
-                    rs.getString("email"));
-
-            return userCreate;
-        }, ps -> {
+                    rs.getString("email"))
+        , ps -> {
             ps.setString(1, userId);
         });
 
