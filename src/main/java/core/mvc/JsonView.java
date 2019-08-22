@@ -1,27 +1,32 @@
 package core.mvc;
 
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.MediaType;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.MediaType;
+import java.util.Map;
 
 public class JsonView implements View {
 
-  @Override
-  public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response)
-      throws Exception {
-    response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-    response.getWriter().write(getValue(model));
-  }
+    private ObjectMapper objectMapper = new ObjectMapper();
 
-  private String getValue(Map<String, ?> model) {
-    if (model.size() > 1) {
-      return JsonUtils.toJson(model);
+    @Override
+    public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        if (model.size() == 0) {
+            response.getWriter().write("");
+            return;
+        }
+        objectMapper.writeValue(response.getWriter(), getValue(model));
     }
-    return model.values().stream()
-        .map(JsonUtils::toJson)
-        .findFirst()
-        .orElse(StringUtils.EMPTY);
-  }
+
+    private Object getValue(Map<String, ?> model) {
+        if (model.size() > 1) {
+            return model;
+        }
+        return model.values().stream()
+                .findFirst().get();
+    }
 }
