@@ -2,6 +2,8 @@ package core.mvc;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -27,9 +29,10 @@ public class JsonViewTest {
         view = new JsonView();
     }
 
-    @Test
-    void render_no_element() throws Exception {
-        view.render(new HashMap<>(), request, response);
+    @ParameterizedTest
+    @NullAndEmptySource
+    void render_no_element(Map<String, ?> model) throws Exception {
+        view.render(model, request, response);
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
         assertThat(response.getContentAsString()).isBlank();
     }
