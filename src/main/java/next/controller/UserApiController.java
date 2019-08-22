@@ -3,7 +3,6 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
-import core.db.DataBase;
 import core.mvc.JsonUtils;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
@@ -17,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.NoSuchElementException;
 
 @Controller
 public class UserApiController {
@@ -38,7 +38,8 @@ public class UserApiController {
     public ModelAndView get(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         String userId = req.getParameter("userId");
 
-        User user = userDao.findByUserId(userId);
+        User user = userDao.findByUserId(userId)
+                .orElseThrow(NoSuchElementException::new);
         ModelAndView modelAndView = new ModelAndView(new JsonView());
         modelAndView.addObject("User", user);
 
@@ -50,7 +51,8 @@ public class UserApiController {
         String userId = req.getParameter("userId");
         User updateUser = parseUserFromBody(req);
 
-        User user = userDao.findByUserId(userId);
+        User user = userDao.findByUserId(userId)
+                .orElseThrow(NoSuchElementException::new);
         user.update(updateUser);
         userDao.update(user);
 
