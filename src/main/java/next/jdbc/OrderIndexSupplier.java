@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class OrderIndexSupplier implements StatementSupplier {
 
@@ -19,13 +18,12 @@ public class OrderIndexSupplier implements StatementSupplier {
 
     @Override
     public void supply(final PreparedStatement preparedStatement) throws SQLException {
-        final AtomicInteger autoIncrement = new AtomicInteger(INITIAL_INDEX);
+        int index = INITIAL_INDEX;
 
         while (!parameters.isEmpty()) {
-            final int index = autoIncrement.getAndIncrement();
             final Object parameter = parameters.poll();
 
-            preparedStatement.setObject(index, parameter);
+            preparedStatement.setObject(index++, parameter);
         }
     }
 }
