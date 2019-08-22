@@ -1,4 +1,4 @@
-package core.mvc;
+package core.mvc.view;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,5 +30,9 @@ public class ModelAndView {
 
     public View getView() {
         return view;
+    }
+
+    public void addView(View view) {
+        this.view = view;
     }
 }

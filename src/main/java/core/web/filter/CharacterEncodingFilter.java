@@ -1,10 +1,8 @@
 package core.web.filter;
 
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import java.io.IOException;
 
-@WebFilter("/*")
 public class CharacterEncodingFilter implements Filter {
     private static final String DEFAULT_ENCODING = "UTF-8";
 

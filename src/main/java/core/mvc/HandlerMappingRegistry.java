@@ -1,5 +1,7 @@
 package core.mvc;
 
+import core.web.context.WebApplicationContext;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +11,8 @@ import java.util.Optional;
 public class HandlerMappingRegistry {
     private final List<HandlerMapping> handlerMappings = new ArrayList<>();
 
-    public void addHandlerMpping(HandlerMapping handlerMapping) {
-        handlerMapping.initialize();
-        handlerMappings.add(handlerMapping);
+    public HandlerMappingRegistry(WebApplicationContext webApplicationContext) {
+        handlerMappings.addAll(webApplicationContext.getHandlerMappings());
     }
 
     public Optional<Object> getHandler(HttpServletRequest request) {

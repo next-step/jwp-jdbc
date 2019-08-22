@@ -1,6 +1,7 @@
 package core.mvc.tobe;
 
 import core.annotation.web.RequestMethod;
+import core.mvc.utils.PathPatternUtils;
 
 public class HandlerKey {
     private String url;
@@ -9,6 +10,10 @@ public class HandlerKey {
     public HandlerKey(String url, RequestMethod requestMethod) {
         this.url = url;
         this.requestMethod = requestMethod;
+    }
+
+    public boolean isUrlMatch(String targetUrl, RequestMethod rm) {
+        return PathPatternUtils.isMatch(url, targetUrl) && requestMethod == rm;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package core.mvc;
+package core.mvc.view;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,5 +39,10 @@ public class JspView implements View {
 
         RequestDispatcher rd = request.getRequestDispatcher(viewName);
         rd.forward(request, response);
+    }
+
+    @Override
+    public String getViewName() {
+        return viewName;
     }
 }

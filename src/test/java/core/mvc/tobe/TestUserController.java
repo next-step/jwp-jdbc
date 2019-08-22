@@ -3,7 +3,7 @@ package core.mvc.tobe;
 import core.annotation.web.PathVariable;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
-import core.mvc.ModelAndView;
+import core.mvc.view.ModelAndView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
