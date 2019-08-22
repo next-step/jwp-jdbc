@@ -11,7 +11,6 @@ public class OrderIndexSupplier implements StatementSupplier {
 
     private static final int INITIAL_INDEX = 1;
 
-    private final AtomicInteger autoIncrement = new AtomicInteger(INITIAL_INDEX);
     private final Queue<Object> parameters;
 
     public OrderIndexSupplier(final Object... parameters) {
@@ -20,6 +19,8 @@ public class OrderIndexSupplier implements StatementSupplier {
 
     @Override
     public void supply(final PreparedStatement preparedStatement) throws SQLException {
+        final AtomicInteger autoIncrement = new AtomicInteger(INITIAL_INDEX);
+
         while (!parameters.isEmpty()) {
             final int index = autoIncrement.getAndIncrement();
             final Object parameter = parameters.poll();
