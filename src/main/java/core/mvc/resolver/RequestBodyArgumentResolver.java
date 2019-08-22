@@ -1,10 +1,12 @@
 package core.mvc.resolver;
 
+import core.mvc.JsonUtils;
 import core.mvc.tobe.MethodParameter;
-import next.utils.RequestBodyUtils;
+import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.Charset;
 
 public class RequestBodyArgumentResolver extends AbstractHandlerMethodArgumentResolver {
 
@@ -15,7 +17,7 @@ public class RequestBodyArgumentResolver extends AbstractHandlerMethodArgumentRe
 
     @Override
     public Object getMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-        return RequestBodyUtils.toObject(request, parameter.getType());
+        String body = IOUtils.toString(request.getInputStream(), Charset.defaultCharset());
+        return JsonUtils.toObject(body, parameter.getType());
     }
 }

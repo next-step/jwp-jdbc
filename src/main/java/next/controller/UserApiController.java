@@ -1,23 +1,19 @@
 package next.controller;
 
-import com.sun.deploy.net.HttpResponse;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestBody;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
-import next.converter.UserConverter;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
 import next.service.UserService;
-import next.utils.RequestBodyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 

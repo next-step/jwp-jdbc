@@ -7,11 +7,9 @@ import javax.servlet.ServletOutputStream;
 import java.io.IOException;
 
 public class JsonUtils {
-    private static ObjectMapper objectMapper;
-    static {
-        objectMapper = new ObjectMapper();
-    }
+
     public static <T> T toObject(String json, Class<T> clazz) throws ObjectMapperException {
+        ObjectMapper objectMapper = new ObjectMapper();
         try {
             objectMapper.setVisibility(objectMapper.getSerializationConfig().getDefaultVisibilityChecker()
                     .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
@@ -24,6 +22,7 @@ public class JsonUtils {
     }
 
     public static void toJson(ServletOutputStream outputStream, Object object) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(outputStream, object);
     }
 }
