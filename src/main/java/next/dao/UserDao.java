@@ -9,7 +9,11 @@ import java.util.List;
 
 public class UserDao implements UserDaoImpl {
 
-    private static final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private JdbcTemplate jdbcTemplate;
+
+    public UserDao() {
+        this.jdbcTemplate = JdbcTemplate.getInstance();
+    }
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";

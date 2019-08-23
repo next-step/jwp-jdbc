@@ -57,7 +57,7 @@ public class DispatcherServlet extends HttpServlet {
             render(mav, req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
-            throw new ServletException(e.getMessage());
+            throw new ServletException(e);
         }
     }
 

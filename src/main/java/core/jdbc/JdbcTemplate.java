@@ -10,8 +10,16 @@ import java.util.List;
 
 public class JdbcTemplate implements JdbcOperations {
 
+    private static final JdbcTemplate INSTANCE = new JdbcTemplate();
+
     private static final int START_PARAMETER_NUMBER = 1;
     private static final int ONE_OBJECT = 0;
+
+    private JdbcTemplate() {}
+
+    public static JdbcTemplate getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public void execute(String sql, Object... parameters) {
