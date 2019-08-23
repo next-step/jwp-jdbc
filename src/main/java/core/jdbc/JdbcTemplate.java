@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
 
 public class JdbcTemplate implements Operations {
 
-    Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
+    private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
     @Override
     public <T> T execute(String query, RowMapper<T> rowMapper, Object... objects) {
@@ -40,8 +40,8 @@ public class JdbcTemplate implements Operations {
 
     @Override
     public <T> List<T> execute(String query, RowMapper<T> rowMapper) {
-        try (Connection con = ConnectionManager.getConnection()) {
-            PreparedStatement pstmt = con.prepareStatement(query);
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
 
             ResultSet rs = pstmt.executeQuery();
 
