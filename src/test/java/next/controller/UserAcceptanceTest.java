@@ -20,39 +20,6 @@ public class UserAcceptanceTest extends AbstractAcceptance {
 
     private static final String URL_USERS = "/api/users";
 
-    @DisplayName("사용자 회원가입")
-    @Test
-    void createUser() {
-        UserCreatedDto expected =
-                new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
-
-        EntityExchangeResult<byte[]> createResult = create(URL_USERS, expected, UserCreatedDto.class);
-        URI location = createResult.getResponseHeaders().getLocation();
-        logger.debug("location : {}", location);
-
-        // 조회
-        User actual = get(location, User.class).getResponseBody();
-        assertThat(createResult.getStatus()).isEqualTo(HttpStatus.CREATED);
-        assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
-        assertThat(actual.getName()).isEqualTo(expected.getName());
-        assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
-    }
-
-    @DisplayName("사용자 수정")
-    @Test
-    void updateUser() {
-        createUser();
-        URI location = URI.create(URL_USERS + "?userId=pobi");
-        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
-
-        EntityExchangeResult<User> result = put(location, updateUser, UserUpdatedDto.class, User.class);
-        User expected = get(location, User.class).getResponseBody();
-
-        assertThat(result.getStatus()).isEqualTo(HttpStatus.OK);
-        assertThat(expected.getName()).isEqualTo(updateUser.getName());
-        assertThat(expected.getEmail()).isEqualTo(updateUser.getEmail());
-    }
-
     @DisplayName("사용자 회원가입/조회/수정/삭제")
     @Test
     void crud() {
