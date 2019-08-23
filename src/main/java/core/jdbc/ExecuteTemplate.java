@@ -7,11 +7,11 @@ import java.sql.SQLException;
 
 public abstract class ExecuteTemplate {
 
-    void execute(String sql) {
+    void execute(String sql, Object... parameters) {
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            setValues(ps);
+            setValues(ps, parameters);
 
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -19,10 +19,10 @@ public abstract class ExecuteTemplate {
         }
     }
 
-    <R> R execute(String sql, ResultSetExtractor resultSetExtractor) {
+    <R> R execute(String sql, ResultSetExtractor resultSetExtractor, Object... parameters) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            setValues(ps);
+            setValues(ps, parameters);
 
             ResultSet rs = ps.executeQuery();
             return getResultMapper(resultSetExtractor, rs);
@@ -31,7 +31,12 @@ public abstract class ExecuteTemplate {
         }
     }
 
-    abstract void setValues(PreparedStatement ps) throws SQLException;
+    private void setValues(PreparedStatement ps, Object[] parameters) throws SQLException {
+        int i = 1;
+        for (Object obj : parameters) {
+            ps.setString(i++, obj.toString());
+        }
+    }
 
     abstract <R> R getResultMapper(ResultSetExtractor extractor, ResultSet rs) throws SQLException;
 
