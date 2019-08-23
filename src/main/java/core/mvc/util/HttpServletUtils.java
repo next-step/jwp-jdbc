@@ -23,7 +23,7 @@ public class HttpServletUtils {
             requestBody = sb.toString();
             logger.debug("requestBody : {}", requestBody);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("fail to extract requestBody", e);
         }
         return requestBody;
     }
