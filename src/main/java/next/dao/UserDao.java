@@ -12,12 +12,12 @@ public class UserDao {
 
     public void insert(User user) {
         String query = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        jdbcTemplate.insert(query, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        jdbcTemplate.execute(query, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
         String query = "UPDATE USERS SET password = ?, name = ?, email = ? where userId = ?";
-        jdbcTemplate.update(query, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        jdbcTemplate.execute(query, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() throws SQLException {

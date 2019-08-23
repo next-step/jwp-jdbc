@@ -7,7 +7,5 @@ public interface Operations {
 
     <T> List<T> execute(String query, RowMapper<T> rowMapper);
 
-    void update(String query, Object... objects);
-
-    void insert(String query, Object... objects);
+    void execute(String query, Object... objects);
 }

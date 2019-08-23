@@ -16,6 +16,7 @@ public class JdbcTemplate implements Operations {
 
     Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
+    @Override
     public <T> T execute(String query, RowMapper<T> rowMapper, Object... objects) {
 
         try (Connection con = ConnectionManager.getConnection()) {
@@ -56,7 +57,7 @@ public class JdbcTemplate implements Operations {
     }
 
     @Override
-    public void update(String query, Object... objects) {
+    public void execute(String query, Object... objects) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
 
@@ -67,22 +68,6 @@ public class JdbcTemplate implements Operations {
 
         } catch (SQLException e) {
             log.error("[query update failed] query={}", query, e);
-            throw new DataAccessException();
-        }
-    }
-
-    @Override
-    public void insert(String query, Object... objects) {
-        try (Connection con = ConnectionManager.getConnection()) {
-            PreparedStatement pstmt = con.prepareStatement(query);
-
-            IntStream.range(0, objects.length)
-                    .forEach(index -> setObject(pstmt, index + 1, objects[index]));
-
-            pstmt.executeUpdate();
-
-        } catch (SQLException e) {
-            log.error("[query insert failed] query={}", query, e);
             throw new DataAccessException();
         }
     }
