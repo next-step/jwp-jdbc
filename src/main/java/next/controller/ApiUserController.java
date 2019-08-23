@@ -37,16 +37,16 @@ public class ApiUserController {
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
     public ModelAndView list(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView = new ModelAndView(new JsonView());
-
+  
         User user = userDao.findByUserId(request.getParameter("userId"));
-
+  
         return modelAndView.addObject("user", user);
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
         UserCreatedDto userCreatedDto = parseBody(request, UserCreatedDto.class);
-
+      
         userDao.insert(UserAssembler.transferToUser(userCreatedDto));
 
         response.setStatus(SC_CREATED);
@@ -62,7 +62,7 @@ public class ApiUserController {
         User existUser = userDao.findByUserId(userId);
         existUser.update(UserAssembler.transferToUser(updatedDto));
         userDao.update(existUser);
-
+      
         response.setStatus(SC_OK);
         return new ModelAndView(new JsonView());
     }
