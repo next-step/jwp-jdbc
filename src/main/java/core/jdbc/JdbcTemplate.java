@@ -42,23 +42,25 @@ public class JdbcTemplate implements JdbcOperations {
         }
     }
 
-    @Override
-    public <T> Optional<T> queryForObject(String sql, ResultSetExtractor<T> resultSetExtractor, Object... parameters) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+    public <T> List<T> queryForList2(String sql, ResultSetExtractor<T> resultSetExtractor) {
+        SelectTemplate selectTemplate = new SelectTemplate() {
+            @Override
+            void setValues(PreparedStatement ps) { }
 
-            for (SqlParameters.SqlParameter parameter : SqlParameters.of(parameters).toList()) {
-                pstmt.setString(parameter.getIndex(), parameter.getValue());
+            @Override
+            List<User> getResultMapper(ResultSetExtractor extractor, ResultSet rs) throws SQLException {
+                List<User> results = new ArrayList<>();
+                while (rs.next()) {
+                    results.add((User) resultSetExtractor.extractData(rs));
+                }
+                return results;
             }
-
-            ResultSet rs = pstmt.executeQuery();
-            return getResultMapper(resultSetExtractor, rs);
-        } catch (SQLException e) {
-            throw new JdbcExecuteException(e);
-        }
+        };
+        return selectTemplate.execute(sql, resultSetExtractor);
     }
 
-    public <R> Optional<R> queryForObject2(String sql, ResultSetExtractor<R> resultSetExtractor, Object... parameters) {
+    @Override
+    public <R> Optional<R> queryForObject(String sql, ResultSetExtractor<R> resultSetExtractor, Object... parameters) {
         SelectTemplate template = new SelectTemplate() {
             @Override
             void setValues(PreparedStatement ps) throws SQLException {
@@ -77,12 +79,5 @@ public class JdbcTemplate implements JdbcOperations {
             }
         };
         return template.execute(sql, resultSetExtractor);
-    }
-
-    private <T> Optional<T> getResultMapper(ResultSetExtractor<T> resultSetExtractor, ResultSet rs) throws SQLException {
-        if (rs.next()) {
-            return Optional.ofNullable(resultSetExtractor.extractData(rs));
-        }
-        return Optional.empty();
     }
 }
