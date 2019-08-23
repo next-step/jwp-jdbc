@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class JdbcTemplate {
 
-    private static final StatementSupplier DEFAULT_SUPPLIER = ignore -> { };
+    private static final int INDEX_OF_START = 1;
 
     private final DataSource dataSource;
 
@@ -20,28 +20,22 @@ public class JdbcTemplate {
     }
 
     public void execute(final String sql,
-                        final StatementSupplier supplier) {
-        final Handler<Void> handler = preparedStatement -> {
-            supplier.supply(preparedStatement);
-            preparedStatement.executeUpdate();
+                        final Object... parameters) {
+        call(sql, PreparedStatement::executeUpdate, parameters);
+    }
 
-            return null;
-        };
-
-        call(sql, handler);
+    public <T> Optional<T> querySingle(final String sql,
+                                       final ResultMapper<T> mapper,
+                                       final Object... parameters) {
+        return queryList(sql, mapper, parameters)
+                .stream()
+                .findFirst();
     }
 
     public <T> List<T> queryList(final String sql,
-                                 final ResultMapper<T> mapper) {
-        return queryList(sql, DEFAULT_SUPPLIER, mapper);
-    }
-
-    public <T> List<T> queryList(final String sql,
-                                 final StatementSupplier supplier,
-                                 final ResultMapper<T> mapper) {
+                                 final ResultMapper<T> mapper,
+                                 final Object... parameters) {
         final Handler<List<T>> handler = preparedStatement -> {
-            supplier.supply(preparedStatement);
-
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 final List<T> results = new ArrayList<>();
                 while (resultSet.next()) {
@@ -53,41 +47,27 @@ public class JdbcTemplate {
             }
         };
 
-        return call(sql, handler);
-    }
-
-    public <T> Optional<T> querySingle(final String sql,
-                                       final ResultMapper<T> mapper) {
-        return querySingle(sql, DEFAULT_SUPPLIER, mapper);
-    }
-
-    public <T> Optional<T> querySingle(final String sql,
-                                       final StatementSupplier supplier,
-                                       final ResultMapper<T> mapper) {
-        final Handler<Optional<T>> handler = preparedStatement -> {
-            supplier.supply(preparedStatement);
-
-            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (!resultSet.next()) {
-                    return Optional.empty();
-                }
-
-                final T result = mapper.mapping(resultSet);
-                return Optional.ofNullable(result);
-            }
-        };
-
-        return call(sql, handler);
+        return call(sql, handler, parameters);
     }
 
     private <R> R call(final String sql,
-                       final Handler<R> handler) {
+                       final Handler<R> handler,
+                       final Object... parameters) {
          try (final Connection connection = dataSource.getConnection();
               final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+             setValues(preparedStatement, parameters);
+
              return handler.handle(preparedStatement);
          } catch (final SQLException e) {
              throw new JdbcTemplateException(e);
          }
+    }
+
+    private void setValues(final PreparedStatement preparedStatement,
+                           final Object... parameters) throws SQLException {
+        for (int index = INDEX_OF_START; index <= parameters.length; index++) {
+            preparedStatement.setObject(index, parameters[index - INDEX_OF_START]);
+        }
     }
 
     @FunctionalInterface
