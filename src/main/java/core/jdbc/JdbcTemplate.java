@@ -24,6 +24,24 @@ public class JdbcTemplate implements JdbcOperations {
         }
     }
 
+    public void execute2(String sql, Object... parameters) {
+        ExecuteTemplate executeTemplate = new ExecuteTemplate() {
+            @Override
+            String query() {
+                return sql;
+            }
+
+            @Override
+            void setValues(PreparedStatement ps) throws SQLException {
+                int i = 1;
+                for (Object obj : parameters) {
+                    ps.setString(i++, obj.toString());
+                }
+            }
+        };
+        executeTemplate.execute();
+    }
+
     @Override
     public <T> List<T> queryForList(String sql, ResultSetExtractor<T> resultSetExtractor) {
         try (Connection con = ConnectionManager.getConnection();
@@ -43,9 +61,11 @@ public class JdbcTemplate implements JdbcOperations {
     public <T> Optional<T> queryForObject(String sql, ResultSetExtractor<T> resultSetExtractor, Object... parameters) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
+
             for (SqlParameters.SqlParameter parameter : SqlParameters.of(parameters).toList()) {
                 pstmt.setString(parameter.getIndex(), parameter.getValue());
             }
+
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 return Optional.ofNullable(resultSetExtractor.extractData(rs));

@@ -7,5 +7,5 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface PreparedStatementCreator {
 
-    PreparedStatement createPreparedStatement(Connection con) throws SQLException;
+    PreparedStatement create(Connection con) throws SQLException;
 }

@@ -13,12 +13,12 @@ public class UserDao implements UserDaoImpl {
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        jdbcTemplate.execute(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        jdbcTemplate.execute2(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-        jdbcTemplate.execute(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        jdbcTemplate.execute2(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
