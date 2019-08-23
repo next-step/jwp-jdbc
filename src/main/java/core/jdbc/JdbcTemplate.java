@@ -1,6 +1,8 @@
 package core.jdbc;
 
 
+import next.model.User;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,24 +15,7 @@ public class JdbcTemplate implements JdbcOperations {
 
     @Override
     public void execute(String sql, Object... parameters) {
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
-            for (SqlParameters.SqlParameter parameter : SqlParameters.of(parameters).toList()) {
-                ps.setString(parameter.getIndex(), parameter.getValue());
-            }
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new JdbcExecuteException(e);
-        }
-    }
-
-    public void execute2(String sql, Object... parameters) {
         ExecuteTemplate executeTemplate = new ExecuteTemplate() {
-            @Override
-            String query() {
-                return sql;
-            }
-
             @Override
             void setValues(PreparedStatement ps) throws SQLException {
                 int i = 1;
@@ -39,7 +24,7 @@ public class JdbcTemplate implements JdbcOperations {
                 }
             }
         };
-        executeTemplate.execute();
+        executeTemplate.execute(sql);
     }
 
     @Override
@@ -67,12 +52,37 @@ public class JdbcTemplate implements JdbcOperations {
             }
 
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return Optional.ofNullable(resultSetExtractor.extractData(rs));
-            }
-            return Optional.empty();
+            return getResultMapper(resultSetExtractor, rs);
         } catch (SQLException e) {
             throw new JdbcExecuteException(e);
         }
+    }
+
+    public <R> Optional<R> queryForObject2(String sql, ResultSetExtractor<R> resultSetExtractor, Object... parameters) {
+        SelectTemplate template = new SelectTemplate() {
+            @Override
+            void setValues(PreparedStatement ps) throws SQLException {
+                int i = 1;
+                for (Object obj : parameters) {
+                    ps.setString(i++, obj.toString());
+                }
+            }
+
+            @Override
+            Optional<User> getResultMapper(ResultSetExtractor extractor, ResultSet rs) throws SQLException {
+                if (rs.next()) {
+                    return (Optional<User>) Optional.ofNullable(resultSetExtractor.extractData(rs));
+                }
+                return Optional.empty();
+            }
+        };
+        return template.execute(sql, resultSetExtractor);
+    }
+
+    private <T> Optional<T> getResultMapper(ResultSetExtractor<T> resultSetExtractor, ResultSet rs) throws SQLException {
+        if (rs.next()) {
+            return Optional.ofNullable(resultSetExtractor.extractData(rs));
+        }
+        return Optional.empty();
     }
 }

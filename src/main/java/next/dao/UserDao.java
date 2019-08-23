@@ -13,12 +13,12 @@ public class UserDao implements UserDaoImpl {
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        jdbcTemplate.execute2(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        jdbcTemplate.execute(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-        jdbcTemplate.execute2(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        jdbcTemplate.execute(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
@@ -28,7 +28,7 @@ public class UserDao implements UserDaoImpl {
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
-        return jdbcTemplate.queryForObject(sql, this::getUserResultSetExtractor, userId).get();
+        return jdbcTemplate.queryForObject2(sql, this::getUserResultSetExtractor, userId).get();
     }
 
     private User getUserResultSetExtractor(ResultSet rs) throws SQLException {

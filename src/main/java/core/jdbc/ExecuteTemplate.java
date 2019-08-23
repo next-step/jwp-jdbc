@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public abstract class ExecuteTemplate {
 
-    void execute() {
+    void execute(String sql) {
         try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query())) {
+             PreparedStatement ps = connection.prepareStatement(sql)) {
 
             setValues(ps);
             ps.executeUpdate();
@@ -16,8 +16,6 @@ public abstract class ExecuteTemplate {
             throw new JdbcExecuteException(e);
         }
     }
-
-    abstract String query();
 
     abstract void setValues(PreparedStatement ps) throws SQLException;
 

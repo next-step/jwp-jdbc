@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @FunctionalInterface
-public interface ResultSetExtractor<T> {
+public interface ResultSetExtractor<R> {
 
-    T extractData(ResultSet rs) throws SQLException;
+    R extractData(ResultSet rs) throws SQLException;
 }
