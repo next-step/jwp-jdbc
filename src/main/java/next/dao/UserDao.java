@@ -23,12 +23,12 @@ public class UserDao implements UserDaoImpl {
 
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
-        return jdbcTemplate.queryForList2(sql, this::getUserResultSetExtractor);
+        return jdbcTemplate.queryForList(sql, this::getUserResultSetExtractor);
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
-        return jdbcTemplate.queryForObject(sql, this::getUserResultSetExtractor, userId).get();
+        return jdbcTemplate.queryForObject(sql, this::getUserResultSetExtractor, userId);
     }
 
     private User getUserResultSetExtractor(ResultSet rs) throws SQLException {

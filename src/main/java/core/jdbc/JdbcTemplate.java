@@ -3,19 +3,17 @@ package core.jdbc;
 
 import next.model.User;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class JdbcTemplate implements JdbcOperations {
 
     @Override
     public void execute(String sql, Object... parameters) {
-        ExecuteTemplate executeTemplate = new ExecuteTemplate() {
+        ExecuteTemplate template = new ExecuteTemplate() {
             @Override
             void setValues(PreparedStatement ps) throws SQLException {
                 int i = 1;
@@ -23,29 +21,21 @@ public class JdbcTemplate implements JdbcOperations {
                     ps.setString(i++, obj.toString());
                 }
             }
+
+            @Override
+            <R> R getResultMapper(ResultSetExtractor extractor, ResultSet rs) throws SQLException {
+                return null;
+            }
         };
-        executeTemplate.execute(sql);
+        template.execute(sql);
     }
 
     @Override
     public <T> List<T> queryForList(String sql, ResultSetExtractor<T> resultSetExtractor) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            List<T> results = new ArrayList<>();
-            while (rs.next()) {
-                results.add(resultSetExtractor.extractData(rs));
-            }
-            return results;
-        } catch (SQLException e) {
-            throw new JdbcExecuteException(e);
-        }
-    }
-
-    public <T> List<T> queryForList2(String sql, ResultSetExtractor<T> resultSetExtractor) {
-        SelectTemplate selectTemplate = new SelectTemplate() {
+        ExecuteTemplate template = new ExecuteTemplate() {
             @Override
-            void setValues(PreparedStatement ps) { }
+            void setValues(PreparedStatement ps) {
+            }
 
             @Override
             List<User> getResultMapper(ResultSetExtractor extractor, ResultSet rs) throws SQLException {
@@ -56,12 +46,12 @@ public class JdbcTemplate implements JdbcOperations {
                 return results;
             }
         };
-        return selectTemplate.execute(sql, resultSetExtractor);
+        return template.execute(sql, resultSetExtractor);
     }
 
     @Override
-    public <R> Optional<R> queryForObject(String sql, ResultSetExtractor<R> resultSetExtractor, Object... parameters) {
-        SelectTemplate template = new SelectTemplate() {
+    public <T> T queryForObject(String sql, ResultSetExtractor<T> resultSetExtractor, Object... parameters) {
+        ExecuteTemplate template = new ExecuteTemplate() {
             @Override
             void setValues(PreparedStatement ps) throws SQLException {
                 int i = 1;
@@ -71,11 +61,12 @@ public class JdbcTemplate implements JdbcOperations {
             }
 
             @Override
-            Optional<User> getResultMapper(ResultSetExtractor extractor, ResultSet rs) throws SQLException {
-                if (rs.next()) {
-                    return (Optional<User>) Optional.ofNullable(resultSetExtractor.extractData(rs));
+            User getResultMapper(ResultSetExtractor extractor, ResultSet rs) throws SQLException {
+                List<User> results = new ArrayList<>();
+                while (rs.next()) {
+                    results.add((User) resultSetExtractor.extractData(rs));
                 }
-                return Optional.empty();
+                return results.get(0);
             }
         };
         return template.execute(sql, resultSetExtractor);

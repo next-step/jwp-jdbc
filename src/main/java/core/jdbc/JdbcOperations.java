@@ -9,5 +9,5 @@ public interface JdbcOperations {
 
     <T> List<T> queryForList(String sql, ResultSetExtractor<T> requestType);
 
-    <T> Optional<T> queryForObject(String sql, ResultSetExtractor<T> resultSetExtractor, Object... parameters);
+    <T> T queryForObject(String sql, ResultSetExtractor<T> resultSetExtractor, Object... parameters);
 }
