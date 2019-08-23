@@ -11,7 +11,7 @@ import java.util.List;
 public class JdbcTemplate implements JdbcOperations {
 
     private static final int START_PARAMETER_NUMBER = 1;
-    public static final int ONE_OBJECT = 0;
+    private static final int ONE_OBJECT = 0;
 
     @Override
     public void execute(String sql, Object... parameters) {
