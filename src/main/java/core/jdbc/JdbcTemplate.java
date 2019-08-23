@@ -1,52 +1,50 @@
 package core.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+
+import java.util.List;
 
 public class JdbcTemplate {
 
-    public static void insert(String query, Object... values) throws SQLException {
-        modify(query, values);
+    public void insert(String query, Object... values) throws DataAccessException {
+        JdbcConnection.connectionAndModify(query, values);
     }
 
-    public static void update(String query, Object... values) throws SQLException {
-        modify(query, values);
+    public void insert(String query, PreparedStatementSetter setter) throws DataAccessException {
+        JdbcConnection.connectionAndModify(query, setter);
     }
 
-    private static void modify(String query, Object... values) throws SQLException{
-        init(query, values).executeUpdate();
+    public void update(String query, Object... values) throws DataAccessException {
+        JdbcConnection.connectionAndModify(query, values);
     }
 
-    public static ResultSet select(String query, Object... values) throws SQLException{
-        return init(query, values).executeQuery();
+    public void update(String query, PreparedStatementSetter setter) throws DataAccessException {
+        JdbcConnection.connectionAndModify(query, setter);
     }
 
-    private static PreparedStatement init(String query, Object... values) throws SQLException{
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        con = ConnectionManager.getConnection();
-        pstmt = con.prepareStatement(query);
-        initValue(pstmt, values);
-        return pstmt;
+    public <T> List<T> queryForList(String query, RowMapper<?> rowMapper, Object... values) throws DataAccessException{
+        return JdbcConnection.connectionAndSelect(query, rowMapper, values);
     }
 
-    private static void initValue(PreparedStatement pstmt, Object... values) throws SQLException{
-        if(values == null){
-            return;
+    public <T> List<T> queryForList(String query, RowMapper<?> rowMapper, PreparedStatementSetter setter) throws DataAccessException{
+        return JdbcConnection.connectionAndSelect(query, rowMapper, setter);
+    }
+
+    public <T> T queryForObject(String query, RowMapper<?> rowMapper, Object... values) throws DataAccessException{
+        return getReturnObject(JdbcConnection.connectionAndSelect(query, rowMapper, values));
+    }
+
+    public <T> T queryForObject(String query, RowMapper<?> rowMapper, PreparedStatementSetter setter) throws DataAccessException{
+        return getReturnObject(JdbcConnection.connectionAndSelect(query, rowMapper, setter));
+    }
+
+    private <T> T getReturnObject(List<T> items){
+        if(items.size() > 1){
+            throw new IncorrectResultSizeDataAccessException(1);
         }
 
-        for (int i = 0; i < values.length; i++) {
-            initVariableValue(pstmt, values[i], (i+1));
-        }
+        return items.get(0);
     }
 
-    private static void initVariableValue(PreparedStatement pstmt, Object value, int index) throws SQLException{
-        if(value instanceof Integer){
-            pstmt.setInt(index, Integer.parseInt(value.toString()));
-        }else{
-            pstmt.setString(index, String.valueOf(value));
-        }
-    }
 }
