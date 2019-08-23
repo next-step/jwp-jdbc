@@ -34,7 +34,7 @@ public class UserApiController {
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) {
-        UserCreatedDto dto = (UserCreatedDto) HttpServletUtils.jsonBodyToObject(om, request, UserCreatedDto.class);
+        UserCreatedDto dto = HttpServletUtils.jsonBodyToObject(om, request, UserCreatedDto.class);
 
         User user = dto.toEntity();
         DataBase.addUser(user);
@@ -63,7 +63,7 @@ public class UserApiController {
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
     public ModelAndView update(HttpServletRequest request, HttpServletResponse response) {
         String userId = getUserId(request);
-        UserUpdatedDto dto = (UserUpdatedDto) HttpServletUtils.jsonBodyToObject(om, request, UserUpdatedDto.class);
+        UserUpdatedDto dto = HttpServletUtils.jsonBodyToObject(om, request, UserUpdatedDto.class);
 
         User user = DataBase.findUserById(userId);
         dto.update(user);

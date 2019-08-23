@@ -10,7 +10,7 @@ import java.io.BufferedReader;
 public class HttpServletUtils {
     private static final Logger logger = LoggerFactory.getLogger(HttpServletUtils.class);
 
-    public static Object jsonBodyToObject(ObjectMapper om, HttpServletRequest request, Class<?> clazz) {
+    public static <T> T jsonBodyToObject(ObjectMapper om, HttpServletRequest request, Class<T> clazz) {
         String jsonString = extractRequestBody(request);
         return JsonUtils.toObject(om, jsonString, clazz);
     }
