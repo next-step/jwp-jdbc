@@ -13,11 +13,12 @@ public class JdbcTemplate implements JdbcOperations {
 
     @Override
     public void execute(String sql, Object... parameters) {
-        PreparedStatementCreator preparedStatementCreator = getPreparedStatementCreator(sql, parameters);
-
         try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement preparedStatement = preparedStatementCreator.createPreparedStatement(connection)) {
-            preparedStatement.executeUpdate();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (SqlParameters.SqlParameter parameter : SqlParameters.of(parameters).toList()) {
+                ps.setString(parameter.getIndex(), parameter.getValue());
+            }
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcExecuteException(e);
         }
@@ -40,10 +41,12 @@ public class JdbcTemplate implements JdbcOperations {
 
     @Override
     public <T> Optional<T> queryForObject(String sql, ResultSetExtractor<T> resultSetExtractor, Object... parameters) {
-        PreparedStatementCreator preparedStatementCreator = getPreparedStatementCreator(sql, parameters);
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = preparedStatementCreator.createPreparedStatement(con);
-             ResultSet rs = pstmt.executeQuery()) {
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            for (SqlParameters.SqlParameter parameter : SqlParameters.of(parameters).toList()) {
+                pstmt.setString(parameter.getIndex(), parameter.getValue());
+            }
+            ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 return Optional.ofNullable(resultSetExtractor.extractData(rs));
             }
@@ -51,10 +54,5 @@ public class JdbcTemplate implements JdbcOperations {
         } catch (SQLException e) {
             throw new JdbcExecuteException(e);
         }
-    }
-
-    private PreparedStatementCreator getPreparedStatementCreator(String sql, Object[] parameters) {
-        SqlParameters sqlParameters = SqlParameters.of(parameters);
-        return new PrepareStatementCreatorFactory(sql, sqlParameters);
     }
 }
