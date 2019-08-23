@@ -1,6 +1,7 @@
 package core.jdbc;
 
 import core.jdbc.exception.DataAccessException;
+import core.jdbc.exception.SetDataParameterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,41 +20,42 @@ public class JdbcTemplate implements Operations {
     @Override
     public <T> T execute(String query, RowMapper<T> rowMapper, Object... objects) {
 
-        try (Connection con = ConnectionManager.getConnection()) {
-            PreparedStatement pstmt = con.prepareStatement(query);
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
 
-            IntStream.range(0, objects.length)
-                    .forEach(index -> setObject(pstmt, index + 1, objects[index]));
-
+            setParameters(pstmt, objects);
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
                 return rowMapper.mapRow(rs);
             }
 
+            return null;
+
         } catch (SQLException e) {
             log.error("[query execute failed] query={}", query, e);
+            throw new DataAccessException();
         }
-
-        throw new DataAccessException();
     }
 
     @Override
     public <T> List<T> execute(String query, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection()) {
             PreparedStatement pstmt = con.prepareStatement(query);
+
             ResultSet rs = pstmt.executeQuery();
 
             List<T> results = new ArrayList<>();
-            if (rs.next()) {
+
+            while (rs.next()) {
                 results.add(rowMapper.mapRow(rs));
-                return results;
             }
+
+            return results;
         } catch (SQLException e) {
             log.error("[query execute failed] query={}", query, e);
+            throw new DataAccessException();
         }
-
-        throw new DataAccessException();
     }
 
     @Override
@@ -61,9 +63,7 @@ public class JdbcTemplate implements Operations {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(query)) {
 
-            IntStream.range(0, objects.length)
-                    .forEach(index -> setObject(pstmt, index + 1, objects[index]));
-
+            setParameters(pstmt, objects);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -72,11 +72,17 @@ public class JdbcTemplate implements Operations {
         }
     }
 
-    private void setObject(PreparedStatement pstmt, int index, Object object) {
+    private void setParameters(PreparedStatement pstmt, Object[] objects) {
+        IntStream.range(0, objects.length)
+                .forEach(index -> setParameter(pstmt, index + 1, objects[index]));
+    }
+
+    private void setParameter(PreparedStatement pstmt, int index, Object object) {
         try {
             pstmt.setObject(index, object);
         } catch (SQLException e) {
             log.error("set parameter failed", e);
+            throw new SetDataParameterException();
         }
     }
 
