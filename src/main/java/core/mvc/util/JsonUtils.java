@@ -17,17 +17,17 @@ public class JsonUtils {
                 .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
     }
 
-    public static <T> T toObject(String json, Class<T> clazz) throws ObjectMapperException {
+    public static <T> T toObject(ObjectMapper om, String json, Class<T> clazz) throws ObjectMapperException {
         try {
-            return objectMapper.readValue(json, clazz);
+            return om.readValue(json, clazz);
         } catch (IOException e) {
             throw new ObjectMapperException(e);
         }
     }
 
-    public static String toJson(Object object) {
+    public static String toJson(ObjectMapper om, Object object) {
         try {
-            return objectMapper.writeValueAsString(object);
+            return om.writeValueAsString(object);
         } catch (IOException e) {
             throw new ObjectMapperException(e);
         }

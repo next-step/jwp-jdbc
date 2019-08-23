@@ -1,5 +1,6 @@
 package core.mvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.mvc.util.JsonUtils;
 import org.springframework.http.MediaType;
 
@@ -11,6 +12,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class JsonView implements View {
+    private ObjectMapper om;
+
+    public JsonView(ObjectMapper om) {
+        this.om = om;
+    }
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -23,6 +29,13 @@ public class JsonView implements View {
         writeContents(toJson(model), response);
     }
 
+    private void writeContents(String content, HttpServletResponse response) throws IOException {
+        PrintWriter out = response.getWriter();
+        out.write(content);
+        out.flush();
+        out.close();
+    }
+
     private String toJson(Map<String, ?> model) {
         Set<String> keys = model.keySet();
 
@@ -31,16 +44,9 @@ public class JsonView implements View {
                     .findFirst()
                     .orElseThrow(NullPointerException::new);
 
-            return JsonUtils.toJson(model.get(key));
+            return JsonUtils.toJson(om, model.get(key));
         }
 
-        return JsonUtils.toJson(model);
-    }
-
-    private void writeContents(String content, HttpServletResponse response) throws IOException {
-        PrintWriter out = response.getWriter();
-        out.write(content);
-        out.flush();
-        out.close();
+        return JsonUtils.toJson(om, model);
     }
 }
