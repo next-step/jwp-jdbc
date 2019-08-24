@@ -1,24 +1,32 @@
-package core.mvc;
+package core.mvc.messageconverter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 import study.jackson.Car;
 
 import javax.servlet.ServletOutputStream;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JsonUtilsTest {
+class JsonMessageConverterTest {
+
+    private JsonMessageConverter converter;
+
+    @BeforeEach
+    public void setup() {
+        converter = new JsonMessageConverter(JsonObjectMapper.builder().build());
+    }
+
     @Test
     void toObject() throws Exception {
         String json = "{ \"color\" : \"Black\", \"type\" : \"BMW\" }";
-        Car car = JsonUtils.toObject(json, Car.class);
+        Car car = converter.readMessage(json, Car.class);
         assertThat(car.getColor()).isEqualTo("Black");
         assertThat(car.getType()).isEqualTo("BMW");
     }
@@ -32,7 +40,7 @@ public class JsonUtilsTest {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         ServletOutputStream outputStream = response.getOutputStream();
-        JsonUtils.toJson(outputStream, car);
+        converter.writeMessage(outputStream, car);
 
         assertThat(response.getContentAsString()).isEqualTo(json);
     }
@@ -51,7 +59,7 @@ public class JsonUtilsTest {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         ServletOutputStream outputStream = response.getOutputStream();
-        JsonUtils.toJson(outputStream, cars);
+        converter.writeMessage(outputStream, cars);
 
         assertThat(response.getContentAsString()).isEqualTo(json);
     }
@@ -66,7 +74,7 @@ public class JsonUtilsTest {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         ServletOutputStream outputStream = response.getOutputStream();
-        JsonUtils.toJson(outputStream, car);
+        converter.writeMessage(outputStream, car);
 
         assertThat(response.getContentAsString()).isEqualTo(json);
     }

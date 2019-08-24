@@ -22,11 +22,13 @@ public class HandlerExecution {
     private Object declaredObject;
     private Method method;
     private List<MethodParameter> methodParameters;
+    private List<HandlerMethodArgumentResolver> resolvers;
 
-    public HandlerExecution(Object declaredObject, Method method) {
+    public HandlerExecution(Object declaredObject, Method method, List<HandlerMethodArgumentResolver> resolvers) {
         this.declaredObject = declaredObject;
         this.method = method;
         this.methodParameters = initializeMethodParameters();
+        this.resolvers = resolvers;
     }
 
     private List<MethodParameter> initializeMethodParameters() {
@@ -60,7 +62,7 @@ public class HandlerExecution {
     }
 
     private HandlerMethodArgumentResolver getResolver(MethodParameter parameter) {
-        return ResolverGenerator.getResolvers().stream()
+        return resolvers.stream()
                 .filter(resolver -> resolver.supports(parameter))
                 .findFirst()
                 .orElse(null);

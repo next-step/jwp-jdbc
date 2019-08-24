@@ -24,7 +24,6 @@ public class UserApiController {
 
     private final UserService userService = new UserService();
 
-
     @RequestMapping(value = USER_API_BASE_PATH, method = RequestMethod.POST)
     public ModelAndView createUser(@RequestBody UserCreatedDto createdDto, HttpServletResponse response) throws IOException {
         logger.debug("Create User : {}", createdDto);
