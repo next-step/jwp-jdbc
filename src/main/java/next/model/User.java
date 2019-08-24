@@ -20,13 +20,6 @@ public class User {
     this.email = email;
   }
 
-  public User(UserCreatedDto createdDto) {
-    this.userId = createdDto.getUserId();
-    this.password = createdDto.getPassword();
-    this.name = createdDto.getName();
-    this.email = createdDto.getEmail();
-  }
-
   public String getUserId() {
     return userId;
   }
@@ -43,15 +36,10 @@ public class User {
     return email;
   }
 
-  public void update(User updateUser) {
+  public User update(User updateUser) {
     this.name = updateUser.name;
     this.password = updateUser.password;
     this.email = updateUser.email;
-  }
-
-  public User update(UserUpdatedDto updateUser) {
-    this.name = updateUser.getName();
-    this.email = updateUser.getEmail();
     return this;
   }
 
