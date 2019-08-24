@@ -4,6 +4,7 @@ import core.exception.NotSupportedException;
 import core.mvc.messageconverter.MessageConverter;
 import core.mvc.tobe.MethodParameter;
 import org.apache.commons.io.IOUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +29,7 @@ public class RequestBodyArgumentResolver extends AbstractHandlerMethodArgumentRe
     public Object getMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String body = IOUtils.toString(request.getInputStream(), Charset.defaultCharset());
         MessageConverter converter = converters.stream()
-                .filter(c -> c.supportedMediaTypes(MediaType.valueOf(request.getHeader("Content-type"))))
+                .filter(c -> c.supportedMediaTypes(MediaType.valueOf(request.getHeader(HttpHeaders.CONTENT_TYPE))))
                 .findFirst()
                 .orElseThrow(NotSupportedException::new);
 
