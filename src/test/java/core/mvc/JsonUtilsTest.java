@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import study.jackson.Car;
 
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,5 +83,21 @@ public class JsonUtilsTest {
         String jsonString = JsonUtils.convertToJsonString(model);
 
         assertThat(jsonString).isEqualTo("{}");
+    }
+
+    @DisplayName("writeValue")
+    @Test
+    void writeValue() throws Exception {
+        int id = 134;
+        String name = "name!!!";
+        Map<String, Object> model = new HashMap<>();
+        model.put("id", id);
+        model.put("name", name);
+
+        Writer writer = new StringWriter();
+
+        JsonUtils.writeValue(writer, model);
+
+        assertThat(writer.toString()).isEqualTo("{\"name\":\"name!!!\",\"id\":134}");
     }
 }

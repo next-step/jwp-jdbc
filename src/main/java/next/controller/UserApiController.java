@@ -1,27 +1,27 @@
 package next.controller;
 
-import com.google.common.collect.ImmutableMap;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.JsonUtils;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
+import core.mvc.ResponseHeaderSetter;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
 import next.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Controller
 public class UserApiController {
     private static final Logger log = LoggerFactory.getLogger(UserApiController.class);
+    private static final String JSON_CONTENT_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
 
     private final UserService userService;
 
@@ -38,7 +38,8 @@ public class UserApiController {
         userService.createUser(createdDto);
 
         String location = "/api/users?userId=" + createdDto.getUserId();
-        return new ModelAndView(JsonView.created(ImmutableMap.of(HttpHeaders.LOCATION, location)));
+        ResponseHeaderSetter.setStatusCREATED(response, location);
+        return new ModelAndView(new JsonView());
     }
 
     @RequestMapping(value = "/api/users")
@@ -48,7 +49,8 @@ public class UserApiController {
         User user = userService.getUser(userId);
 
         log.debug("user : {}", user);
-        ModelAndView modelAndView = new ModelAndView(JsonView.ok());
+        ResponseHeaderSetter.setStatusOK(response);
+        ModelAndView modelAndView = new ModelAndView(new JsonView());
         modelAndView.addObject("user", user);
         return modelAndView;
     }
@@ -59,7 +61,8 @@ public class UserApiController {
         UserUpdatedDto updatedDto = JsonUtils.toObject(request.getReader(), UserUpdatedDto.class);
 
         userService.updateUser(userId, updatedDto);
-        return new ModelAndView(JsonView.ok());
+        ResponseHeaderSetter.setStatusOK(response);
+        return new ModelAndView(new JsonView());
     }
 
 }

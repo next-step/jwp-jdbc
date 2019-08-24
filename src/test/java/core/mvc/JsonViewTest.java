@@ -1,8 +1,6 @@
 package core.mvc;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +9,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import study.jackson.Car;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,17 +60,4 @@ public class JsonViewTest {
         logger.debug("response body : {}", response.getContentAsString());
     }
 
-    @DisplayName("render - 헤더 설정")
-    @Test
-    void render() throws Exception {
-        String key = "Location";
-        String value = "location!!";
-
-        Map<String, String> header = ImmutableMap.of(key, value);
-        view = JsonView.ok(header);
-
-        view.render(Collections.emptyMap(), request, response);
-
-        assertThat(response.getHeader(key)).isEqualTo(value);
-    }
 }

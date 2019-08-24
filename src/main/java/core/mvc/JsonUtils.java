@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Map;
+import java.io.Writer;
 
 public class JsonUtils {
 
@@ -48,6 +48,14 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.writeValueAsString(model);
         } catch (JsonProcessingException e) {
+            throw new ObjectMapperException(e);
+        }
+    }
+
+    public static void writeValue(Writer writer, Object model) {
+        try {
+            OBJECT_MAPPER.writeValue(writer, model);
+        } catch (IOException e) {
             throw new ObjectMapperException(e);
         }
     }

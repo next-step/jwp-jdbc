@@ -1,5 +1,7 @@
 package next.dto;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 public class UserCreatedDto {
     private String userId;
     private String password;
@@ -34,11 +36,6 @@ public class UserCreatedDto {
 
     @Override
     public String toString() {
-        return "UserCreatedDto{" +
-                "userId='" + userId + '\'' +
-                ", password='" + password + '\'' +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                '}';
+        return ReflectionToStringBuilder.toString(this);
     }
 }
