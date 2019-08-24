@@ -5,12 +5,18 @@ import com.google.common.collect.Sets;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.HandlerMapping;
+import core.mvc.messageconverter.JsonMessageConverter;
+import core.mvc.messageconverter.JsonObjectMapper;
+import core.mvc.messageconverter.MessageConverter;
+import core.mvc.resolver.*;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,9 +26,19 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     private Object[] basePackage;
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
+    private List<HandlerMethodArgumentResolver> resolvers;
 
     public AnnotationHandlerMapping(Object... basePackage) {
         this.basePackage = basePackage;
+
+        List<MessageConverter> converters = new ArrayList<>();
+        converters.add(new JsonMessageConverter(JsonObjectMapper.builder().build()));
+
+        resolvers = new ArrayList<>();
+        resolvers.add(new ServletRequestArgumentResolver());
+        resolvers.add(new ServletResponseArgumentResolver());
+        resolvers.add(new RequestBodyArgumentResolver(converters));
+        resolvers.add(new JavaDataTypeArgumentResolver());
     }
 
     public void initialize() {
@@ -34,7 +50,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
             logger.debug("register handlerExecution : url is {}, request method : {}, method is {}",
                     rm.value(), rm.method(), method);
             handlerExecutions.put(createHandlerKey(rm),
-                    new HandlerExecution(controllers.get(method.getDeclaringClass()), method));
+                    new HandlerExecution(controllers.get(method.getDeclaringClass()), method, resolvers));
         }
 
         logger.info("Initialized AnnotationHandlerMapping!");
@@ -45,9 +61,9 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     @SuppressWarnings("unchecked")
-    private Set<Method> getRequestMappingMethods(Set<Class<?>> controlleers) {
+    private Set<Method> getRequestMappingMethods(Set<Class<?>> controllers) {
         Set<Method> requestMappingMethods = Sets.newHashSet();
-        for (Class<?> clazz : controlleers) {
+        for (Class<?> clazz : controllers) {
             requestMappingMethods
                     .addAll(ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(RequestMapping.class)));
         }

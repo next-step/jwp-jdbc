@@ -1,5 +1,7 @@
 package core.mvc;
 
+import core.mvc.messageconverter.JsonMessageConverter;
+import core.mvc.messageconverter.JsonObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ public class JsonViewTest {
     private static final Logger logger = LoggerFactory.getLogger( JsonViewTest.class );
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
+    private JsonMessageConverter converter;
     private View view;
 
     @BeforeEach
@@ -25,6 +28,7 @@ public class JsonViewTest {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         view = new JsonView();
+        converter = new JsonMessageConverter(JsonObjectMapper.builder().build());
     }
 
     @Test
@@ -42,7 +46,7 @@ public class JsonViewTest {
 
         view.render(model, request, response);
 
-        Car actual = JsonUtils.toObject(response.getContentAsString(), Car.class);
+        Car actual = converter.readMessage(response.getContentAsString(), Car.class);
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
         assertThat(actual).isEqualTo(expected);
     }
