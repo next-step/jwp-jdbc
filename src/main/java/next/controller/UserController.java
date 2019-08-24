@@ -4,7 +4,7 @@ import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.db.DataBase;
-import core.mvc.DispatcherServlet;
+import core.mvc.HandlebarView;
 import core.mvc.JspView;
 import core.mvc.ModelAndView;
 import next.model.User;
@@ -43,6 +43,15 @@ public class UserController {
 
         ModelAndView mav = new ModelAndView(new JspView("/user/list.jsp"));
         mav.addObject("users", DataBase.findAll());
+        return mav;
+    }
+
+    @RequestMapping(value = "/user", method = RequestMethod.GET)
+    public ModelAndView info(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        String userId = req.getParameter("userId");
+        ModelAndView mav = new ModelAndView(new HandlebarView("user/userInfo"));
+        mav.addObject("user", DataBase.findUserById(userId));
+
         return mav;
     }
 }
