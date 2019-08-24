@@ -11,6 +11,8 @@ import java.util.Set;
 
 public class JsonView implements View {
     private static final Logger logger = LoggerFactory.getLogger(JsonView.class);
+    public static final int MIN_VALUE_SIZE = 1;
+
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         logger.debug("JsonView");
@@ -22,7 +24,7 @@ public class JsonView implements View {
     }
 
     private String serializedModel(Map<String,?> model) {
-        if (model.size() > 1) {
+        if (model.size() > MIN_VALUE_SIZE) {
             return JsonUtils.toJsonString(model);
         }
 
