@@ -1,10 +1,9 @@
 package next.dao;
 
-import next.dao.mapper.row.RowMapper;
 import next.dao.mapper.row.UserListRowMapper;
 import next.dao.mapper.row.UserRowMapper;
 import next.dao.mapper.sql.UserSqlMapper;
-import next.dao.template.*;
+import next.dao.template.JdbcTemplate;
 import next.model.User;
 
 import java.sql.SQLException;
@@ -31,14 +30,14 @@ public class UserDao {
     public User findByUserId(String userId) throws SQLException {
         JdbcTemplate jdbc = new JdbcTemplate();
 
-        RowMapper rowMapper = new UserRowMapper();
+        UserRowMapper rowMapper = new UserRowMapper();
         return jdbc.selectOne(UserSqlMapper.select(), rowMapper, userId);
     }
 
     public List<User> findAll() throws SQLException {
         JdbcTemplate jdbc = new JdbcTemplate();
 
-        RowMapper rowMapper = new UserListRowMapper();
+        UserListRowMapper rowMapper = new UserListRowMapper();
         return jdbc.selectAll(UserSqlMapper.selectAll(), rowMapper);
     }
 }
