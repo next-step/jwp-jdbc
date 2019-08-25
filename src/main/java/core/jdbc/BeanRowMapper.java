@@ -15,7 +15,7 @@ public class BeanRowMapper<T> implements RowMapper<T> {
 
     private final Class<T> type;
     private final boolean convertToUnderscore;
-    private final T instance;
+    private T instance;
     private Set<String> columnNames;
 
     public BeanRowMapper(Class<T> type) {
@@ -25,11 +25,11 @@ public class BeanRowMapper<T> implements RowMapper<T> {
     public BeanRowMapper(Class<T> type, boolean convertToUnderscore) {
         this.type = type;
         this.convertToUnderscore = convertToUnderscore;
-        instance = BeanUtils.instantiateClass(type);
     }
 
     @Override
     public T mapRow(ResultSet rs) throws SQLException {
+        this.instance = BeanUtils.instantiateClass(type);
         getColumnNames(rs);
         setResults(rs);
         return instance;
