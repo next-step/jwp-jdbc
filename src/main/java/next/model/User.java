@@ -1,5 +1,7 @@
 package next.model;
 
+import java.util.Objects;
+
 public class User {
     private String userId;
     private String password;
@@ -33,9 +35,9 @@ public class User {
     }
 
     public void update(User updateUser) {
-        this.password = updateUser.password;
-        this.name = updateUser.name;
-        this.email = updateUser.email;
+        this.password = Objects.isNull(updateUser.password) ? this.password : updateUser.password;
+        this.name = Objects.isNull(updateUser.name) ? this.name : updateUser.name;
+        this.email = Objects.isNull(updateUser.email) ? this.email : updateUser.email;
     }
 
     public boolean matchPassword(String password) {
