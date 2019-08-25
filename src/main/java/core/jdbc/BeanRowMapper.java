@@ -1,5 +1,6 @@
 package core.jdbc;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -35,13 +36,6 @@ public class BeanRowMapper<T> implements RowMapper<T> {
         return instance;
     }
 
-    private void setResults(ResultSet rs) throws SQLException {
-        Field[] fields = type.getDeclaredFields();
-        for (Field field : fields) {
-            setField(rs, field);
-        }
-    }
-
     private Set<String> getColumnNames(ResultSet rs) throws SQLException {
         this.columnNames = new HashSet<>();
         ResultSetMetaData metaData = rs.getMetaData();
@@ -52,19 +46,28 @@ public class BeanRowMapper<T> implements RowMapper<T> {
         return columnNames;
     }
 
-    private void setField(ResultSet rs, Field field) throws SQLException {
-        String fieldName = getFieldName(field);
-        if (isContainsColumnName(fieldName)) {
-            ReflectionUtils.makeAccessible(field);
-            ReflectionUtils.setField(field, instance, getValue(rs, field, fieldName));
+    private void setResults(ResultSet rs) throws SQLException {
+        Field[] fields = type.getDeclaredFields();
+        for (Field field : fields) {
+            setField(rs, field);
         }
     }
 
-    private boolean isContainsColumnName(String fieldName) {
-        return columnNames.contains(fieldName) || columnNames.contains(fieldName.toUpperCase());
+    private void setField(ResultSet rs, Field field) throws SQLException {
+        String columnName = getColumnName(field);
+        if (isContainsColumnName(columnName)) {
+            ReflectionUtils.makeAccessible(field);
+            Object value = getValue(rs, field, columnName);
+            ReflectionUtils.setField(field, instance, value);
+        }
     }
 
-    private String getFieldName(Field field) {
+    private String getColumnName(Field field) {
+        if (field.isAnnotationPresent(Column.class)) {
+            Column column = field.getAnnotation(Column.class);
+            return column.value();
+        }
+
         String fieldName = field.getName();
         if (!convertToUnderscore) {
             return fieldName;
@@ -72,11 +75,23 @@ public class BeanRowMapper<T> implements RowMapper<T> {
         return UnderscoreConverter.convertToUnderscore(fieldName);
     }
 
-    private Object getValue(ResultSet rs, Field field, String fieldName) throws SQLException {
-        Object value = rs.getObject(fieldName, field.getType());
+    private boolean isContainsColumnName(String fieldName) {
+        return columnNames.contains(fieldName) || columnNames.contains(fieldName.toUpperCase());
+    }
+
+    private Object getValue(ResultSet rs, Field field, String columnName) throws SQLException {
+        Object value = rs.getObject(columnName, getType(field));
         if (Objects.nonNull(value)) {
             return value;
         }
-        return rs.getObject(fieldName.toUpperCase(), field.getType());
+        return rs.getObject(columnName.toUpperCase(), field.getType());
+    }
+
+    private Class<?> getType(Field field) {
+        Class<?> type = field.getType();
+        if (type.isPrimitive()) {
+            return ClassUtils.primitiveToWrapper(type);
+        }
+        return type;
     }
 }
