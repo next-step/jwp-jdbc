@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import study.jackson.Car;
+import study.jackson.Color;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,48 +16,49 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JsonViewTest {
-    private static final Logger logger = LoggerFactory.getLogger( JsonViewTest.class );
+    private static final Logger logger = LoggerFactory.getLogger(JsonViewTest.class);
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private View view;
 
     @BeforeEach
     void setUp() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        view = new JsonView();
+        this.request = new MockHttpServletRequest();
+        this.response = new MockHttpServletResponse();
+        this.view = new JsonView();
     }
 
     @Test
     void render_no_element() throws Exception {
-        view.render(new HashMap<>(), request, response);
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        assertThat(response.getContentAsString()).isBlank();
+        this.view.render(new HashMap<>(), this.request, this.response);
+        assertThat(this.response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        assertThat(this.response.getContentAsString()).isBlank();
     }
 
     @Test
     void render_one_element() throws Exception {
-        Map<String, Object> model = new HashMap<>();
-        Car expected = new Car("Black", "Sonata");
+        final Map<String, Object> model = new HashMap<>();
+        final Car expected = new Car(Color.Black, "Sonata");
         model.put("car", expected);
 
-        view.render(model, request, response);
+        this.view.render(model, this.request, this.response);
 
-        Car actual = JsonUtils.toObject(response.getContentAsString(), Car.class);
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        final Car actual = JsonUtils.toObject(this.response.getContentAsString(), Car.class);
+        assertThat(this.response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     void render_over_two_element() throws Exception {
-        Map<String, Object> model = new HashMap<>();
-        Car expected = new Car("Black", "Sonata");
+        final Map<String, Object> model = new HashMap<>();
+        final Car expected = new Car(Color.Black, "Sonata");
         model.put("car", expected);
         model.put("name", "포비");
 
-        view.render(model, request, response);
+        this.view.render(model, this.request, this.response);
 
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        logger.debug("response body : {}", response.getContentAsString());
+        final String contentAsString = this.response.getContentAsString();
+        assertThat(this.response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        assertThat(contentAsString).isEqualTo("{\"car\":{\"color\":\"Black\",\"type\":\"Sonata\"},\"name\":\"포비\"}");
     }
 }
