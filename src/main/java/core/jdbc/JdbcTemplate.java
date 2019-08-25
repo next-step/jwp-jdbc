@@ -30,7 +30,7 @@ public class JdbcTemplate {
         command(preparedStatementCreator);
     }
 
-    public static <T> T queryByObject(PreparedStatementCreator preparedStatementCreator, ResultMapper<T> resultMapper) {
+    public static <T> T queryForObject(PreparedStatementCreator preparedStatementCreator, ResultMapper<T> resultMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = preparedStatementCreator.createPreparedStatement(con);
              ResultSet rs = pstmt.executeQuery()
@@ -41,13 +41,13 @@ public class JdbcTemplate {
         }
     }
 
-    public static <T> T queryByObject(String sql, ResultMapper<T> resultMapper, Object... parameters) {
+    public static <T> T queryForObject(String sql, ResultMapper<T> resultMapper, Object... parameters) {
         PreparedStatementCreator preparedStatementCreator = PreparedStatementCreator.createByQuery(sql, parameters);
 
-        return queryByObject(preparedStatementCreator, resultMapper);
+        return queryForObject(preparedStatementCreator, resultMapper);
     }
 
-    public static <T> List<T> queryByList(PreparedStatementCreator preparedStatementCreator, ResultMapper<T> resultMapper) {
+    public static <T> List<T> queryForList(PreparedStatementCreator preparedStatementCreator, ResultMapper<T> resultMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = preparedStatementCreator.createPreparedStatement(con);
              ResultSet rs = pstmt.executeQuery()
@@ -62,9 +62,9 @@ public class JdbcTemplate {
         }
     }
 
-    public static <T> List<T> queryByList(String sql, ResultMapper<T> resultMapper, Object... parameters) {
+    public static <T> List<T> queryForList(String sql, ResultMapper<T> resultMapper, Object... parameters) {
         PreparedStatementCreator preparedStatementCreator = PreparedStatementCreator.createByQuery(sql, parameters);
 
-        return queryByList(preparedStatementCreator, resultMapper);
+        return queryForList(preparedStatementCreator, resultMapper);
     }
 }

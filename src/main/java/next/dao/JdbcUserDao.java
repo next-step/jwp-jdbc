@@ -33,11 +33,11 @@ public enum JdbcUserDao implements UserDao {
 
     @Override
     public List<User> findAll() {
-        return JdbcTemplate.queryByList("SELECT userId, password, name, email FROM USERS", UserMapper.INSTANCE);
+        return JdbcTemplate.queryForList("SELECT userId, password, name, email FROM USERS", UserMapper.INSTANCE);
     }
 
     @Override
     public User findByUserId(String userId) {
-        return JdbcTemplate.queryByObject("SELECT userId, password, name, email FROM USERS WHERE userid=?", UserMapper.INSTANCE, userId);
+        return JdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?", UserMapper.INSTANCE, userId);
     }
 }
