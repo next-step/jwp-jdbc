@@ -6,12 +6,11 @@ import next.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         jdbcTemplate.executeUpdate(sql, pstmt -> {
@@ -22,7 +21,7 @@ public class UserDao {
         });
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=? ";
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         jdbcTemplate.executeUpdate(sql, pstmt -> {
@@ -33,29 +32,25 @@ public class UserDao {
         });
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        return jdbcTemplate.executeQuery(sql, new RowMapper() {
-            @Override
-            public List<User> mappedRow(ResultSet rs) throws SQLException {
-                List<User> result = new ArrayList<>();
-                result.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email")));
-                return result;
-            }
-        });
+        return jdbcTemplate.executeQuery(sql, getUserRowMapper());
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        return jdbcTemplate.executeQuery(sql, pstmt -> pstmt.setString(1, userId), new RowMapper() {
+        return jdbcTemplate.executeQueryForObject(sql, pstmt -> pstmt.setString(1, userId), getUserRowMapper());
+    }
+
+    private RowMapper<User> getUserRowMapper() {
+        return new RowMapper<User>() {
             @Override
             public User mappedRow(ResultSet rs) throws SQLException {
                 return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email"));
             }
-        });
+        };
     }
 }

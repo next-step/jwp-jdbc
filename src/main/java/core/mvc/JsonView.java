@@ -16,7 +16,6 @@ public class JsonView implements View {
             throws Exception {
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         if (model.size() == 0) {
-            response.getWriter().write("");
             return;
         }
         objectMapper.writeValue(response.getWriter(), getValue(model));
