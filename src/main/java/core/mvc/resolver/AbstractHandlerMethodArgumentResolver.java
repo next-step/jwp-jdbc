@@ -1,5 +1,6 @@
 package core.mvc.resolver;
 
+import core.exception.TypeMisMatchException;
 import core.mvc.tobe.MethodParameter;
 
 public abstract class AbstractHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
@@ -25,7 +26,7 @@ public abstract class AbstractHandlerMethodArgumentResolver implements HandlerMe
             return value;
         }
 
-        throw new Exception("TypeMismatch");
+        throw new TypeMisMatchException();
     }
 
 }

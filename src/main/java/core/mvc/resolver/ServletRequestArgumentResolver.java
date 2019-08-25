@@ -13,7 +13,7 @@ public class ServletRequestArgumentResolver extends AbstractHandlerMethodArgumen
     }
 
     @Override
-    public Object getMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public Object resolveMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception {
         return request;
     }
 }

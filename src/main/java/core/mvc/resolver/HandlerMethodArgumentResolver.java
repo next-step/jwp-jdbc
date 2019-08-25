@@ -7,6 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface HandlerMethodArgumentResolver {
     boolean supports(MethodParameter parameter);
-    Object getMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception;
+    Object resolveMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception;
 
 }

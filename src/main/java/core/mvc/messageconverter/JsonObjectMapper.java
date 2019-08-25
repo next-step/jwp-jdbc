@@ -15,7 +15,7 @@ public class JsonObjectMapper {
                 .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
     }
 
-    public static JsonObjectMapper builder() {
+    public static JsonObjectMapper jsonObjectMapperBuilder() {
         return new JsonObjectMapper();
     }
 

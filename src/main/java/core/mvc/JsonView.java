@@ -15,7 +15,7 @@ public class JsonView implements View {
     private JsonMessageConverter converter;
 
     public JsonView() {
-        converter = new JsonMessageConverter(JsonObjectMapper.builder().build());
+        converter = new JsonMessageConverter(JsonObjectMapper.jsonObjectMapperBuilder().build());
     }
 
     @Override

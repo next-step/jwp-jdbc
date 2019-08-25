@@ -20,7 +20,7 @@ class JsonMessageConverterTest {
 
     @BeforeEach
     public void setup() {
-        converter = new JsonMessageConverter(JsonObjectMapper.builder().build());
+        converter = new JsonMessageConverter(JsonObjectMapper.jsonObjectMapperBuilder().build());
     }
 
     @Test

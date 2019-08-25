@@ -28,7 +28,7 @@ public class JsonViewTest {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         view = new JsonView();
-        converter = new JsonMessageConverter(JsonObjectMapper.builder().build());
+        converter = new JsonMessageConverter(JsonObjectMapper.jsonObjectMapperBuilder().build());
     }
 
     @Test

@@ -1,5 +1,7 @@
 package core.mvc.tobe;
 
+import core.exception.NotSupportedConverterException;
+import core.exception.NotSupportedHandlerException;
 import core.mvc.ModelAndView;
 import core.mvc.resolver.HandlerMethodArgumentResolver;
 import org.slf4j.Logger;
@@ -37,7 +39,7 @@ public class HandlerExecution {
         Parameter[] parameters = this.method.getParameters();
         String[] parameterNames = nameDiscoverer.getParameterNames(method);
 
-        assert parameterNames != null;
+        assert parameterNames != null : "ParameterNames must not be null";
 
         return IntStream.range(0, parameterNames.length)
                 .mapToObj(i -> new MethodParameter(parameterNames[i], parameters[i], method))
@@ -49,7 +51,7 @@ public class HandlerExecution {
         for (int i = 0; i < this.methodParameters.size(); i++) {
             MethodParameter methodParameter = methodParameters.get(i);
 
-            Object argument = getResolver(methodParameter).getMethodArgument(methodParameter, request, response);
+            Object argument = getResolver(methodParameter).resolveMethodArgument(methodParameter, request, response);
             arguments[i] = argument;
         }
 
@@ -61,10 +63,10 @@ public class HandlerExecution {
         }
     }
 
-    private HandlerMethodArgumentResolver getResolver(MethodParameter parameter) {
+    private HandlerMethodArgumentResolver getResolver(MethodParameter parameter) throws NotSupportedHandlerException {
         return resolvers.stream()
                 .filter(resolver -> resolver.supports(parameter))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(NotSupportedHandlerException::new);
     }
 }

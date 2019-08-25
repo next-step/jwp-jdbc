@@ -32,7 +32,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         this.basePackage = basePackage;
 
         List<MessageConverter> converters = new ArrayList<>();
-        converters.add(new JsonMessageConverter(JsonObjectMapper.builder().build()));
+        converters.add(new JsonMessageConverter(JsonObjectMapper.jsonObjectMapperBuilder().build()));
 
         resolvers = new ArrayList<>();
         resolvers.add(new ServletRequestArgumentResolver());
