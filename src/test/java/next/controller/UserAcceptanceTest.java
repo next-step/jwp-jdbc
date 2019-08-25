@@ -76,7 +76,6 @@ public class UserAcceptanceTest {
                 .exchange()
                 .expectStatus().isOk();
 
-
         final UserDto userUpdated = client()
                 .get()
                 .uri(location.toString())
