@@ -16,8 +16,6 @@ public class BeanRowMapper<T> implements RowMapper<T> {
 
     private final Class<T> type;
     private final boolean convertToUnderscore;
-    private T instance;
-    private Set<String> columnNames;
 
     public BeanRowMapper(Class<T> type) {
         this(type, true);
@@ -30,14 +28,13 @@ public class BeanRowMapper<T> implements RowMapper<T> {
 
     @Override
     public T mapRow(ResultSet rs) throws SQLException {
-        this.instance = BeanUtils.instantiateClass(type);
-        getColumnNames(rs);
-        setResults(rs);
+        T instance = BeanUtils.instantiateClass(type);
+        setResults(rs, instance);
         return instance;
     }
 
     private Set<String> getColumnNames(ResultSet rs) throws SQLException {
-        this.columnNames = new HashSet<>();
+        Set<String> columnNames = new HashSet<>();
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         for (int i = 1; i <= columnCount; i++) {
@@ -46,19 +43,18 @@ public class BeanRowMapper<T> implements RowMapper<T> {
         return columnNames;
     }
 
-    private void setResults(ResultSet rs) throws SQLException {
+    private void setResults(ResultSet rs, T instance) throws SQLException {
+        Set<String> columnNames = getColumnNames(rs);
         Field[] fields = type.getDeclaredFields();
         for (Field field : fields) {
-            setField(rs, field);
+            setResult(rs, field, instance, columnNames);
         }
     }
-
-    private void setField(ResultSet rs, Field field) throws SQLException {
+    private void setResult(ResultSet rs, Field field, T instance, Set<String> columnNames) throws SQLException {
         String columnName = getColumnName(field);
-        if (isContainsColumnName(columnName)) {
+        if (hasColumnName(columnNames, columnName)) {
             ReflectionUtils.makeAccessible(field);
-            Object value = getValue(rs, field, columnName);
-            ReflectionUtils.setField(field, instance, value);
+            ReflectionUtils.setField(field, instance, getValue(rs, field, columnName));
         }
     }
 
@@ -75,7 +71,7 @@ public class BeanRowMapper<T> implements RowMapper<T> {
         return UnderscoreConverter.convertToUnderscore(fieldName);
     }
 
-    private boolean isContainsColumnName(String fieldName) {
+    private boolean hasColumnName(Set<String> columnNames, String fieldName) {
         return columnNames.contains(fieldName) || columnNames.contains(fieldName.toUpperCase());
     }
 
