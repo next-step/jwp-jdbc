@@ -33,6 +33,7 @@ public class JsonUtilsTest {
         String jsonCarArray =
                 "[{ \"color\" : \"Black\", \"type\" : \"BMW\" }, { \"color\" : \"Red\", \"type\" : \"FIAT\" }]";
         List<Car> actual = (List<Car>) JsonUtils.toObject(jsonCarArray, new TypeReference<List<Car>>(){});
+        assertThat(actual).isEqualTo(expected);
     }
 
     public static List<Car> sampleCars() {
