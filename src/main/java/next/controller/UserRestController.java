@@ -41,9 +41,7 @@ public class UserRestController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
-    public ModelAndView get(
-            final HttpServletRequest request,
-            final HttpServletResponse response) {
+    public ModelAndView get(final HttpServletRequest request, final HttpServletResponse response) {
         final String userId = RequestReader.fromQueryString(request, "userId");
 
         final User user = DataBase.findUserById(userId);
