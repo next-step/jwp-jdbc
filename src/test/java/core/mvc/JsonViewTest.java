@@ -1,5 +1,6 @@
 package core.mvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.mvc.util.JsonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,13 +21,15 @@ public class JsonViewTest {
     private static final Logger logger = LoggerFactory.getLogger(JsonViewTest.class);
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
+    private ObjectMapper om;
     private View view;
 
     @BeforeEach
     void setUp() {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
-        view = new JsonView();
+        om = new ObjectMapper();
+        view = new JsonView(om);
     }
 
     @DisplayName("render - no element")
@@ -46,7 +49,7 @@ public class JsonViewTest {
 
         view.render(model, request, response);
 
-        Car actual = JsonUtils.toObject(response.getContentAsString(), Car.class);
+        Car actual = JsonUtils.toObject(om, response.getContentAsString(), Car.class);
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
         assertThat(actual).isEqualTo(expected);
     }

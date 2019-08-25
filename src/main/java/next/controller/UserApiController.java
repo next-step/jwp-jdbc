@@ -1,5 +1,7 @@
 package next.controller;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
@@ -20,11 +22,21 @@ import javax.servlet.http.HttpServletResponse;
 public class UserApiController {
     private static final Logger logger = LoggerFactory.getLogger(UserApiController.class);
 
+    private ObjectMapper om;
+
+    public UserApiController() {
+        om = new ObjectMapper();
+        om.setVisibility(om.getSerializationConfig().getDefaultVisibilityChecker()
+                .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                .withGetterVisibility(JsonAutoDetect.Visibility.ANY)
+                .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
+    }
+
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest request, HttpServletResponse response) {
-        UserCreatedDto dto = (UserCreatedDto) HttpServletUtils.jsonBodyToObject(request, UserCreatedDto.class);
+        UserCreatedDto dto = HttpServletUtils.jsonBodyToObject(om, request, UserCreatedDto.class);
 
-        User user = new User(dto);
+        User user = dto.toEntity();
         DataBase.addUser(user);
         User registeredUser = DataBase.findUserById(user.getUserId());
         if (!user.isSameUser(registeredUser)) {
@@ -33,13 +45,13 @@ public class UserApiController {
 
         response.setStatus(201);
         response.setHeader("Location", "/api/users?userId=" + registeredUser.getUserId());
-        return new ModelAndView(new JsonView());
+        return new ModelAndView(new JsonView(om));
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
     public ModelAndView get(HttpServletRequest request, HttpServletResponse response) {
         User user = findUser(getUserId(request));
-        ModelAndView mav = new ModelAndView(new JsonView());
+        ModelAndView mav = new ModelAndView(new JsonView(om));
 
         if (user != null) {
             mav.addObject("user", user);
@@ -51,13 +63,13 @@ public class UserApiController {
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
     public ModelAndView update(HttpServletRequest request, HttpServletResponse response) {
         String userId = getUserId(request);
-        UserUpdatedDto dto = (UserUpdatedDto) HttpServletUtils.jsonBodyToObject(request, UserUpdatedDto.class);
+        UserUpdatedDto dto = HttpServletUtils.jsonBodyToObject(om, request, UserUpdatedDto.class);
 
         User user = DataBase.findUserById(userId);
-        user.update(dto);
+        dto.update(user);
 
         logger.debug("user updated : {}", user.toString());
-        return new ModelAndView(new JsonView());
+        return new ModelAndView(new JsonView(om));
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.DELETE)
@@ -66,7 +78,7 @@ public class UserApiController {
         User user = DataBase.deleteUser(userId);
         logger.debug("user deleted : {}", user.toString());
 
-        return new ModelAndView(new JsonView());
+        return new ModelAndView(new JsonView(om));
     }
 
     private String getUserId(HttpServletRequest request) {

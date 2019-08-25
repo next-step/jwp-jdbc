@@ -1,5 +1,6 @@
 package core.mvc.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,9 +10,9 @@ import java.io.BufferedReader;
 public class HttpServletUtils {
     private static final Logger logger = LoggerFactory.getLogger(HttpServletUtils.class);
 
-    public static Object jsonBodyToObject(HttpServletRequest request, Class<?> clazz) {
+    public static <T> T jsonBodyToObject(ObjectMapper om, HttpServletRequest request, Class<T> clazz) {
         String jsonString = extractRequestBody(request);
-        return JsonUtils.toObject(jsonString, clazz);
+        return JsonUtils.toObject(om, jsonString, clazz);
     }
 
     private static String extractRequestBody(HttpServletRequest request) {
@@ -22,7 +23,7 @@ public class HttpServletUtils {
             requestBody = sb.toString();
             logger.debug("requestBody : {}", requestBody);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("fail to extract requestBody", e);
         }
         return requestBody;
     }
