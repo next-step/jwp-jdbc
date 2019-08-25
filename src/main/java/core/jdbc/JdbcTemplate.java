@@ -12,13 +12,13 @@ import java.util.Optional;
 public class JdbcTemplate {
 
     public int update(PreparedStatementCreator creator, PreparedStatementSetter setter, KeyHolder keyHolder) {
-        try (Connection con = ConnectionManager.getConnection()) {
-            try (PreparedStatement statement = creator.createPreparedStatement(con)) {
-                setter.setStatement(statement);
-                int count = statement.executeUpdate();
-                setGeneratedKey(statement, keyHolder);
-                return count;
-            }
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement statement = creator.createPreparedStatement(con)) {
+
+            setter.setStatement(statement);
+            int count = statement.executeUpdate();
+            setGeneratedKey(statement, keyHolder);
+            return count;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
