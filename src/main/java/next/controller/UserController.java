@@ -7,6 +7,7 @@ import core.db.DataBase;
 import core.mvc.DispatcherServlet;
 import core.mvc.JspView;
 import core.mvc.ModelAndView;
+import next.dao.UserDao;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,8 @@ public class UserController {
                 req.getParameter("name"),
                 req.getParameter("email"));
         logger.debug("User : {}", user);
-        DataBase.addUser(user);
+        UserDao userDao = new UserDao();
+        userDao.insert(user);
         return redirect("/");
     }
 
