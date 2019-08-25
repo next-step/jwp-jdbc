@@ -2,6 +2,7 @@ package next.controller;
 
 import next.dto.UserCreatedDto;
 import next.dto.UserDto;
+import next.dto.UserUpdatedDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -65,25 +66,25 @@ public class UserAcceptanceTest {
         assertThat(user.getUserId()).isEqualTo(userCreatedDto.getUserId());
         assertThat(user.getName()).isEqualTo(userCreatedDto.getName());
         assertThat(user.getEmail()).isEqualTo(userCreatedDto.getEmail());
-//
-//        // 수정
-//        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
-//        client()
-//                .put()
-//                .uri(location.toString())
-//                .body(Mono.just(updateUser), UserUpdatedDto.class)
-//                .exchange()
-//                .expectStatus().isOk();
-//
-//
-//        actual = client()
-//                .get()
-//                .uri(location.toString())
-//                .exchange()
-//                .expectStatus().isOk()
-//                .expectBody(User.class)
-//                .returnResult().getResponseBody();
-//        assertThat(actual.getName()).isEqualTo(updateUser.getName());
-//        assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
+
+        // 수정
+        final UserUpdatedDto userUpdatedDto = new UserUpdatedDto("코난", "conan@nextstep.camp");
+        client()
+                .put()
+                .uri(location.toString())
+                .body(Mono.just(userUpdatedDto), UserUpdatedDto.class)
+                .exchange()
+                .expectStatus().isOk();
+
+
+        final UserDto userUpdated = client()
+                .get()
+                .uri(location.toString())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserDto.class)
+                .returnResult().getResponseBody();
+        assertThat(userUpdated.getName()).isEqualTo(userUpdatedDto.getName());
+        assertThat(userUpdated.getEmail()).isEqualTo(userUpdatedDto.getEmail());
     }
 }

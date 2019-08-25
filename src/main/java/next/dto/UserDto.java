@@ -10,10 +10,14 @@ public class UserDto {
 
     private UserDto() {}
 
-    public UserDto(final User user) {
-        this.userId = user.getUserId();
-        this.name = user.getName();
-        this.email = user.getEmail();
+    public UserDto(final String userId, final String name, final String email) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+    }
+
+    public static UserDto from(final User user) {
+        return new UserDto(user.getUserId(), user.getName(), user.getEmail());
     }
 
     public String getUserId() { return this.userId; }

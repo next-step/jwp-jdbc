@@ -4,12 +4,12 @@ import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.db.DataBase;
-import core.mvc.JsonView;
 import core.mvc.ModelAndView;
 import core.mvc.RequestReader;
-import core.mvc.ResponseWriter;
+import core.mvc.ResponseEntityWriter;
 import next.dto.UserCreatedDto;
 import next.dto.UserDto;
+import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +36,7 @@ public class UserRestController {
         logger.debug("User : {}", user);
         DataBase.addUser(user);
 
-        ResponseWriter.created(response, "/api/users?userId=" + user.getUserId());
-        return new ModelAndView(new JsonView());
+        return ResponseEntityWriter.created(response, "/api/users?userId=" + user.getUserId());
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
@@ -45,10 +44,21 @@ public class UserRestController {
         final String userId = RequestReader.fromQueryString(request, "userId");
 
         final User user = DataBase.findUserById(userId);
-        final UserDto userDto = new UserDto(user);
+        final UserDto userDto = UserDto.from(user);
 
-        ResponseWriter.ok(response);
-        return new ModelAndView(new JsonView())
-                .addObject("user", userDto);
+        return ResponseEntityWriter.ok(response, userDto);
+    }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
+    public ModelAndView put(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+        final String userId = RequestReader.fromQueryString(request, "userId");
+        final UserUpdatedDto updatedDto = RequestReader.fromBody(request, UserUpdatedDto.class);
+
+        final User user = DataBase.findUserById(userId);
+        final User updatedUser = new User(user.getUserId(), user.getPassword(), updatedDto.getName(), updatedDto.getEmail());
+        user.update(updatedUser);
+        final UserDto userDto = UserDto.from(user);
+
+        return ResponseEntityWriter.ok(response, userDto);
     }
 }
