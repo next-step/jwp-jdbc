@@ -1,86 +1,38 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
+import core.jdbc.BeanRowMapper;
+import core.jdbc.JdbcTemplate;
 import next.model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
+    private static final String INSERT = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+    private static final String UPDATE = "update users set name = ?, email = ? where userId = ?";
+    private static final String FIND_ALL = "SELECT userId, password, name, email FROM USERS";
+    private static final String FIND_BY_USER_ID = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-            if (con != null) {
-                con.close();
-            }
-        }
+    private final JdbcTemplate jdbcTemplate;
+
+    public UserDao() {
+        jdbcTemplate = new JdbcTemplate();
     }
 
-    public void update(User user) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection()) {
-            String sql = "update users set name = ?, email = ? where userId = ?";
-            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-                pstmt.setString(1, user.getName());
-                pstmt.setString(2, user.getEmail());
-                pstmt.setString(3, user.getUserId());
-                pstmt.executeUpdate();
-            }
-        }
+    public void insert(User user) {
+        jdbcTemplate.update(INSERT, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+    public void update(User user) {
+        jdbcTemplate.update(UPDATE, user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    public List<User> findAll() {
+        return jdbcTemplate.queryForList(FIND_ALL, new BeanRowMapper<>(User.class));
+    }
 
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    public Optional<User> findByUserId(String userId) {
+        return jdbcTemplate.queryForOptionalObject(FIND_BY_USER_ID, new BeanRowMapper<>(User.class, false), userId);
     }
 }
