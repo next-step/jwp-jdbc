@@ -11,4 +11,8 @@ public class ResponseWriter {
         response.addHeader("location", uri.toString());
         response.setStatus(HttpStatus.CREATED.value());
     }
+
+    public static void ok(final HttpServletResponse response) {
+        response.setStatus(HttpStatus.OK.value());
+    }
 }

@@ -9,6 +9,7 @@ import core.mvc.ModelAndView;
 import core.mvc.RequestReader;
 import core.mvc.ResponseWriter;
 import next.dto.UserCreatedDto;
+import next.dto.UserDto;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,5 +38,19 @@ public class UserRestController {
 
         ResponseWriter.created(response, "/api/users?userId=" + user.getUserId());
         return new ModelAndView(new JsonView());
+    }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.GET)
+    public ModelAndView get(
+            final HttpServletRequest request,
+            final HttpServletResponse response) {
+        final String userId = RequestReader.fromQueryString(request, "userId");
+
+        final User user = DataBase.findUserById(userId);
+        final UserDto userDto = new UserDto(user);
+
+        ResponseWriter.ok(response);
+        return new ModelAndView(new JsonView())
+                .addObject("user", userDto);
     }
 }

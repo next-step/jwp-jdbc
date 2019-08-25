@@ -1,8 +1,11 @@
 package next.controller;
 
 import next.dto.UserCreatedDto;
+import next.dto.UserDto;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
@@ -10,6 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,12 +28,20 @@ public class UserAcceptanceTest {
                 .build();
     }
 
-    @Test
+    static Stream userProvider() {
+        return Stream.of(
+                Arguments.of("pobi", "password", "포비", "pobi@nextstep.camp"),
+                Arguments.of("friend", "pass1234", "친구", "friend@friend.com")
+        );
+    }
+
     @DisplayName("사용자 회원가입/조회/수정/삭제")
-    void crud() {
+    @ParameterizedTest(name = "userId: {0}, password: {1}, name: {2}, email: {3}")
+    @MethodSource("userProvider")
+    void crud(final String userId, final String password, final String name, final String email) {
         // 회원가입
         final UserCreatedDto userCreatedDto =
-                new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
+                new UserCreatedDto(userId, password, name, email);
         final EntityExchangeResult<byte[]> response = UserAcceptanceTest.client()
                 .post()
                 .uri(USERS_API_URL)
@@ -43,16 +55,16 @@ public class UserAcceptanceTest {
         assertThat(location).isEqualTo(URI.create(USERS_API_URL + "?userId=" + userCreatedDto.getUserId()));
 
         // 조회
-//        User actual = client()
-//                .get()
-//                .uri(location.toString())
-//                .exchange()
-//                .expectStatus().isOk()
-//                .expectBody(User.class)
-//                .returnResult().getResponseBody();
-//        assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
-//        assertThat(actual.getName()).isEqualTo(expected.getName());
-//        assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
+        final UserDto user = client()
+                .get()
+                .uri(location.toString())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserDto.class)
+                .returnResult().getResponseBody();
+        assertThat(user.getUserId()).isEqualTo(userCreatedDto.getUserId());
+        assertThat(user.getName()).isEqualTo(userCreatedDto.getName());
+        assertThat(user.getEmail()).isEqualTo(userCreatedDto.getEmail());
 //
 //        // 수정
 //        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
