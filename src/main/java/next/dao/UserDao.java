@@ -13,35 +13,36 @@ import java.util.List;
 public class UserDao {
 
     public void insert(User user) throws SQLException {
+        final JdbcContext jdbcContext = new JdbcContext() {
+            @Override
+            void setPreparedStatement(PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getUserId());
+                pstmt.setString(2, user.getPassword());
+                pstmt.setString(3, user.getName());
+                pstmt.setString(4, user.getEmail());
+            }
+        };
+
         final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        try (final Connection con = ConnectionManager.getConnection();
-             final PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-
-            pstmt.executeUpdate();
-        }
+        jdbcContext.executeUpdate(sql);
     }
 
     public void update(User user) throws SQLException {
+        final JdbcContext jdbcContext = new JdbcContext() {
+            @Override
+            void setPreparedStatement(PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getName());
+                pstmt.setString(2, user.getEmail());
+                pstmt.setString(3, user.getUserId());
+            }
+        };
+
         final String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
-
-        try (final Connection con = ConnectionManager.getConnection();
-             final PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            pstmt.setString(1, user.getName());
-            pstmt.setString(2, user.getEmail());
-            pstmt.setString(3, user.getUserId());
-
-            pstmt.executeUpdate();
-        }
+        jdbcContext.executeUpdate(sql);
     }
 
     public List<User> findAll() throws SQLException {
-        final String sql = "SELECT userId, password, name, email FROM USERS";
+        final String sql = findAllSql();
 
         try (final Connection con = ConnectionManager.getConnection();
              final PreparedStatement pstmt = con.prepareStatement(sql);
@@ -59,14 +60,18 @@ public class UserDao {
         }
     }
 
+    private String findAllSql() {
+        return "SELECT userId, password, name, email FROM USERS";
+    }
+
     public User findByUserId(String userId) throws SQLException {
-        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+        final String sql = findSql();
 
         try (final Connection con = ConnectionManager.getConnection();
-             final PreparedStatement pstmt = con.prepareStatement(sql);
-             final ResultSet rs = pstmt.executeQuery()) {
-
+             final PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, userId);
+
+            final ResultSet rs = pstmt.executeQuery();
 
             User user = null;
             if (rs.next()) {
@@ -76,5 +81,9 @@ public class UserDao {
 
             return user;
         }
+    }
+
+    private String findSql() {
+        return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
     }
 }
