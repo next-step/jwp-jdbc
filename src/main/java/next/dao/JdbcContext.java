@@ -1,6 +1,7 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
+import next.exception.DataAccessException;
 import org.springframework.util.CollectionUtils;
 
 import java.sql.Connection;
@@ -13,22 +14,24 @@ import java.util.Optional;
 
 public class JdbcContext {
 
-    public void executeUpdate(final String sql, PreparedStatementSetter pss) throws SQLException {
+    public void executeUpdate(final String sql, PreparedStatementSetter pss) {
         try (final Connection con = ConnectionManager.getConnection();
              final PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             pss.setParameters(pstmt);
 
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
         }
     }
 
-    public void executeUpdate(final String sql, Object... arguments) throws SQLException {
+    public void executeUpdate(final String sql, Object... arguments) {
         final PreparedStatementSetter preparedStatementSetter = pstmt -> setObjects(pstmt, arguments);
         executeUpdate(sql, preparedStatementSetter);
     }
 
-    public <T> Optional<T> executeForObject(final String sql, final RowMapper<T> rowMapper, PreparedStatementSetter pss) throws SQLException {
+    public <T> Optional<T> executeForObject(final String sql, final RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         final List<T> executeForList = executeForList(sql, rowMapper, pss);
 
         if (CollectionUtils.isEmpty(executeForList)) {
@@ -38,12 +41,12 @@ public class JdbcContext {
         return Optional.of(executeForList.get(0));
     }
 
-    public <T> Optional<T> executeForObject(final String sql, final RowMapper<T> rowMapper, Object... arguments) throws SQLException {
+    public <T> Optional<T> executeForObject(final String sql, final RowMapper<T> rowMapper, Object... arguments) {
         final PreparedStatementSetter pss = pstmt -> setObjects(pstmt, arguments);
         return executeForObject(sql, rowMapper, pss);
     }
 
-    public <T> List<T> executeForList(final String sql, final RowMapper<T> rowMapper, PreparedStatementSetter pss) throws SQLException {
+    public <T> List<T> executeForList(final String sql, final RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         try (final Connection con = ConnectionManager.getConnection();
              final PreparedStatement pstmt = con.prepareStatement(sql)) {
 
@@ -56,10 +59,12 @@ public class JdbcContext {
                 users.add(rowMapper.mapRow(rs));
             }
             return users;
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
         }
     }
 
-    public <T> List<T> executeForList(final String sql, final RowMapper<T> rowMapper, Object... arguments) throws SQLException {
+    public <T> List<T> executeForList(final String sql, final RowMapper<T> rowMapper, Object... arguments) {
         final PreparedStatementSetter preparedStatementSetter = pstmt -> setObjects(pstmt, arguments);
         return executeForList(sql, rowMapper, preparedStatementSetter);
     }

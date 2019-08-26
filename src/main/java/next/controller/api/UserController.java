@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.SQLException;
 
 @Controller
 public class UserController {
@@ -24,7 +23,7 @@ public class UserController {
     private static final UserService userService = new UserService();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
-    public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+    public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String requestBody = HttpServletRequestUtils.getRequestBody(request);
         final UserCreatedDto userCreatedDto = JsonUtils.toObject(requestBody, UserCreatedDto.class);
 
@@ -35,7 +34,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
-    public ModelAndView show(HttpServletRequest request, HttpServletResponse response) throws SQLException {
+    public ModelAndView show(HttpServletRequest request, HttpServletResponse response) {
         final String userId = request.getParameter("userId");
 
         final User user = userService.findByUserId(userId);
@@ -46,7 +45,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
-    public ModelAndView update(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+    public ModelAndView update(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String userId = request.getParameter("userId");
         final String requestBody = HttpServletRequestUtils.getRequestBody(request);
         final UserUpdatedDto userUpdatedDto = JsonUtils.toObject(requestBody, UserUpdatedDto.class);

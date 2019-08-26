@@ -2,7 +2,6 @@ package next.dao;
 
 import next.model.User;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,17 +13,17 @@ public class UserDao {
         this.jdbcContext = jdbcContext;
     }
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         jdbcContext.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         final String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
         jdbcContext.executeUpdate(sql, user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         final String sql = "SELECT userId, password, name, email FROM USERS";
         return jdbcContext.executeForList(sql, resultSet -> new User(
                 resultSet.getString("userId"),
@@ -33,7 +32,7 @@ public class UserDao {
                 resultSet.getString("email")));
     }
 
-    public Optional<User> findByUserId(String userId) throws SQLException {
+    public Optional<User> findByUserId(String userId) {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         return jdbcContext.executeForObject(sql, resultSet -> new User(
                 resultSet.getString("userId"),
