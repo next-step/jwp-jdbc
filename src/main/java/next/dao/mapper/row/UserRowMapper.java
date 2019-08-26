@@ -4,18 +4,20 @@ import next.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserRowMapper implements RowMapper<User> {
     @Override
-    public User mapResult(ResultSet rs) throws SQLException {
-        User user = null;
+    public List<User> mapResult(ResultSet rs) throws SQLException {
+        List<User> users = new ArrayList<>();
         while (rs.next()) {
-            user = new User(rs.getString("userId")
+            users.add(new User(rs.getString("userId")
                     , rs.getString("password")
                     , rs.getString("name")
-                    , rs.getString("email"));
+                    , rs.getString("email")));
         }
 
-        return user;
+        return users;
     }
 }

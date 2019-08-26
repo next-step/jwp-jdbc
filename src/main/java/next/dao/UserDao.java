@@ -1,6 +1,5 @@
 package next.dao;
 
-import next.dao.mapper.row.UserListRowMapper;
 import next.dao.mapper.row.UserRowMapper;
 import next.dao.mapper.sql.UserSqlMapper;
 import next.dao.template.JdbcTemplate;
@@ -39,7 +38,7 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        UserListRowMapper rowMapper = new UserListRowMapper();
+        UserRowMapper rowMapper = new UserRowMapper();
         return jdbcTemplate.selectAll(UserSqlMapper.selectAll(), rowMapper);
     }
 }

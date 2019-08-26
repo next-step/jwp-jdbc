@@ -7,6 +7,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class JdbcTemplate {
     public <T> T selectOne(String sql, RowMapper<T> rowMapper, Object... objects) throws SQLException {
@@ -15,7 +19,10 @@ public class JdbcTemplate {
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             prepareValues(pstmt, objects);
             rs = pstmt.executeQuery();
-            return rowMapper.mapResult(rs);
+            return rowMapper.mapResult(rs)
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(NoSuchElementException::new);
         } finally {
             if (rs != null) {
                 rs.close();
@@ -23,7 +30,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T selectAll(String sql, RowMapper<T> rowMapper) throws SQLException {
+    public <T> List<T> selectAll(String sql, RowMapper<T> rowMapper) throws SQLException {
         ResultSet rs = null;
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
