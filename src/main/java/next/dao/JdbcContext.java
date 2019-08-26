@@ -27,8 +27,8 @@ public class JdbcContext {
     }
 
     public void executeUpdate(final String sql, Object... arguments) {
-        final PreparedStatementSetter preparedStatementSetter = pstmt -> setObjects(pstmt, arguments);
-        executeUpdate(sql, preparedStatementSetter);
+        final PreparedStatementSetter pss = pstmt -> setObjects(pstmt, arguments);
+        executeUpdate(sql, pss);
     }
 
     public <T> Optional<T> executeForObject(final String sql, final RowMapper<T> rowMapper, PreparedStatementSetter pss) {
