@@ -2,89 +2,44 @@ package next.dao;
 
 import next.model.User;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
 
-    public void insert(User user) throws SQLException {
-        final JdbcContext jdbcContext = new JdbcContext() {
-            @Override
-            void setPreparedStatement(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, user.getUserId());
-                pstmt.setString(2, user.getPassword());
-                pstmt.setString(3, user.getName());
-                pstmt.setString(4, user.getEmail());
-            }
-        };
+    private final JdbcContext jdbcContext;
 
+    public UserDao(JdbcContext jdbcContext) {
+        this.jdbcContext = jdbcContext;
+    }
+
+    public void insert(User user) throws SQLException {
         final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        jdbcContext.executeUpdate(sql);
+        jdbcContext.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) throws SQLException {
-        final JdbcContext jdbcContext = new JdbcContext() {
-            @Override
-            void setPreparedStatement(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, user.getName());
-                pstmt.setString(2, user.getEmail());
-                pstmt.setString(3, user.getUserId());
-            }
-        };
-
         final String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
-        jdbcContext.executeUpdate(sql);
+        jdbcContext.executeUpdate(sql, user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() throws SQLException {
         final String sql = "SELECT userId, password, name, email FROM USERS";
-
-        final JdbcContext jdbcContext = new JdbcContext() {
-            @Override
-            void setPreparedStatement(PreparedStatement pstmt) {}
-        };
-
-        return jdbcContext.executeQuery(sql, resultSet -> {
-            final List<User> users = new ArrayList<>();
-
-            while (resultSet.next()) {
-                final User user = new User(
-                        resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email"));
-
-                users.add(user);
-            }
-
-            return users;
-        });
+        return jdbcContext.executeForList(sql, resultSet -> new User(
+                resultSet.getString("userId"),
+                resultSet.getString("password"),
+                resultSet.getString("name"),
+                resultSet.getString("email")));
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public Optional<User> findByUserId(String userId) throws SQLException {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-
-        final JdbcContext jdbcContext = new JdbcContext() {
-            @Override
-            void setPreparedStatement(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, userId);
-            }
-        };
-
-        return jdbcContext.executeQuery(sql, resultSet -> {
-            User user = null;
-
-            if (resultSet.next()) {
-                user = new User(
-                        resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email"));
-            }
-
-            return user;
-        });
+        return jdbcContext.executeForObject(sql, resultSet -> new User(
+                resultSet.getString("userId"),
+                resultSet.getString("password"),
+                resultSet.getString("name"),
+                resultSet.getString("email"))
+                , userId);
     }
 }

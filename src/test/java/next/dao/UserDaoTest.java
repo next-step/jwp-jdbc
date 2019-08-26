@@ -24,20 +24,20 @@ public class UserDaoTest {
     @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
+        UserDao userDao = new UserDao(new JdbcContext());
         userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
+        User actual = userDao.findByUserId(expected.getUserId()).get();
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        actual = userDao.findByUserId(expected.getUserId()).get();
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     public void findAll() throws Exception {
-        UserDao userDao = new UserDao();
+        UserDao userDao = new UserDao(new JdbcContext());
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
