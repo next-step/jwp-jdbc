@@ -1,5 +1,7 @@
 package next.model;
 
+import core.jdbc.Column;
+
 import java.util.Date;
 
 public class Question {
@@ -13,7 +15,10 @@ public class Question {
 
     private Date createdDate;
 
+    @Column("countOfAnswer")
     private int countOfComment;
+
+    private Question() {}
 
     public Question(String writer, String title, String contents) {
         this(0, writer, title, contents, new Date(), 0);
