@@ -7,6 +7,7 @@ import core.db.DataBase;
 import core.mvc.DispatcherServlet;
 import core.mvc.JspView;
 import core.mvc.ModelAndView;
+import next.dao.UserDao;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private UserDao userDao = UserDao.getInstance();
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
@@ -26,7 +28,7 @@ public class UserController {
                 req.getParameter("name"),
                 req.getParameter("email"));
         logger.debug("User : {}", user);
-        DataBase.addUser(user);
+        userDao.insert(user);
         return redirect("/");
     }
 
