@@ -1,11 +1,8 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
 import next.model.User;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,48 +39,52 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        final String sql = findAllSql();
+        final String sql = "SELECT userId, password, name, email FROM USERS";
 
-        try (final Connection con = ConnectionManager.getConnection();
-             final PreparedStatement pstmt = con.prepareStatement(sql);
-             final ResultSet rs = pstmt.executeQuery()) {
+        final JdbcContext jdbcContext = new JdbcContext() {
+            @Override
+            void setPreparedStatement(PreparedStatement pstmt) {}
+        };
 
+        return jdbcContext.executeQuery(sql, resultSet -> {
             final List<User> users = new ArrayList<>();
-            while (rs.next()) {
-                final User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+
+            while (resultSet.next()) {
+                final User user = new User(
+                        resultSet.getString("userId"),
+                        resultSet.getString("password"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email"));
 
                 users.add(user);
             }
 
             return users;
-        }
-    }
-
-    private String findAllSql() {
-        return "SELECT userId, password, name, email FROM USERS";
+        });
     }
 
     public User findByUserId(String userId) throws SQLException {
-        final String sql = findSql();
+        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        try (final Connection con = ConnectionManager.getConnection();
-             final PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(1, userId);
+        final JdbcContext jdbcContext = new JdbcContext() {
+            @Override
+            void setPreparedStatement(PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, userId);
+            }
+        };
 
-            final ResultSet rs = pstmt.executeQuery();
-
+        return jdbcContext.executeQuery(sql, resultSet -> {
             User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+
+            if (resultSet.next()) {
+                user = new User(
+                        resultSet.getString("userId"),
+                        resultSet.getString("password"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email"));
             }
 
             return user;
-        }
-    }
-
-    private String findSql() {
-        return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+        });
     }
 }
