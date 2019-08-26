@@ -9,6 +9,14 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
+    private static UserDao userDao = new UserDao();
+
+    private UserDao() {
+    }
+
+    public static UserDao getInstance() {
+        return userDao;
+    }
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";

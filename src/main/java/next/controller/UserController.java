@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private UserDao userDao = UserDao.getInstance();
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST)
     public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
@@ -27,7 +28,6 @@ public class UserController {
                 req.getParameter("name"),
                 req.getParameter("email"));
         logger.debug("User : {}", user);
-        UserDao userDao = new UserDao();
         userDao.insert(user);
         return redirect("/");
     }

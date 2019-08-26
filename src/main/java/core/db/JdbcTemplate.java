@@ -3,6 +3,7 @@ package core.db;
 import core.jdbc.ConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import support.exception.DataAccessException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,11 +31,11 @@ public class JdbcTemplate {
                 pstmt.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("executeUpdate error");
+            throw new DataAccessException();
         }
     }
 
-    public <T> T executeQueryForObject(String sql, RowMapper<T> rowMapper , Object... params) {
+    public <T> T executeQueryForObject(String sql, RowMapper<T> rowMapper, Object... params) {
         return executeQueryForObject(sql, pstmt -> {
             for (int i = 0; i < params.length; i++) {
                 pstmt.setObject(i + 1, params[i]);
@@ -56,31 +57,20 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> executeQuery(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
-        ResultSet rs = null;
-        try {
-            try (Connection con = ConnectionManager.getConnection();
-                 PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-                pstmtSetter.setPreparedStatement(pstmt);
-                rs = pstmt.executeQuery();
+            pstmtSetter.setPreparedStatement(pstmt);
+            try (ResultSet rs = pstmt.executeQuery()) {
 
                 List<T> result = new ArrayList<>();
                 if (rs.next()) {
                     result.add(rowMapper.mappedRow(rs));
                 }
                 return result;
-            } finally {
-                close(rs);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Sql Exception :" + e.getMessage());
+            throw new DataAccessException();
         }
     }
-
-    private void close(ResultSet rs) throws SQLException {
-        if (rs != null) {
-            rs.close();
-        }
-    }
-
 }
