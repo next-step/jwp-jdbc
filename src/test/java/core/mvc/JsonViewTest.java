@@ -1,5 +1,8 @@
 package core.mvc;
 
+import core.mvc.view.JsonView;
+import core.mvc.view.View;
+import core.utils.JsonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

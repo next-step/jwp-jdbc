@@ -16,8 +16,8 @@ public class RequestMapping implements HandlerMapping {
 
     public void initialize() {
         mappings.put("/", new HomeController());
-        mappings.put("/users/form", new ForwardController("/user/form.jsp"));
-        mappings.put("/users/loginForm", new ForwardController("/user/login.jsp"));
+        mappings.put("/users/form", new ForwardController("/user/form"));
+        mappings.put("/users/loginForm", new ForwardController("/user/login"));
         mappings.put("/users/login", new LoginController());
         mappings.put("/users/profile", new ProfileController());
         mappings.put("/users/logout", new LogoutController());

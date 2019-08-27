@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ModelAndView {
-    private View view;
+    private String view;
     private Map<String, Object> model = new HashMap<String, Object>();
 
     public ModelAndView() {
     }
 
-    public ModelAndView(View view) {
+    public ModelAndView(String view) {
         this.view = view;
     }
 
@@ -28,7 +28,7 @@ public class ModelAndView {
         return Collections.unmodifiableMap(model);
     }
 
-    public View getView() {
+    public String getView() {
         return view;
     }
 }

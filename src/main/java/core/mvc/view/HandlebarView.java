@@ -1,4 +1,4 @@
-package core.mvc;
+package core.mvc.view;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;

@@ -1,6 +1,7 @@
 package core.mvc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import core.utils.JsonUtils;
 import org.junit.jupiter.api.Test;
 import study.jackson.Car;
 

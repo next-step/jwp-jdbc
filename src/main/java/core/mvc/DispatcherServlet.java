@@ -4,6 +4,7 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.mvc.view.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @WebServlet(name = "dispatcher", urlPatterns = "/", loadOnStartup = 1)
 public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final String DEFAULT_REDIRECT_PREFIX = "redirect:";
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
     private HandlerMappingRegistry handlerMappingRegistry;
@@ -26,6 +28,8 @@ public class DispatcherServlet extends HttpServlet {
     private HandlerAdapterRegistry handlerAdapterRegistry;
 
     private HandlerExecutor handlerExecutor;
+
+    private ViewResolverRegistry viewResolverRegistry;
 
     @Override
     public void init() {
@@ -38,6 +42,11 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        viewResolverRegistry = new ViewResolverRegistry();
+        viewResolverRegistry.add(new HandlebarViewResolver());
+        viewResolverRegistry.add(new JspViewResolver());
+        viewResolverRegistry.add(new JsonViewResolver());
     }
 
     @Override
@@ -52,7 +61,6 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
-
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
             render(mav, req, resp);
         } catch (Throwable e) {
@@ -62,7 +70,14 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private void render(ModelAndView mav, HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        View view = mav.getView();
+        String viewName = mav.getView();
+        logger.debug("ViewName : {}", viewName);
+        if (viewName.startsWith(DEFAULT_REDIRECT_PREFIX)) {
+            resp.sendRedirect(viewName.substring(DEFAULT_REDIRECT_PREFIX.length()));
+            return;
+        }
+
+        View view = this.viewResolverRegistry.getView(viewName);
         view.render(mav.getModel(), req, resp);
     }
 }
