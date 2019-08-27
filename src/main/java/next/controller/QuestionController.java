@@ -2,7 +2,6 @@ package next.controller;
 
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
-import core.mvc.HandlebarsView;
 import core.mvc.ModelAndView;
 import next.model.Question;
 import next.service.QuestionService;
@@ -24,7 +23,7 @@ public class QuestionController {
     public ModelAndView questions(HttpServletRequest request, HttpServletResponse response) {
         List<Question> questions = questionService.findAllQuestions();
 
-        ModelAndView modelAndView = new ModelAndView(new HandlebarsView("qna/list"));
+        ModelAndView modelAndView = new ModelAndView("/qna/list.html");
         modelAndView.addObject("questions", questions);
         return modelAndView;
     }

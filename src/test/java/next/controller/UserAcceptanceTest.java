@@ -8,14 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserAcceptanceTest {
+public class UserAcceptanceTest extends AcceptanceTestSupport {
     private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceTest.class);
 
     @Test
@@ -68,10 +67,4 @@ public class UserAcceptanceTest {
         assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
     }
 
-    private WebTestClient client() {
-        return WebTestClient
-                .bindToServer()
-                .baseUrl("http://localhost:8080")
-                .build();
-    }
 }

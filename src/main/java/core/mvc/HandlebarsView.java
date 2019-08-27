@@ -10,15 +10,23 @@ import java.util.Map;
 
 public class HandlebarsView implements View {
 
-    private static final String BASE_DIR = "webapp/";
+    private static final String BASE_DIR = "webapp";
     private static final String SUFFIX = ".html";
 
-    private final Handlebars handlebars;
     private final String viewName;
+    private final Handlebars handlebars;
 
     public HandlebarsView(String viewName) {
-        this.handlebars = new Handlebars(new FileTemplateLoader(BASE_DIR, SUFFIX));
+        if (viewName.endsWith(SUFFIX)) {
+            viewName = removeSuffix(viewName);
+        }
+
         this.viewName = viewName;
+        this.handlebars = new Handlebars(new FileTemplateLoader(BASE_DIR, SUFFIX));
+    }
+
+    private String removeSuffix(String viewName) {
+        return viewName.substring(0, viewName.lastIndexOf(SUFFIX));
     }
 
     @Override
