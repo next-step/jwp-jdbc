@@ -2,6 +2,7 @@ package next.dao.mapper.row;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import support.exception.DataAccessException;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
@@ -37,7 +38,7 @@ public class BasicRowMapper<T> {
                 result.add(addOne(rs, clazz.newInstance()));
             }
         } catch (SQLException | InstantiationException | IllegalAccessException e) {
-            logger.error(e.getMessage());
+            DataAccessException.handleException(e);
         }
 
         return result;
@@ -47,11 +48,10 @@ public class BasicRowMapper<T> {
         for (String targetField : targetFields) {
             setByType(rs, object, targetField);
         }
-
         return object;
     }
 
-    private void setByType(ResultSet rs, T object, String targetField) throws IllegalAccessException, SQLException {
+    private void setByType(ResultSet rs, T object, String targetField) throws SQLException, IllegalAccessException {
         Field field = fields.get(targetField);
         Class fieldType = field.getType();
         field.setAccessible(true);
