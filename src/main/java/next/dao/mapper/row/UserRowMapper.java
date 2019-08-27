@@ -7,17 +7,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserRowMapper implements RowMapper<User> {
-    @Override
-    public List<User> mapResult(ResultSet rs) throws SQLException {
-        List<User> users = new ArrayList<>();
-        while (rs.next()) {
-            users.add(new User(rs.getString("userId")
-                    , rs.getString("password")
-                    , rs.getString("name")
-                    , rs.getString("email")));
-        }
+public class UserRowMapper extends BasicRowMapper<User> implements RowMapper<User> {
 
-        return users;
+    public UserRowMapper(String... targetFields) {
+        super(User.class, targetFields);
+    }
+
+    @Override
+    public List<User> mapResult(ResultSet rs) {
+        List<User> users = new ArrayList<>();
+        return super.mapObject(rs, users, User.class);
     }
 }

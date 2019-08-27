@@ -22,6 +22,14 @@
 
 
 ## step2
-- [ ] 의존관계를 고려하여 개발하기 ( 변경이 잦은 쪽이 변경이 적은 쪽을 의존하도록 )
+- [x] 의존관계를 고려하여 개발하기 ( 변경이 잦은 쪽이 변경이 적은 쪽을 의존하도록 )
 - [x] UserDaoTest pass 하기
-- [ ] UserDao 리팩토링 하기
+- [x] UserDao 리팩토링 하기
+
+
+## step3
+- [x] rowMapper 공통기능 분리 -> BasicRowMapper 구현
+- [ ] SQLException을 런타임 Exception으로 변환해 throw하도록 한다
+- [ ] Connection, PreparedStatement 자원 반납을 close() 메소드를 사용하지 말고 try-with-resources 구문을 적용해 해결한다.
+- [ ] 각 쿼리에 전달할 인자를PreparedStatementSetter를 통해 전달할 수도 있지만 자바의 가변인자를 통해 전달할 수 있는 메소드를 추가
+- [ ] rowMapper 구현체 생성 -> 람다 표현식 사용하도록 변경

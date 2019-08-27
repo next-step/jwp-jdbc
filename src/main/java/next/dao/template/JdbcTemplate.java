@@ -3,17 +3,17 @@ package next.dao.template;
 import core.jdbc.ConnectionManager;
 import next.dao.mapper.row.RowMapper;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class JdbcTemplate {
-    public <T> T selectOne(String sql, RowMapper<T> rowMapper, Object... objects) throws SQLException {
+    public <T> T selectOne(String sql, RowMapper<T> rowMapper, Object... objects) throws SQLException, IllegalAccessException {
         ResultSet rs = null;
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -30,7 +30,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> List<T> selectAll(String sql, RowMapper<T> rowMapper) throws SQLException {
+    public <T> List<T> selectAll(String sql, RowMapper<T> rowMapper) throws SQLException, IllegalAccessException {
         ResultSet rs = null;
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {

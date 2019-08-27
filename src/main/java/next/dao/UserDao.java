@@ -32,13 +32,24 @@ public class UserDao {
                         , user.getUserId());
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        UserRowMapper rowMapper = new UserRowMapper();
+    public User findByUserId(String userId) throws SQLException, IllegalAccessException {
+        UserRowMapper rowMapper = new UserRowMapper(
+                "userId"
+                , "password"
+                , "name"
+                , "email"
+        );
+
         return jdbcTemplate.selectOne(UserSqlMapper.select(), rowMapper, userId);
     }
 
-    public List<User> findAll() throws SQLException {
-        UserRowMapper rowMapper = new UserRowMapper();
+    public List<User> findAll() throws SQLException, IllegalAccessException {
+        UserRowMapper rowMapper = new UserRowMapper(
+                "userId"
+                , "password"
+                , "name"
+                , "email"
+        );
         return jdbcTemplate.selectAll(UserSqlMapper.selectAll(), rowMapper);
     }
 }
