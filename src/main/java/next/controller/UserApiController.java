@@ -3,8 +3,8 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
-import core.mvc.JsonUtils;
-import core.mvc.JsonView;
+import core.utils.JsonUtils;
+import core.mvc.view.JsonView;
 import core.mvc.ModelAndView;
 import next.dao.UserDao;
 import next.model.User;
@@ -21,6 +21,7 @@ import java.util.NoSuchElementException;
 @Controller
 public class UserApiController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private static final String JSON_VIEW = "JsonView";
     private UserDao userDao = UserDao.getInstance();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
@@ -31,7 +32,7 @@ public class UserApiController {
         String location = "/api/users?userId=" + user.getUserId();
         resp.setHeader("location", location);
 
-        return new ModelAndView(new JsonView());
+        return new ModelAndView();
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
@@ -40,7 +41,7 @@ public class UserApiController {
 
         User user = userDao.findByUserId(userId)
                 .orElseThrow(NoSuchElementException::new);
-        ModelAndView modelAndView = new ModelAndView(new JsonView());
+        ModelAndView modelAndView = new ModelAndView(JSON_VIEW);
         modelAndView.addObject("User", user);
 
         return modelAndView;
@@ -56,7 +57,7 @@ public class UserApiController {
         user.update(updateUser);
         userDao.update(user);
 
-        return new ModelAndView(new JsonView());
+        return new ModelAndView(JSON_VIEW);
     }
 
     private User parseUserFromBody(HttpServletRequest req) throws IOException {

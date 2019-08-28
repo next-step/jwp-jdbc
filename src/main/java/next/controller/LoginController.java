@@ -16,7 +16,7 @@ public class LoginController implements Controller {
         User user = DataBase.findUserById(userId);
         if (user == null) {
             req.setAttribute("loginFailed", true);
-            return "/user/login.jsp";
+            return "/user/login";
         }
         if (user.matchPassword(password)) {
             HttpSession session = req.getSession();
@@ -24,7 +24,7 @@ public class LoginController implements Controller {
             return "redirect:/";
         } else {
             req.setAttribute("loginFailed", true);
-            return "/user/login.jsp";
+            return "/user/login";
         }
     }
 }

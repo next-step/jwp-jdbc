@@ -1,7 +1,8 @@
-package core.mvc;
+package core.mvc.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Strings;
+import core.utils.JsonUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 

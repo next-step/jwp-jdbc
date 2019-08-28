@@ -4,8 +4,8 @@ import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.db.DataBase;
-import core.mvc.DispatcherServlet;
-import core.mvc.JspView;
+import core.mvc.view.HandlebarView;
+import core.mvc.view.JspView;
 import core.mvc.ModelAndView;
 import next.model.User;
 import org.slf4j.Logger;
@@ -31,8 +31,7 @@ public class UserController {
     }
 
     private ModelAndView redirect(String path) {
-        return new ModelAndView(new JspView(
-                JspView.DEFAULT_REDIRECT_PREFIX + path));
+        return new ModelAndView("redirect:" + path);
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
@@ -41,8 +40,17 @@ public class UserController {
             return redirect("/users/loginForm");
         }
 
-        ModelAndView mav = new ModelAndView(new JspView("/user/list.jsp"));
+        ModelAndView mav = new ModelAndView("/user/list");
         mav.addObject("users", DataBase.findAll());
+        return mav;
+    }
+
+    @RequestMapping(value = "/user", method = RequestMethod.GET)
+    public ModelAndView info(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        String userId = req.getParameter("userId");
+        ModelAndView mav = new ModelAndView("user/userInfo");
+        mav.addObject("user", DataBase.findUserById(userId));
+
         return mav;
     }
 }
