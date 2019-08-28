@@ -4,19 +4,21 @@ import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.db.DataBase;
+import core.mvc.JsonView;
 import core.mvc.ModelAndView;
 import core.mvc.RequestReader;
-import core.mvc.ResponseEntityWriter;
 import next.dto.UserCreatedDto;
 import next.dto.UserDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 
 @Controller
 public class UserRestController {
@@ -28,15 +30,12 @@ public class UserRestController {
             final HttpServletResponse response) throws IOException {
         final UserCreatedDto createdDto = RequestReader.fromBody(request, UserCreatedDto.class);
 
-        final User user = new User(
-                createdDto.getUserId(),
-                createdDto.getPassword(),
-                createdDto.getName(),
-                createdDto.getEmail());
+        final User user = createdDto.toUser();
         logger.debug("User : {}", user);
         DataBase.addUser(user);
 
-        return ResponseEntityWriter.created(response, "/api/users?userId=" + user.getUserId());
+        final JsonView jsonView = new JsonView(HttpStatus.CREATED, URI.create("/api/users?userId=" + user.getUserId()));
+        return new ModelAndView(jsonView);
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
@@ -46,19 +45,19 @@ public class UserRestController {
         final User user = DataBase.findUserById(userId);
         final UserDto userDto = UserDto.from(user);
 
-        return ResponseEntityWriter.ok(response, userDto);
+        return new ModelAndView(new JsonView(HttpStatus.OK))
+                .addObject("user", userDto);
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
-    public ModelAndView put(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    public ModelAndView update(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         final String userId = RequestReader.fromQueryString(request, "userId");
         final UserUpdatedDto updatedDto = RequestReader.fromBody(request, UserUpdatedDto.class);
 
         final User user = DataBase.findUserById(userId);
-        final User updatedUser = new User(user.getUserId(), user.getPassword(), updatedDto.getName(), updatedDto.getEmail());
+        final User updatedUser = updatedDto.toUser(user);
         user.update(updatedUser);
-        final UserDto userDto = UserDto.from(user);
 
-        return ResponseEntityWriter.ok(response, userDto);
+        return new ModelAndView(new JsonView(HttpStatus.OK));
     }
 }

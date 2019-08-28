@@ -1,78 +1,74 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
+import next.jdbc.PreparedStatementParameterSetterWrapper;
+import next.jdbc.QueryExecutor;
+import next.jdbc.RowMapperWrapper;
+import next.jdbc.UpdateExecutor;
 import next.model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+    public void insert(final User user) {
+        final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        final UpdateExecutor updateExecutor = new UpdateExecutor();
+        updateExecutor.execute(
+                sql,
+                PreparedStatementParameterSetterWrapper.setParameters((pstmt) -> {
+                    pstmt.setString(1, user.getUserId());
+                    pstmt.setString(2, user.getPassword());
+                    pstmt.setString(3, user.getName());
+                    pstmt.setString(4, user.getEmail());
+                }));
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public void update(final User user) {
+        final String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
+        final UpdateExecutor updateExecutor = new UpdateExecutor();
+        updateExecutor.execute(
+                sql, PreparedStatementParameterSetterWrapper.setParameters((pstmt) -> {
+                    pstmt.setString(1, user.getPassword());
+                    pstmt.setString(2, user.getName());
+                    pstmt.setString(3, user.getEmail());
+                    pstmt.setString(4, user.getUserId());
+                }));
     }
 
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+    public List<User> findAll() {
+        final String sql = "SELECT userId, password, name, email FROM USERS";
+        final QueryExecutor queryExecutor = new QueryExecutor();
+        return queryExecutor.executeQuery(
+                sql,
+                RowMapperWrapper.mapRow((rs) -> {
+                    final User user = new User(
+                            rs.getString(1),
+                            rs.getString(2),
+                            rs.getString(3),
+                            rs.getString(4));
+                    return user;
+                }),
+                pstmt -> {
+                });
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
 
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    public User findByUserId(final String userId) {
+        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+        final QueryExecutor queryExecutor = new QueryExecutor();
+        return queryExecutor.executeScalar(
+                sql,
+                (rs) -> {
+                    final User user = new User(
+                            rs.getString(1),
+                            rs.getString(2),
+                            rs.getString(3),
+                            rs.getString(4));
+                    return user;
+                },
+                PreparedStatementParameterSetterWrapper.setParameters(
+                        pstmt -> {
+                            pstmt.setString(1, userId);
+                        }
+                ));
     }
 }

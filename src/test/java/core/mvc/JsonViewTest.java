@@ -1,15 +1,18 @@
 package core.mvc;
 
+import com.google.common.collect.Maps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import study.jackson.Car;
 import study.jackson.Color;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +28,7 @@ public class JsonViewTest {
     void setUp() {
         this.request = new MockHttpServletRequest();
         this.response = new MockHttpServletResponse();
-        this.view = new JsonView();
+        this.view = new JsonView(HttpStatus.OK);
     }
 
     @Test
@@ -60,5 +63,19 @@ public class JsonViewTest {
         final String contentAsString = this.response.getContentAsString();
         assertThat(this.response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
         assertThat(contentAsString).isEqualTo("{\"car\":{\"color\":\"Black\",\"type\":\"Sonata\"},\"name\":\"포비\"}");
+    }
+
+    @Test
+    void should_change_response_location() throws Exception {
+        final View viewWithLocation = new JsonView(HttpStatus.OK, URI.create("/articles/100"));
+        viewWithLocation.render(Maps.newHashMap(), this.request, this.response);
+        assertThat(this.response.getHeader("location")).isEqualTo("/articles/100");
+    }
+
+    @Test
+    void should_default_location_is_null() throws Exception {
+        final View viewWithoutLocation = new JsonView(HttpStatus.OK);
+        viewWithoutLocation.render(Maps.newHashMap(), this.request, this.response);
+        assertThat(this.response.getHeader("location")).isNull();
     }
 }
