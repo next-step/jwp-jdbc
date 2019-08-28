@@ -1,5 +1,6 @@
 package next.dao;
 
+import core.jdbc.JdbcContext;
 import next.model.User;
 
 import java.util.List;
@@ -25,20 +26,11 @@ public class UserDao {
 
     public List<User> findAll() {
         final String sql = "SELECT userId, password, name, email FROM USERS";
-        return jdbcContext.executeForList(sql, resultSet -> new User(
-                resultSet.getString("userId"),
-                resultSet.getString("password"),
-                resultSet.getString("name"),
-                resultSet.getString("email")));
+        return jdbcContext.executeForList(sql, User.class);
     }
 
     public Optional<User> findByUserId(String userId) {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcContext.executeForObject(sql, resultSet -> new User(
-                resultSet.getString("userId"),
-                resultSet.getString("password"),
-                resultSet.getString("name"),
-                resultSet.getString("email"))
-                , userId);
+        return jdbcContext.executeForObject(sql, User.class, userId);
     }
 }

@@ -1,6 +1,7 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcContext;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
