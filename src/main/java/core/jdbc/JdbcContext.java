@@ -72,12 +72,12 @@ public class JdbcContext {
 
             final ResultSet rs = pstmt.executeQuery();
 
-            final List<T> users = new ArrayList<>();
+            final List<T> list = new ArrayList<>();
             while (rs.next()) {
-                users.add(rowMapper.mapRow(rs));
+                list.add(rowMapper.mapRow(rs));
             }
-            return users;
-        } catch (SQLException e) {
+            return list;
+        } catch (SQLException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new DataAccessException(e);
         }
     }
@@ -93,26 +93,16 @@ public class JdbcContext {
     }
 
     public <T> List<T> executeForList(final String sql, final Class<T> clazz, final PreparedStatementSetter pss) {
-        try (final Connection con = ConnectionManager.getConnection();
-             final PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            pss.setParameters(pstmt);
-
-            final ResultSet rs = pstmt.executeQuery();
-
+        try {
             final Constructor<?> constructor = getConstructor(clazz);
 
-            final List<T> list = new ArrayList<>();
-
-            while (rs.next()) {
+            final RowMapper<T> rowMapper = rs -> {
                 final Object[] parameters = getParameters(rs, constructor);
-                T instance = clazz.cast(constructor.newInstance(parameters));
+                return clazz.cast(constructor.newInstance(parameters));
+            };
 
-                list.add(instance);
-            }
-
-            return list;
-        } catch (SQLException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            return executeForList(sql, rowMapper, pss);
+        } catch (NoSuchMethodException e) {
             throw new DataAccessException(e);
         }
     }
