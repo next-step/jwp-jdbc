@@ -1,6 +1,6 @@
 package next.service;
 
-import next.dao.JdbcContext;
+import core.jdbc.JdbcContext;
 import next.dao.UserDao;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
