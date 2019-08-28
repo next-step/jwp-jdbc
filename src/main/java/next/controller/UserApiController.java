@@ -4,7 +4,6 @@ import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.JsonUtils;
-import core.mvc.JsonView;
 import core.mvc.ModelAndView;
 import core.mvc.ResponseHeaderSetter;
 import next.dto.UserCreatedDto;
@@ -39,7 +38,7 @@ public class UserApiController {
 
         String location = "/api/users?userId=" + createdDto.getUserId();
         ResponseHeaderSetter.setStatusCREATED(response, location);
-        return new ModelAndView(new JsonView());
+        return new ModelAndView("jsonView");
     }
 
     @RequestMapping(value = "/api/users")
@@ -50,7 +49,7 @@ public class UserApiController {
 
         log.debug("user : {}", user);
         ResponseHeaderSetter.setStatusOK(response);
-        ModelAndView modelAndView = new ModelAndView(new JsonView());
+        ModelAndView modelAndView = new ModelAndView("jsonView");
         modelAndView.addObject("user", user);
         return modelAndView;
     }
@@ -62,7 +61,7 @@ public class UserApiController {
 
         userService.updateUser(userId, updatedDto);
         ResponseHeaderSetter.setStatusOK(response);
-        return new ModelAndView(new JsonView());
+        return new ModelAndView("jsonView");
     }
 
 }
