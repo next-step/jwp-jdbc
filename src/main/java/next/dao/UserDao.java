@@ -42,6 +42,14 @@ public class UserDao {
                 user.getUserId());
     }
 
+    public void delete(final User user) {
+        final String sql = "DELETE FROM USERS WHERE userId=?";
+        final QueryExecutor updateExecutor = new QueryExecutor();
+        updateExecutor.executeUpdate(
+                sql,
+                user.getUserId());
+    }
+
     public List<User> findAll() {
         final String sql = "SELECT userId, password, name, email FROM USERS";
         final QueryExecutor queryExecutor = new QueryExecutor();

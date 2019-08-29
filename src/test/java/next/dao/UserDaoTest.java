@@ -49,4 +49,14 @@ public class UserDaoTest {
         final List<User> users = userDao.findAll();
         assertThat(users).hasSize(2);
     }
+
+    @Test
+    public void delete() throws Exception {
+        final User user = new User("userId", "password", "name", "javajigi@email.com");
+        final UserDao userDao = new UserDao();
+        userDao.insert(user);
+        userDao.delete(user);
+        final List<User> users = userDao.findAll();
+        assertThat(users).hasSize(1);
+    }
 }
