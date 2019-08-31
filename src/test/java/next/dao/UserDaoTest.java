@@ -1,6 +1,7 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
+import next.dao.template.JdbcTemplate;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+    private JdbcTemplate jdbcTemplate = new JdbcTemplate();
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -23,7 +26,7 @@ public class UserDaoTest {
     @Test
     public void crud() throws Exception {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
+        UserDao userDao = new UserDao(jdbcTemplate);
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -36,7 +39,7 @@ public class UserDaoTest {
 
     @Test
     public void findAll() throws Exception {
-        UserDao userDao = new UserDao();
+        UserDao userDao = new UserDao(jdbcTemplate);
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(2);
     }

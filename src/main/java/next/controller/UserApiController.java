@@ -66,7 +66,8 @@ public class UserApiController {
         UserUpdatedDto dto = HttpServletUtils.jsonBodyToObject(om, request, UserUpdatedDto.class);
 
         User user = DataBase.findUserById(userId);
-        dto.update(user);
+        user.update(dto.getName(), dto.getEmail());
+        DataBase.updateById(user);
 
         logger.debug("user updated : {}", user.toString());
         return new ModelAndView(new JsonView(om));

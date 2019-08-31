@@ -17,13 +17,16 @@ class UserUpdatedDtoTest {
         UserUpdatedDto dto = new UserUpdatedDto("update", "update@mail.com");
 
         //when
-        User targetUser = DataBase.findUserById(befUser.getUserId());
-        dto.update(targetUser);
+        User expected = DataBase.findUserById(befUser.getUserId());
+        expected.update(dto.getName(), dto.getEmail());
+        DataBase.updateById(expected);
+        User actual = DataBase.findUserById(expected.getUserId());
+
 
         //then
-        assertThat(targetUser.getUserId()).isEqualTo(befUser.getUserId());
-        assertThat(targetUser.getPassword()).isEqualTo(befUser.getPassword());
-        assertThat(targetUser.getName()).isEqualTo(dto.getName());
-        assertThat(targetUser.getEmail()).isEqualTo(dto.getEmail());
+        assertThat(expected.getUserId()).isEqualTo(actual.getUserId());
+        assertThat(expected.getPassword()).isEqualTo(actual.getPassword());
+        assertThat(expected.getName()).isEqualTo(actual.getName());
+        assertThat(expected.getEmail()).isEqualTo(actual.getEmail());
     }
 }

@@ -28,4 +28,8 @@ public class DataBase {
     public static User deleteUser(String userId) {
         return users.remove(userId);
     }
+
+    public static void updateById(User user) {
+        users.replace(user.getUserId(), user);
+    }
 }
