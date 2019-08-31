@@ -10,15 +10,17 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class BasicRowMapper<T> {
+public class BasicRowMapper<T> implements RowMapper<T> {
     private static final Logger logger = LoggerFactory.getLogger(BasicRowMapper.class);
 
+    private Class<T> clazz;
     private Map<String, Field> fields;
-    private List<String> targetFields;
+    private List<String> columns;
 
-    protected BasicRowMapper(Class<T> clazz, String... targetFields) {
+    public BasicRowMapper(Class<T> clazz, String... columns) {
+        this.clazz = clazz;
         initFields(clazz);
-        initTargetFields(targetFields);
+        initTargetFields(columns);
     }
 
     private void initFields(Class<T> clazz) {
@@ -28,27 +30,22 @@ public class BasicRowMapper<T> {
     }
 
     private void initTargetFields(String[] targetFields) {
-        this.targetFields = new ArrayList<>();
-        Collections.addAll(this.targetFields, targetFields);
+        this.columns = new ArrayList<>();
+        Collections.addAll(this.columns, targetFields);
     }
 
-    protected List<T> mapObject(ResultSet rs, List<T> result, Class<T> clazz) {
+    @Override
+    public T mapObject(ResultSet rs) {
+        T result = null;
         try {
-            while (rs.next()) {
-                result.add(addOne(rs, clazz.newInstance()));
+            result = clazz.newInstance();
+            for (String column : columns) {
+                setByType(rs, result, column);
             }
         } catch (SQLException | InstantiationException | IllegalAccessException e) {
             DataAccessException.handleException(e);
         }
-
         return result;
-    }
-
-    private T addOne(ResultSet rs, T object) throws SQLException, IllegalAccessException {
-        for (String targetField : targetFields) {
-            setByType(rs, object, targetField);
-        }
-        return object;
     }
 
     private void setByType(ResultSet rs, T object, String targetField) throws SQLException, IllegalAccessException {

@@ -1,6 +1,7 @@
 package next.dao;
 
-import next.dao.mapper.row.UserRowMapper;
+import next.dao.mapper.row.RowMapper;
+import next.dao.mapper.row.RowMapperFactory;
 import next.dao.mapper.sql.UserSqlMapper;
 import next.dao.template.JdbcTemplate;
 import next.model.User;
@@ -47,12 +48,10 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) {
-        UserRowMapper rowMapper = new UserRowMapper(
-                "userId"
+        RowMapper<User> rowMapper = RowMapperFactory.newInstance(User.class, "userId"
                 , "password"
                 , "name"
-                , "email"
-        );
+                , "email");
 
         User user = null;
         try {
@@ -65,8 +64,7 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        UserRowMapper rowMapper = new UserRowMapper(
-                "userId"
+        RowMapper<User> rowMapper = RowMapperFactory.newInstance(User.class, "userId"
                 , "password"
                 , "name"
                 , "email"
