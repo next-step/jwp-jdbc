@@ -1,5 +1,7 @@
 package next.jdbc;
 
+import next.jdbc.exception.SQLRuntimeException;
+
 import java.sql.SQLException;
 
 public class RowMapperWrapper {
@@ -8,7 +10,7 @@ public class RowMapperWrapper {
             try {
                 return rowMapper.mapRow(rs);
             } catch (final SQLException ex) {
-                throw new RuntimeException(ex);
+                throw new SQLRuntimeException(ex);
             }
         };
     }

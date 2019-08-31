@@ -1,5 +1,7 @@
 package next.jdbc;
 
+import next.jdbc.exception.SQLRuntimeException;
+
 import java.sql.SQLException;
 
 public class PreparedStatementParameterSetterCreator {
@@ -12,7 +14,7 @@ public class PreparedStatementParameterSetterCreator {
                     argIndex++;
                 }
             } catch (final SQLException ex) {
-                throw new RuntimeException(ex);
+                throw new SQLRuntimeException(ex);
             }
         };
     }

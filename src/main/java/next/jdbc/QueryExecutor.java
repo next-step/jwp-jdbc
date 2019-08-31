@@ -1,6 +1,7 @@
 package next.jdbc;
 
 import core.jdbc.ConnectionManager;
+import next.jdbc.exception.SQLRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public class QueryExecutor {
             }
             return null;
         } catch (final SQLException ex) {
-            throw new RuntimeException(ex);
+            throw new SQLRuntimeException(ex);
         }
     }
 
@@ -63,7 +64,7 @@ public class QueryExecutor {
             }
             return rows;
         } catch (final SQLException ex) {
-            throw new RuntimeException(ex);
+            throw new SQLRuntimeException(ex);
         }
     }
 
@@ -89,7 +90,7 @@ public class QueryExecutor {
             parameterSetter.setParameters(pstmt);
             return pstmt.executeUpdate();
         } catch (final SQLException ex) {
-            throw new RuntimeException(ex);
+            throw new SQLRuntimeException(ex);
         }
     }
 
