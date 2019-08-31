@@ -48,10 +48,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) {
-        RowMapper<User> rowMapper = RowMapperFactory.newInstance(User.class, "userId"
-                , "password"
-                , "name"
-                , "email");
+        RowMapper<User> rowMapper = RowMapperFactory.newInstance(User.class);
 
         User user = null;
         try {
@@ -64,11 +61,7 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        RowMapper<User> rowMapper = RowMapperFactory.newInstance(User.class, "userId"
-                , "password"
-                , "name"
-                , "email"
-        );
+        RowMapper<User> rowMapper = RowMapperFactory.newInstance(User.class);
 
         List<User> users = new ArrayList<>();
         try {

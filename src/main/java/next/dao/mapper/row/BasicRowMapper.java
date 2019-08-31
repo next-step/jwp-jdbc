@@ -15,12 +15,10 @@ public class BasicRowMapper<T> implements RowMapper<T> {
 
     private Class<T> clazz;
     private Map<String, Field> fields;
-    private List<String> columns;
 
-    public BasicRowMapper(Class<T> clazz, String... columns) {
+    public BasicRowMapper(Class<T> clazz) {
         this.clazz = clazz;
         initFields(clazz);
-        initTargetFields(columns);
     }
 
     private void initFields(Class<T> clazz) {
@@ -29,18 +27,14 @@ public class BasicRowMapper<T> implements RowMapper<T> {
                 .forEach(field -> fields.put(field.getName(), field));
     }
 
-    private void initTargetFields(String[] targetFields) {
-        this.columns = new ArrayList<>();
-        Collections.addAll(this.columns, targetFields);
-    }
-
     @Override
     public T mapObject(ResultSet rs) {
         T result = null;
         try {
             result = clazz.newInstance();
-            for (String column : columns) {
-                setByType(rs, result, column);
+            Set<String> columnNames = fields.keySet();
+            for (String key : columnNames) {
+                setByType(rs, result, key);
             }
         } catch (SQLException | InstantiationException | IllegalAccessException e) {
             DataAccessException.handleException(e);

@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RowMapperFactoryTest {
     @Test
     void create() {
-        RowMapper<User> rowMapper = RowMapperFactory.newInstance(User.class, "userId");
+        RowMapper<User> rowMapper = RowMapperFactory.newInstance(User.class);
         assertThat(rowMapper).isNotNull();
     }
 }
