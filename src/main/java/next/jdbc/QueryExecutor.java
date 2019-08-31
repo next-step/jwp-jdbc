@@ -16,7 +16,7 @@ public class QueryExecutor {
 
     public <T> T executeScalar(
             final String sql,
-            final ThrowableRowMapper<T> rowMapper,
+            final RowMapper<T> rowMapper,
             final PreparedStatementParameterSetter parameterSetter) {
         try (
                 final Connection con = ConnectionManager.getConnection();
@@ -33,27 +33,18 @@ public class QueryExecutor {
         }
     }
 
-    public <T> T executeScalar(final String sql, final ThrowableRowMapper<T> rowMapper, final Object... queryParams) {
+    public <T> T executeScalar(final String sql, final ThrowableRowMapper<T> throwableRowMapper, final Object... queryParams) {
         return this.executeScalar(
                 sql,
-                rowMapper,
+                RowMapperWrapper.wrapMapper(throwableRowMapper),
                 PreparedStatementParameterSetterCreator.create(queryParams));
     }
 
-    public int executeUpdate(final String sql, final PreparedStatementParameterSetter parameterSetter) {
-        try (
-                final Connection con = ConnectionManager.getConnection();
-                final PreparedStatement pstmt = con.prepareStatement(sql)
-        ) {
-            parameterSetter.setParameters(pstmt);
-            return pstmt.executeUpdate();
-        } catch (final SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public int executeUpdate(final String sql, final Object... queryParams) {
-        return this.executeUpdate(sql, PreparedStatementParameterSetterCreator.create(queryParams));
+    public <T> T executeScalar(final String sql, final Class<T> mapToClass, final Object... queryParams) {
+        return this.executeScalar(
+                sql,
+                ThrowableRowMapperCreator.create(mapToClass),
+                queryParams);
     }
 
     public <T> List<T> executeQuery(
@@ -76,10 +67,33 @@ public class QueryExecutor {
         }
     }
 
-    public <T> List<T> executeQuery(final String sql, final RowMapper<T> rowMapper, final Object... queryParams) {
+    public <T> List<T> executeQuery(final String sql, final ThrowableRowMapper<T> throwableRowMapper, final Object... queryParams) {
         return this.executeQuery(
                 sql,
-                rowMapper,
+                RowMapperWrapper.wrapMapper(throwableRowMapper),
                 PreparedStatementParameterSetterCreator.create(queryParams));
+    }
+
+    public <T> List<T> executeQuery(final String sql, final Class<T> mapToClass, final Object... queryParams) {
+        return this.executeQuery(
+                sql,
+                ThrowableRowMapperCreator.create(mapToClass),
+                queryParams);
+    }
+
+    public int executeUpdate(final String sql, final PreparedStatementParameterSetter parameterSetter) {
+        try (
+                final Connection con = ConnectionManager.getConnection();
+                final PreparedStatement pstmt = con.prepareStatement(sql)
+        ) {
+            parameterSetter.setParameters(pstmt);
+            return pstmt.executeUpdate();
+        } catch (final SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public int executeUpdate(final String sql, final Object... queryParams) {
+        return this.executeUpdate(sql, PreparedStatementParameterSetterCreator.create(queryParams));
     }
 }
