@@ -1,7 +1,7 @@
 package core.mvc.asis;
 
 import core.mvc.HandlerAdapter;
-import core.mvc.JspView;
+import core.mvc.view.JspView;
 import core.mvc.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;

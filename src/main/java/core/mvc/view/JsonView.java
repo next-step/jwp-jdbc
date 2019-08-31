@@ -1,5 +1,6 @@
-package core.mvc;
+package core.mvc.view;
 
+import core.mvc.JsonUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 

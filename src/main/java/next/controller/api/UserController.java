@@ -5,7 +5,7 @@ import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.HttpServletRequestUtils;
 import core.mvc.JsonUtils;
-import core.mvc.JsonView;
+import core.mvc.view.JsonView;
 import core.mvc.ModelAndView;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
