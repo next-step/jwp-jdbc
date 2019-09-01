@@ -6,7 +6,10 @@ public class User {
     private String name;
     private String email;
 
-    public User(String userId, String password, String name, String email) {
+    private User() {
+    }
+
+    public User(final String userId, final String password, final String name, final String email) {
         this.userId = userId;
         this.password = password;
         this.name = name;
@@ -14,28 +17,28 @@ public class User {
     }
 
     public String getUserId() {
-        return userId;
+        return this.userId;
     }
 
     public String getPassword() {
-        return password;
+        return this.password;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
-    public void update(User updateUser) {
+    public void update(final User updateUser) {
         this.password = updateUser.password;
         this.name = updateUser.name;
         this.email = updateUser.email;
     }
 
-    public boolean matchPassword(String password) {
+    public boolean matchPassword(final String password) {
         if (password == null) {
             return false;
         }
@@ -43,49 +46,58 @@ public class User {
         return this.password.equals(password);
     }
 
-    public boolean isSameUser(User user) {
-        return userId.equals(user.userId);
+    public boolean isSameUser(final User user) {
+        return this.userId.equals(user.userId);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((email == null) ? 0 : email.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+        result = prime * result + ((this.email == null) ? 0 : this.email.hashCode());
+        result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
+        result = prime * result + ((this.userId == null) ? 0 : this.userId.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (this.getClass() != obj.getClass()) {
             return false;
-        User other = (User) obj;
-        if (email == null) {
-            if (other.email != null)
+        }
+        final User other = (User) obj;
+        if (this.email == null) {
+            if (other.email != null) {
                 return false;
-        } else if (!email.equals(other.email))
+            }
+        } else if (!this.email.equals(other.email)) {
             return false;
-        if (name == null) {
-            if (other.name != null)
+        }
+        if (this.name == null) {
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!this.name.equals(other.name)) {
             return false;
-        if (userId == null) {
-            if (other.userId != null)
+        }
+        if (this.userId == null) {
+            if (other.userId != null) {
                 return false;
-        } else if (!userId.equals(other.userId))
+            }
+        } else if (!this.userId.equals(other.userId)) {
             return false;
+        }
         return true;
     }
 
     @Override
     public String toString() {
-        return "User [userId=" + userId + ", name=" + name + ", email=" + email + "]";
+        return "User [userId=" + this.userId + ", name=" + this.name + ", email=" + this.email + "]";
     }
 }
