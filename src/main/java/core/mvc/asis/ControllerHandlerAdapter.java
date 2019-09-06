@@ -1,7 +1,6 @@
 package core.mvc.asis;
 
 import core.mvc.HandlerAdapter;
-import core.mvc.JspView;
 import core.mvc.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +16,6 @@ public class ControllerHandlerAdapter implements HandlerAdapter {
     public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String forwardView = ((Controller) handler).execute(request, response);
-        return new ModelAndView(new JspView(forwardView));
+        return new ModelAndView(forwardView);
     }
 }

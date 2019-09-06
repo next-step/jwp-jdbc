@@ -4,6 +4,10 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.mvc.view.HandleBarsViewResolver;
+import core.mvc.view.JspViewResolver;
+import core.mvc.view.RedirectViewResolver;
+import core.mvc.view.ViewResolverRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,6 +28,7 @@ public class DispatcherServlet extends HttpServlet {
     private HandlerMappingRegistry handlerMappingRegistry;
 
     private HandlerAdapterRegistry handlerAdapterRegistry;
+    private ViewResolverRegistry viewResolverRegistry;
 
     private HandlerExecutor handlerExecutor;
 
@@ -38,6 +43,11 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        viewResolverRegistry = new ViewResolverRegistry();
+        viewResolverRegistry.addViewResolver(new JspViewResolver());
+        viewResolverRegistry.addViewResolver(new RedirectViewResolver());
+        viewResolverRegistry.addViewResolver(new HandleBarsViewResolver());
     }
 
     @Override
@@ -51,8 +61,6 @@ public class DispatcherServlet extends HttpServlet {
                 resp.setStatus(HttpStatus.NOT_FOUND.value());
                 return;
             }
-
-
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
             render(mav, req, resp);
         } catch (Throwable e) {
@@ -62,7 +70,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private void render(ModelAndView mav, HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        View view = mav.getView();
+        View view = viewResolverRegistry.getView(mav);
         view.render(mav.getModel(), req, resp);
     }
 }
