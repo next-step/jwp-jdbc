@@ -1,6 +1,5 @@
 package next.controller;
 
-import core.db.DataBase;
 import core.mvc.asis.Controller;
 import next.dao.UserDao;
 import next.model.User;

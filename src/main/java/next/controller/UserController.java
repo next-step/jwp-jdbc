@@ -4,8 +4,7 @@ import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.db.DataBase;
-import core.mvc.DispatcherServlet;
-import core.mvc.JspView;
+import core.mvc.view.JspView;
 import core.mvc.ModelAndView;
 import next.dao.UserDao;
 import next.model.User;
@@ -43,7 +42,7 @@ public class UserController {
             return redirect("/users/loginForm");
         }
 
-        ModelAndView mav = new ModelAndView(new JspView("/user/list.jsp"));
+        ModelAndView mav = new ModelAndView("/user/list.hbs");
         mav.addObject("users", DataBase.findAll());
         return mav;
     }

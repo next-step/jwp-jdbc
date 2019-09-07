@@ -1,5 +1,6 @@
-package core.mvc;
+package core.mvc.view;
 
+import core.mvc.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
