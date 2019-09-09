@@ -1,6 +1,6 @@
 package core.mvc.resolver;
 
-import core.exception.NotSupportedException;
+import core.exception.NotSupportedConverterException;
 import core.mvc.messageconverter.MessageConverter;
 import core.mvc.tobe.MethodParameter;
 import org.apache.commons.io.IOUtils;
@@ -26,12 +26,12 @@ public class RequestBodyArgumentResolver extends AbstractHandlerMethodArgumentRe
     }
 
     @Override
-    public Object getMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public Object resolveMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String body = IOUtils.toString(request.getInputStream(), Charset.defaultCharset());
         MessageConverter converter = converters.stream()
                 .filter(c -> c.supportedMediaTypes(MediaType.valueOf(request.getHeader(HttpHeaders.CONTENT_TYPE))))
                 .findFirst()
-                .orElseThrow(NotSupportedException::new);
+                .orElseThrow(NotSupportedConverterException::new);
 
         return converter.readMessage(body, parameter.getType());
     }

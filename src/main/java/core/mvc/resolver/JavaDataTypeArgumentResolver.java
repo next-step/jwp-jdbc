@@ -13,7 +13,7 @@ public class JavaDataTypeArgumentResolver extends AbstractHandlerMethodArgumentR
     }
 
     @Override
-    public Object getMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public Object resolveMethodArgument(MethodParameter parameter, HttpServletRequest request, HttpServletResponse response) throws Exception {
         return getArgument(parameter, request.getParameter(parameter.getName()));
     }
 }
