@@ -29,7 +29,7 @@ public class AnswerDao {
         PreparedStatementCreator psc = new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement pstmt = con.prepareStatement(sql);
+                PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pstmt.setString(1, answer.getWriter());
                 pstmt.setString(2, answer.getContents());
                 pstmt.setTimestamp(3, new Timestamp(answer.getTimeFromCreateDate()));

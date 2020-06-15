@@ -13,7 +13,7 @@ import java.util.Optional;
 public class JsonView implements View {
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         Optional<Object> renderObject = toJsonObject(model);
         render(renderObject, response.getOutputStream());

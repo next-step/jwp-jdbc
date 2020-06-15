@@ -45,15 +45,6 @@ public class UserController extends AbstractNewController {
         return jspView("/user/form.jsp");
     }
 
-    @RequestMapping(value = "/users/create", method = RequestMethod.POST)
-    public ModelAndView create(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        User user = new User(request.getParameter("userId"), request.getParameter("password"),
-                request.getParameter("name"), request.getParameter("email"));
-        log.debug("User : {}", user);
-        userDao.insert(user);
-        return jspView("redirect:/");
-    }
-
     @RequestMapping(value = "/users/updateForm", method = RequestMethod.GET)
     public ModelAndView updateForm(HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = userDao.findByUserId(request.getParameter("userId"));
@@ -80,6 +71,13 @@ public class UserController extends AbstractNewController {
                 req.getParameter("email"));
         log.debug("Update User : {}", updateUser);
         user.update(updateUser);
+        return jspView("redirect:/");
+    }
+
+    @RequestMapping(value = "/users", method = RequestMethod.POST)
+    public ModelAndView create(User user) throws Exception {
+        log.debug("User : {}", user);
+        userDao.insert(user);
         return jspView("redirect:/");
     }
 

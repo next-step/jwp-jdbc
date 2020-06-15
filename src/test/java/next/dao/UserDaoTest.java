@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import support.test.DBInitializer;
 
 import java.util.List;
 
@@ -19,9 +20,7 @@ public class UserDaoTest {
 
     @BeforeEach
     public void setup() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        DBInitializer.initialize();
 
         userDao = UserDao.getInstance();
     }
