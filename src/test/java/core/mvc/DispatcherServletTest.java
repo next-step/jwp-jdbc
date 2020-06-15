@@ -1,7 +1,6 @@
 package core.mvc;
 
 import next.controller.UserSessionUtils;
-import next.dao.UserDao;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +55,7 @@ class DispatcherServletTest {
     }
 
     @Test
-    void legacy_login_success() throws Exception {
+    void login_success() throws Exception {
         User user = new User("pobi", "password", "포비", "pobi@nextstep.camp");
         createUser(user);
 

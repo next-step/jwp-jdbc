@@ -3,6 +3,7 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
+import core.annotation.web.RequestParam;
 import core.mvc.ModelAndView;
 import core.mvc.tobe.AbstractNewController;
 import next.dao.UserDao;
@@ -22,7 +23,7 @@ public class UserController extends AbstractNewController {
     private UserDao userDao = UserDao.getInstance();
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-    public ModelAndView list(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView list(HttpServletRequest request) throws Exception {
         if (!UserSessionUtils.isLogined(request.getSession())) {
             return jspView("redirect:/users/loginForm");
         }
@@ -33,20 +34,19 @@ public class UserController extends AbstractNewController {
     }
 
     @RequestMapping(value = "/users/profile", method = RequestMethod.GET)
-    public ModelAndView profile(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String userId = request.getParameter("userId");
+    public ModelAndView profile(@RequestParam String userId) throws Exception {
         ModelAndView mav = jspView("/user/profile.jsp");
         mav.addObject("user", userDao.findByUserId(userId));
         return mav;
     }
 
     @RequestMapping(value = "/users/form", method = RequestMethod.GET)
-    public ModelAndView form(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView form() throws Exception {
         return jspView("/user/form.jsp");
     }
 
     @RequestMapping(value = "/users/updateForm", method = RequestMethod.GET)
-    public ModelAndView updateForm(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView updateForm(HttpServletRequest request) throws Exception {
         User user = userDao.findByUserId(request.getParameter("userId"));
 
         if (!UserSessionUtils.isSameUser(request.getSession(), user)) {
@@ -58,19 +58,16 @@ public class UserController extends AbstractNewController {
     }
 
     @RequestMapping(value = "/users/update", method = RequestMethod.POST)
-    public ModelAndView update(HttpServletRequest req, HttpServletResponse response) throws Exception {
-        User user = userDao.findByUserId(req.getParameter("userId"));
+    public ModelAndView update(UserUpdatedDto updateUser, HttpServletRequest request) throws Exception {
+        User user = userDao.findByUserId(updateUser.getUserId());
 
-        if (!UserSessionUtils.isSameUser(req.getSession(), user)) {
+        if (!UserSessionUtils.isSameUser(request.getSession(), user)) {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
         }
 
-        UserUpdatedDto updateUser = new UserUpdatedDto(
-                req.getParameter("password"),
-                req.getParameter("name"),
-                req.getParameter("email"));
         log.debug("Update User : {}", updateUser);
         user.update(updateUser);
+        userDao.update(user);
         return jspView("redirect:/");
     }
 
@@ -82,14 +79,12 @@ public class UserController extends AbstractNewController {
     }
 
     @RequestMapping(value = "/users/loginForm", method = RequestMethod.GET)
-    public ModelAndView loginForm(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView loginForm() throws Exception {
         return jspView("/user/login.jsp");
     }
 
     @RequestMapping(value = "/users/login", method = RequestMethod.POST)
-    public ModelAndView login(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String userId = request.getParameter("userId");
-        String password = request.getParameter("password");
+    public ModelAndView login(@RequestParam String userId, @RequestParam String password, HttpServletRequest request) throws Exception {
         User user = userDao.findByUserId(userId);
 
         if (user == null) {
@@ -106,7 +101,7 @@ public class UserController extends AbstractNewController {
     }
 
     @RequestMapping(value = "/users/logout", method = RequestMethod.GET)
-    public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView logout(HttpServletRequest request) throws Exception {
         HttpSession session = request.getSession();
         session.removeAttribute("user");
         return jspView("redirect:/");
