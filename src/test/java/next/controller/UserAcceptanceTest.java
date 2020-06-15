@@ -40,7 +40,7 @@ public class UserAcceptanceTest {
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
 
         // 수정
-        UserUpdatedDto updateUser = new UserUpdatedDto("password2", "코난", "conan@nextstep.camp");
+        UserUpdatedDto updateUser = new UserUpdatedDto("pobi", "password2", "코난", "conan@nextstep.camp");
         client.updateResource(location, updateUser, UserUpdatedDto.class);
 
         actual = client.getResource(location, User.class);
