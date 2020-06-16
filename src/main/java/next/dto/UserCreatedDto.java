@@ -1,17 +1,18 @@
 package next.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.util.StringUtils;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@NoArgsConstructor
 @Getter
 public class UserCreatedDto {
     private String userId;
     private String password;
     private String name;
     private String email;
-
-    private UserCreatedDto() {
-    }
 
     public UserCreatedDto(String userId, String password, String name, String email) {
         this.userId = userId;
@@ -20,6 +21,7 @@ public class UserCreatedDto {
         this.email = email;
     }
 
+    @JsonIgnore
     public boolean isValid() {
         return StringUtils.isNotEmpty(userId) &&
             StringUtils.isNotEmpty(password) &&

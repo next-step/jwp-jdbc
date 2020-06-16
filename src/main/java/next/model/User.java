@@ -1,11 +1,14 @@
 package next.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.util.StringUtils;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 
+@NoArgsConstructor
 @Getter
 public class User {
     private String userId;
@@ -18,6 +21,10 @@ public class User {
             throw new IllegalArgumentException();
         }
 
+        return buildUser(userDto);
+    }
+
+    private static User buildUser(UserCreatedDto userDto) {
         return User.builder()
             .userId(userDto.getUserId())
             .name(userDto.getName())
@@ -26,12 +33,15 @@ public class User {
             .build();
     }
 
-
     public static User of(UserUpdatedDto userDto) {
         if (!userDto.isValid()) {
             throw new IllegalArgumentException();
         }
 
+        return buildUser(userDto);
+    }
+
+    private static User buildUser(UserUpdatedDto userDto) {
         return User.builder()
             .name(userDto.getName())
             .email(userDto.getEmail())
@@ -60,6 +70,7 @@ public class User {
         return this.password.equals(password);
     }
 
+    @JsonIgnore
     public boolean isSameUser(User user) {
         return userId.equals(user.userId);
     }
@@ -101,6 +112,7 @@ public class User {
         return true;
     }
 
+    @JsonIgnore
     public boolean isValid() {
         return StringUtils.isNotEmpty(userId) &&
             StringUtils.isNotEmpty(password) &&

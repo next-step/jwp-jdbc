@@ -1,22 +1,25 @@
 package core.mvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Objects;
 
+@Slf4j
 public class JsonView implements View {
     public static final String CONTENT_TYPE = "Content-Type";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) {
         setResponseHeader(response);
-        setResponseStatus(response);
+        getResponseStatus(response);
         writeBody(model, response);
     }
 
@@ -24,22 +27,32 @@ public class JsonView implements View {
         response.setHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
     }
 
-    private void setResponseStatus(HttpServletResponse response) {
-        response.setStatus(HttpServletResponse.SC_OK);
+    private void getResponseStatus(HttpServletResponse response) {
+        log.debug("status: {}", response.getStatus());
     }
 
-    private void writeBody(Map<String, ?> model, HttpServletResponse response) throws IOException {
+    private void writeBody(Map<String, ?> model, HttpServletResponse response) {
         String body = "";
 
         Object target = getTarget(model);
 
-        if (Objects.nonNull(target)) {
-            body = objectMapper.writeValueAsString(target);
+        if (Objects.isNull(target)) {
+            return;
         }
 
-        response.getWriter().write(body);
-        response.getWriter().flush();
-        response.getWriter().close();
+        try {
+            body = objectMapper.writeValueAsString(target);
+
+            log.debug("responseBody: {}", body);
+
+            PrintWriter writer = response.getWriter();
+            writer.write(body);
+            writer.flush();
+            writer.close();
+        }
+        catch (IOException e) {
+            log.error(e.getMessage());
+        }
     }
 
     private Object getTarget(Map<String, ?> model) {

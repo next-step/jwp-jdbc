@@ -88,4 +88,14 @@ public class StringUtils {
     public static String getOrDefault(String target, String defaultValue) {
         return isNotEmpty(target) ? target : defaultValue;
     }
+
+    public static <T> T fromJson(String jsonBody, Class<T> type) {
+        try {
+            return objectMapper.readValue(jsonBody, type);
+        }
+        catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
 }
