@@ -1,5 +1,9 @@
 package next.dto;
 
+import core.util.StringUtils;
+import lombok.Getter;
+
+@Getter
 public class UserUpdatedDto {
     private String name;
     private String email;
@@ -12,11 +16,8 @@ public class UserUpdatedDto {
         this.email = email;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
+    public boolean isValid() {
+        return StringUtils.isNotEmpty(name) &&
+            StringUtils.isNotEmpty(email);
     }
 }
