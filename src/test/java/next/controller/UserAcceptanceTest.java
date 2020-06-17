@@ -43,6 +43,7 @@ public class UserAcceptanceTest {
                 .expectStatus().isOk()
                 .expectBody(User.class)
                 .returnResult().getResponseBody();
+
         assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
         assertThat(actual.getName()).isEqualTo(expected.getName());
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());

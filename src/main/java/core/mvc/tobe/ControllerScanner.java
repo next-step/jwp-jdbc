@@ -22,15 +22,16 @@ import static java.util.Arrays.asList;
 
 public class ControllerScanner {
 
-    private static final Logger logger = LoggerFactory.getLogger(core.mvc.tobe.ControllerScanner.class);
+    private static final Logger logger = LoggerFactory.getLogger(ControllerScanner.class);
 
     private static final List<ArgumentResolver> argumentResolvers = asList(
-                new HttpRequestArgumentResolver(),
-                new HttpResponseArgumentResolver(),
-                new RequestParamArgumentResolver(),
-                new PathVariableArgumentResolver(),
-                new ModelArgumentResolver()
-        );
+            new HttpRequestArgumentResolver(),
+            new HttpResponseArgumentResolver(),
+            new RequestParamArgumentResolver(),
+            new PathVariableArgumentResolver(),
+            new RequestBodyMethodArgumentResolver(),
+            new ModelArgumentResolver()
+    );
 
     private static final ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 

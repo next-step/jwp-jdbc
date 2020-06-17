@@ -1,32 +1,59 @@
 package next.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import core.util.StringUtils;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import next.dto.UserCreatedDto;
+import next.dto.UserUpdatedDto;
+
+@NoArgsConstructor
+@Getter
 public class User {
     private String userId;
     private String password;
     private String name;
     private String email;
 
+    public static User of(UserCreatedDto userDto) {
+        if (!userDto.isValid()) {
+            throw new IllegalArgumentException();
+        }
+
+        return buildUser(userDto);
+    }
+
+    private static User buildUser(UserCreatedDto userDto) {
+        return User.builder()
+            .userId(userDto.getUserId())
+            .name(userDto.getName())
+            .password(userDto.getPassword())
+            .email(userDto.getEmail())
+            .build();
+    }
+
+    public static User of(UserUpdatedDto userDto) {
+        if (!userDto.isValid()) {
+            throw new IllegalArgumentException();
+        }
+
+        return buildUser(userDto);
+    }
+
+    private static User buildUser(UserUpdatedDto userDto) {
+        return User.builder()
+            .name(userDto.getName())
+            .email(userDto.getEmail())
+            .build();
+    }
+
+    @Builder
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
         this.password = password;
         this.name = name;
         this.email = email;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     public void update(User updateUser) {
@@ -43,6 +70,7 @@ public class User {
         return this.password.equals(password);
     }
 
+    @JsonIgnore
     public boolean isSameUser(User user) {
         return userId.equals(user.userId);
     }
@@ -82,6 +110,14 @@ public class User {
         } else if (!userId.equals(other.userId))
             return false;
         return true;
+    }
+
+    @JsonIgnore
+    public boolean isValid() {
+        return StringUtils.isNotEmpty(userId) &&
+            StringUtils.isNotEmpty(password) &&
+            StringUtils.isNotEmpty(name) &&
+            StringUtils.isNotEmpty(email);
     }
 
     @Override
