@@ -16,6 +16,7 @@ public class JsonView implements View {
         String json = mapToJsonString(model);
 
         response.setContentType(MediaType.APPLICATION_JSON.toString());
+        response.setCharacterEncoding("utf-8");
         response.getWriter().write(json);
     }
 
