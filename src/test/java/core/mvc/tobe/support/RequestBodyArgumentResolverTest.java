@@ -45,7 +45,8 @@ class RequestBodyArgumentResolverTest {
         int expectedAge = 27;
         long expectedMoney = 50000000L;
 
-        MockUser expectedUser = new MockUser(expectedId);
+        MockUser expectedUser = new MockUser();
+        expectedUser.setId(expectedId);
         expectedUser.setName(expectedName);
         expectedUser.setAge(expectedAge);
         expectedUser.setMoney(expectedMoney);
