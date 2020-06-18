@@ -6,6 +6,7 @@ import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.DispatcherServlet;
 import core.mvc.tobe.support.PathVariableHandlerMethodArgumentResolver;
+import core.mvc.tobe.support.RequestBodyHandlerMethodArgumentResolver;
 import core.mvc.tobe.support.RequestParamHandlerMethodArgumentResolver;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
@@ -43,9 +44,11 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     private void initResolvers() {
+        ObjectMapper objectMapper = new ObjectMapper();
         HandlerMethodArgumentResolverComposite handlerMethodArgumentResolverComposite = new HandlerMethodArgumentResolverComposite(
                 new PathVariableHandlerMethodArgumentResolver(),
-                new RequestParamHandlerMethodArgumentResolver(new ObjectMapper())
+                new RequestBodyHandlerMethodArgumentResolver(objectMapper),
+                new RequestParamHandlerMethodArgumentResolver(objectMapper)
         );
 
         this.resolver = handlerMethodArgumentResolverComposite;
