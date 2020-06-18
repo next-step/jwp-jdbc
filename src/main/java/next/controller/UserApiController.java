@@ -75,7 +75,6 @@ public class UserApiController {
 
         if (Objects.nonNull(foundUser)) {
             foundUser.update(new User(userId, foundUser.getPassword(), userDto.getName(), userDto.getEmail()));
-            //mav.addObject("user", foundUser);
         }
         else {
             throw new NullPointerException("사용자를 찾을 수 없습니다.");

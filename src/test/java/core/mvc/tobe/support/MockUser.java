@@ -1,6 +1,9 @@
 package core.mvc.tobe.support;
 
+import java.util.Objects;
+
 public class MockUser {
+    public MockUser() {}
 
     public MockUser(String id) {
         this.id = id;
@@ -65,5 +68,23 @@ public class MockUser {
     @Override
     public String toString() {
         return id + "_" + name + "_" + age + "_" + money;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MockUser mockUser = (MockUser) o;
+        return age == mockUser.age &&
+            money == mockUser.money &&
+            Objects.equals(id, mockUser.id) &&
+            Objects.equals(name, mockUser.name) &&
+            Objects.equals(addr, mockUser.addr) &&
+            Objects.equals(notSetterPhoneNumber, mockUser.notSetterPhoneNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, addr, notSetterPhoneNumber, age, money);
     }
 }

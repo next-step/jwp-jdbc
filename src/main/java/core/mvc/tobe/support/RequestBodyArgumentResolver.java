@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
-public class RequestBodyMethodArgumentResolver extends AbstractAnnotationArgumentResolver {
+public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResolver {
 
 	@Override
 	public boolean supports(MethodParameter methodParameter) {
@@ -37,7 +37,7 @@ public class RequestBodyMethodArgumentResolver extends AbstractAnnotationArgumen
 	public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			String jsonBody = IOUtils.toString(request.getReader());
-			log.debug("RequestBodyMethodArgumentResolver - jsonBody: {}", jsonBody);
+			log.debug("RequestBodyArgumentResolver - jsonBody: {}", jsonBody);
 			return StringUtils.fromJson(jsonBody, methodParameter.getType());
 		}
 		catch (Exception e) {
