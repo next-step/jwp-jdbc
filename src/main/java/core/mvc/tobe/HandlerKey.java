@@ -1,38 +1,26 @@
 package core.mvc.tobe;
 
 import core.annotation.web.RequestMethod;
-
-import static core.util.PathPatternUtil.isUrlMatch;
+import org.springframework.web.util.pattern.PathPattern;
 
 public class HandlerKey {
-    private String url;
+    private String path;
     private RequestMethod requestMethod;
+    private PathPattern pathPattern;
 
-    public HandlerKey(String url, RequestMethod requestMethod) {
-        this.url = url;
+    public HandlerKey(String path, RequestMethod requestMethod) {
+        this.path = path;
         this.requestMethod = requestMethod;
+        this.pathPattern = PathPatternUtils.parse(path);
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public RequestMethod getRequestMethod() {
-        return requestMethod;
-    }
-
-    public boolean isMatch(HandlerKey handlerKey) {
-        if (!requestMethod.equals(handlerKey.getRequestMethod())) {
-            return false;
-        }
-
-        boolean result = isUrlMatch(url, handlerKey.getUrl());
-        return result;
+    public boolean matches(String path, RequestMethod requestMethod) {
+        return this.requestMethod == requestMethod && pathPattern.matches(PathPatternUtils.toPathContainer(path));
     }
 
     @Override
     public String toString() {
-        return "HandlerKey [url=" + url + ", requestMethod=" + requestMethod + "]";
+        return "HandlerKey [path=" + path + ", requestMethod=" + requestMethod + "]";
     }
 
     @Override
@@ -40,7 +28,7 @@ public class HandlerKey {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((requestMethod == null) ? 0 : requestMethod.hashCode());
-        result = prime * result + ((url == null) ? 0 : url.hashCode());
+        result = prime * result + ((path == null) ? 0 : path.hashCode());
         return result;
     }
 
@@ -55,10 +43,10 @@ public class HandlerKey {
         HandlerKey other = (HandlerKey) obj;
         if (requestMethod != other.requestMethod)
             return false;
-        if (url == null) {
-            if (other.url != null)
+        if (path == null) {
+            if (other.path != null)
                 return false;
-        } else if (!url.equals(other.url))
+        } else if (!path.equals(other.path))
             return false;
         return true;
     }

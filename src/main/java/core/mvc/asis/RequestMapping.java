@@ -1,7 +1,9 @@
 package core.mvc.asis;
 
 import core.mvc.DispatcherServlet;
-import core.mvc.HandlerMapping;
+import core.mvc.tobe.HandlerExecution;
+import core.mvc.tobe.HandlerMapping;
+import core.mvc.tobe.LegacyHandlerExecution;
 import next.controller.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +31,18 @@ public class RequestMapping implements HandlerMapping {
         });
     }
 
-    public Controller getHandler(HttpServletRequest request) {
-        return mappings.get(request.getRequestURI());
+    public HandlerExecution getHandler(HttpServletRequest request) {
+        Controller controller = findController(request.getRequestURI());
+
+        if (controller != null) {
+            return new LegacyHandlerExecution(controller);
+        }
+
+        return null;
+    }
+
+    private Controller findController(String requestURI) {
+        return mappings.get(requestURI);
     }
 
     void put(String url, Controller controller) {

@@ -3,41 +3,47 @@ package core.mvc.tobe;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+/**
+ * @author KingCjy
+ */
 public class MethodParameter {
 
     private Method method;
-    private Class<?> type;
-    private Annotation[] annotations;
-    private String parameterName;
+    private int parameterIndex;
+    private String name;
+    private Class<?> parameterType;
 
-    public MethodParameter(Method method, Class<?> parameterType, Annotation[] parameterAnnotation, String parameterName) {
+    public MethodParameter(Method method, String name, int parameterIndex) {
         this.method = method;
-        this.type = parameterType;
-        this.annotations = parameterAnnotation;
-        this.parameterName = parameterName;
+        this.name = name;
+        this.parameterIndex = parameterIndex;
+        this.parameterType = method.getParameterTypes()[this.parameterIndex];
+    }
+
+    public <T> T getParameterAnnotation(Class<T> targetAnnotation) {
+        for (Annotation annotation : method.getParameters()[this.parameterIndex].getAnnotations()) {
+            if (annotation.annotationType().equals(targetAnnotation)) {
+                return (T) annotation;
+            }
+        }
+
+        return null;
     }
 
     public Method getMethod() {
         return method;
     }
 
-    public Class<?> getType() {
-        return type;
+    public int getParameterIndex() {
+        return parameterIndex;
     }
 
-    public Annotation[] getAnnotations() {
-        return annotations;
+    public String getName() {
+        return name;
     }
 
-    public boolean isString() {
-        return type == String.class;
-    }
-
-    public boolean isInteger() {
-        return type == int.class || type == Integer.class;
-    }
-
-    public String getParameterName() {
-        return parameterName;
+    public Class<?> getParameterType() {
+        return parameterType;
     }
 }
+
