@@ -1,10 +1,10 @@
 package core.mvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 
 @WebServlet(name = "dispatcher", urlPatterns = "/", loadOnStartup = 1)
 public class DispatcherServlet extends HttpServlet {
@@ -24,9 +23,12 @@ public class DispatcherServlet extends HttpServlet {
     private static final String DEFAULT_REDIRECT_PREFIX = "redirect:";
     private HandlerMapping handlerMapping;
     private ViewResolver viewResolver;
+    private ObjectMapper objectMapper;
 
     @Override
     public void init() throws ServletException {
+        objectMapper = new ObjectMapper();
+
         initHandlerMapping();
         initViewResolver();
     }
@@ -34,7 +36,7 @@ public class DispatcherServlet extends HttpServlet {
     private void initHandlerMapping() {
         RequestMapping requestMapping = new RequestMapping();
         requestMapping.initialize();
-        AnnotationHandlerMapping annotationHandlerMapping = new AnnotationHandlerMapping("next");
+        AnnotationHandlerMapping annotationHandlerMapping = new AnnotationHandlerMapping(objectMapper, "next");
         annotationHandlerMapping.initialize();
 
         handlerMapping = new HandlerMappingComposite(annotationHandlerMapping, requestMapping);
@@ -43,8 +45,10 @@ public class DispatcherServlet extends HttpServlet {
     private void initViewResolver() {
         RedirectViewResolver redirectViewResolver = new RedirectViewResolver();
         JspViewResolver jspViewResolver = new JspViewResolver();
+        JsonViewResolver jsonViewResolver = new JsonViewResolver();
+
         viewResolver = new ViewResolverComposite(new LinkedHashSet<>(
-                Arrays.asList(redirectViewResolver, jspViewResolver)
+                Arrays.asList(redirectViewResolver, jspViewResolver, jsonViewResolver)
         ));
     }
 

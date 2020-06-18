@@ -1,5 +1,6 @@
 package core.mvc.tobe;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.mvc.asis.RequestMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +22,7 @@ public class HandlerMappingCompositeTest {
         RequestMapping requestMapping = new RequestMapping();
         requestMapping.initialize();
 
-        AnnotationHandlerMapping annotationHandlerMapping = new AnnotationHandlerMapping("core.mvc.tobe");
+        AnnotationHandlerMapping annotationHandlerMapping = new AnnotationHandlerMapping(new ObjectMapper(), "core.mvc.tobe");
         annotationHandlerMapping.initialize();
 
         handlerMappingComposite = new HandlerMappingComposite(annotationHandlerMapping, requestMapping);

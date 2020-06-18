@@ -1,5 +1,7 @@
 package next.model;
 
+import next.dto.UserUpdatedDto;
+
 public class User {
     private String userId;
     private String password;
@@ -37,6 +39,11 @@ public class User {
         this.password = updateUser.password;
         this.name = updateUser.name;
         this.email = updateUser.email;
+    }
+
+    public void update(UserUpdatedDto userUpdatedDto) {
+        this.email = userUpdatedDto.getEmail();
+        this.name = userUpdatedDto.getName();
     }
 
     public boolean matchPassword(String password) {

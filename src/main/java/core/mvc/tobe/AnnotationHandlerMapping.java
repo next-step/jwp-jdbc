@@ -28,8 +28,10 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
     private HandlerMethodArgumentResolver resolver;
+    private ObjectMapper objectMapper;
 
-    public AnnotationHandlerMapping(Object... basePackage) {
+    public AnnotationHandlerMapping(ObjectMapper objectMapper, Object... basePackage) {
+        this.objectMapper = objectMapper;
         this.basePackage = basePackage;
     }
 
@@ -44,7 +46,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     private void initResolvers() {
-        ObjectMapper objectMapper = new ObjectMapper();
         HandlerMethodArgumentResolverComposite handlerMethodArgumentResolverComposite = new HandlerMethodArgumentResolverComposite(
                 new PathVariableHandlerMethodArgumentResolver(),
                 new RequestBodyHandlerMethodArgumentResolver(objectMapper),

@@ -23,7 +23,7 @@ public class ReflectionUtils {
             return clazz.cast(constructor.newInstance(args));
         } catch (IllegalAccessException e) {
             logger.warn("{} constructor access failed", constructor.getName());
-        } catch(InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             logger.warn("{} target invalid", clazz.getSimpleName());
         } catch (InstantiationException e) {
             logger.warn("{} instantiation failed", clazz.getSimpleName());
@@ -60,7 +60,7 @@ public class ReflectionUtils {
 
     public static Object convertStringValue(String value, Class<?> clazz) {
         if (clazz == String.class) {
-          return clazz.cast(value);
+            return clazz.cast(value);
         } else if (clazz == int.class || clazz == Integer.class) {
             return Integer.valueOf(value);
         } else if (clazz == long.class || clazz == Long.class) {

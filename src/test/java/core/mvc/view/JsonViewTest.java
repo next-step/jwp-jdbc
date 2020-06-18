@@ -1,5 +1,8 @@
-package core.mvc;
+package core.mvc.view;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import core.mvc.JsonUtils;
+import core.mvc.View;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -15,13 +18,16 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JsonViewTest {
-    private static final Logger logger = LoggerFactory.getLogger( JsonViewTest.class );
+    private static final Logger logger = LoggerFactory.getLogger(JsonViewTest.class);
+
+    private ObjectMapper objectMapper;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private View view;
 
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         view = new JsonView();

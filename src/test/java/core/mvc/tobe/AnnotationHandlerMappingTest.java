@@ -1,5 +1,6 @@
 package core.mvc.tobe;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.db.DataBase;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,7 @@ public class AnnotationHandlerMappingTest {
 
     @BeforeEach
     public void setup() {
-        handlerMapping = new AnnotationHandlerMapping("core.mvc.tobe");
+        handlerMapping = new AnnotationHandlerMapping(new ObjectMapper(), "core.mvc.tobe");
         handlerMapping.initialize();
     }
 
