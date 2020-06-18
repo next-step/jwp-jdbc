@@ -15,7 +15,7 @@ public class JsonView implements View {
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String json = mapToJsonString(model);
 
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE.toString());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(json);
     }
