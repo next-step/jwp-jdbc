@@ -12,6 +12,7 @@ public class JsonViewResolver implements ViewResolver {
         if (viewName == null) {
             return new JsonView();
         }
+
         return null;
     }
 }
