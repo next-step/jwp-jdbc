@@ -16,6 +16,7 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
     private static final Logger logger = LoggerFactory.getLogger(RequestBodyArgumentResolver.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String NEWLINE = "\n";
 
     @Override
     public boolean supports(MethodParameter methodParameter) {
@@ -27,7 +28,7 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
         try {
             String body = request.getReader()
                     .lines()
-                    .collect(Collectors.joining(System.lineSeparator()));
+                    .collect(Collectors.joining(NEWLINE));
 
             return objectMapper.readValue(body, methodParameter.getType());
         } catch (IOException e) {
