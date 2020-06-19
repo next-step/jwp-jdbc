@@ -78,7 +78,7 @@ public class ModelArgumentResolver implements ArgumentResolver {
     }
 
     private Map<String, String> readBody(HttpServletRequest request) {
-        if (!request.getMethod().equals("POST")) {
+        if (request.getContentLength() == 0) {
             return Collections.emptyMap();
         }
 
