@@ -1,9 +1,8 @@
 package core.mvc.tobe.support;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import core.annotation.web.PathVariable;
 import core.annotation.web.RequestBody;
+import core.mvc.ObjectMapperException;
 import core.mvc.tobe.MethodParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,20 +24,15 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
 
     @Override
     public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
-        String body = null;
-
         try {
-            body = request.getReader()
+            String body = request.getReader()
                     .lines()
                     .collect(Collectors.joining(System.lineSeparator()));
 
             return objectMapper.readValue(body, methodParameter.getType());
-        } catch (JsonProcessingException e) {
-            logger.error("Fail to convert value to {}", methodParameter.getType());
         } catch (IOException e) {
-            logger.error("Fail to read value from request body\n{}", body);
+            logger.error("Fail to convert value to {}", methodParameter.getType());
+            throw new ObjectMapperException(e.getCause());
         }
-
-        return null;
     }
 }
