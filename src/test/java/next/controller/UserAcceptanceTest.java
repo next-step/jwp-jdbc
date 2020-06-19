@@ -20,7 +20,7 @@ public class UserAcceptanceTest {
 
     @Test
     @DisplayName("사용자 회원가입/조회/수정/삭제")
-    void crud() {
+    void crud() throws Exception {
         // 회원가입
         UserCreatedDto expected =
                 new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");

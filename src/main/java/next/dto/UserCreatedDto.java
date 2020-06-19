@@ -1,5 +1,7 @@
 package next.dto;
 
+import next.model.User;
+
 public class UserCreatedDto {
     private String userId;
     private String password;
@@ -30,5 +32,25 @@ public class UserCreatedDto {
 
     public String getEmail() {
         return email;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public User toUser() {
+        return new User(userId, password, name, email);
     }
 }

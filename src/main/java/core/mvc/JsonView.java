@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class JsonView implements View {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
