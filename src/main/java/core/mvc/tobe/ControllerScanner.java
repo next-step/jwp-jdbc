@@ -1,62 +1,60 @@
 package core.mvc.tobe;
 
 import core.annotation.web.Controller;
-import core.annotation.web.RequestMapping;
-import core.mvc.tobe.HandlerExecution;
-import core.mvc.tobe.HandlerKey;
-import core.mvc.tobe.support.*;
 import org.reflections.Reflections;
-import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
-import org.springframework.core.ParameterNameDiscoverer;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
-import static core.util.ReflectionUtils.newInstance;
-import static java.util.Arrays.asList;
-
+/**
+ * @author KingCjy
+ */
 public class ControllerScanner {
 
-    private static final Logger logger = LoggerFactory.getLogger(core.mvc.tobe.ControllerScanner.class);
+    private static final Logger logger = LoggerFactory.getLogger(ControllerScanner.class);
 
-    private static final List<ArgumentResolver> argumentResolvers = asList(
-                new HttpRequestArgumentResolver(),
-                new HttpResponseArgumentResolver(),
-                new RequestParamArgumentResolver(),
-                new PathVariableArgumentResolver(),
-                new ModelArgumentResolver()
-        );
+    private Reflections reflections;
 
-    private static final ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+    public ControllerScanner(Object... basePackage) {
+        this.reflections = new Reflections(ConfigurationBuilder.build(basePackage).setScanners(
+                new SubTypesScanner(false),
+                new TypeAnnotationsScanner()
+        ));
+    }
 
-    public Map<HandlerKey, HandlerExecution> scan(Object... basePackage) {
-        Reflections reflections = new Reflections(basePackage, new TypeAnnotationsScanner(), new SubTypesScanner(), new MethodAnnotationsScanner());
-        Map<HandlerKey, HandlerExecution> handlers = new HashMap<>();
+    public Map<Class<?>, Object> getInstantiateControllers() {
+        Map<Class<?>, Object> result = new LinkedHashMap<>();
+        Set<Class<?>> controllers = findControllers();
 
-        Set<Class<?>> controllers = reflections.getTypesAnnotatedWith(Controller.class);
         for (Class<?> controller : controllers) {
-            Object target = newInstance(controller);
-            addHandlerExecution(handlers, target, controller.getMethods());
+            result.put(controller, createInstance(controller));
         }
 
-        return handlers;
+        return result;
     }
 
-    private void addHandlerExecution(Map<HandlerKey, HandlerExecution> handlers, final Object target, Method[] methods) {
-        Arrays.stream(methods)
-                .filter(method -> method.isAnnotationPresent(RequestMapping.class))
-                .forEach(method -> {
-                    RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-                    HandlerKey handlerKey = new HandlerKey(requestMapping.value(), requestMapping.method());
-                    HandlerExecution handlerExecution = new HandlerExecution(nameDiscoverer, argumentResolvers, target, method);
-                    handlers.put(handlerKey, handlerExecution);
-                    logger.info("Add - method: {}, path: {}, HandlerExecution: {}", requestMapping.method(), requestMapping.value(), method.getName());
-                });
+    private Set<Class<?>> findControllers() {
+        return reflections.getTypesAnnotatedWith(Controller.class);
     }
 
+    private Object createInstance(Class<?> targetClass) {
+        try {
+            Constructor constructor = targetClass.getConstructor();
+            return constructor.newInstance();
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException e) {
+            logger.error(e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            logger.error(e.getTargetException().getMessage(), e.getTargetException());
+        }
+
+        return null;
+    }
 }

@@ -1,9 +1,11 @@
 package core.mvc.tobe;
 
+import core.annotation.RequestBody;
 import core.annotation.web.PathVariable;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.ModelAndView;
+import next.dto.UserCreatedDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,5 +45,12 @@ public class TestUserController {
         ModelAndView mav = new ModelAndView();
         mav.addObject("id", id);
         return mav;
+    }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.POST)
+    public ModelAndView create_user(@RequestBody UserCreatedDto userCreatedDto) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("user", userCreatedDto);
+        return modelAndView;
     }
 }

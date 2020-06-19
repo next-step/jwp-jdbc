@@ -5,8 +5,8 @@ import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.annotation.web.RequestParam;
 import core.db.DataBase;
-import core.mvc.JspView;
 import core.mvc.ModelAndView;
+import core.mvc.RedirectViewResolver;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class UserController {
         if (user == null) {
             throw new NullPointerException("사용자를 찾을 수 없습니다.");
         }
-        ModelAndView mav = new ModelAndView(new JspView("/user/profile.jsp"));
+        ModelAndView mav = new ModelAndView("/user/profile.jsp");
         mav.addObject("user", user);
         return mav;
     }
@@ -38,8 +38,7 @@ public class UserController {
     }
 
     private ModelAndView redirect(String path) {
-        return new ModelAndView(new JspView(
-                JspView.DEFAULT_REDIRECT_PREFIX + path));
+        return new ModelAndView(RedirectViewResolver.REDIRECT_PREFIX + path);
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
@@ -48,7 +47,7 @@ public class UserController {
             return redirect("/users/loginForm");
         }
 
-        ModelAndView mav = new ModelAndView(new JspView("/user/list.jsp"));
+        ModelAndView mav = new ModelAndView("/user/list.jsp");
         mav.addObject("users", DataBase.findAll());
         return mav;
     }

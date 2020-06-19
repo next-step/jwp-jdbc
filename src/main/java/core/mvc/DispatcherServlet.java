@@ -1,43 +1,55 @@
 package core.mvc;
 
-import core.mvc.asis.ControllerHandlerAdapter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.mvc.asis.RequestMapping;
-import core.mvc.tobe.AnnotationHandlerMapping;
-import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.mvc.tobe.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 @WebServlet(name = "dispatcher", urlPatterns = "/", loadOnStartup = 1)
 public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
-
-    private HandlerMappingRegistry handlerMappingRegistry;
-
-    private HandlerAdapterRegistry handlerAdapterRegistry;
-
-    private HandlerExecutor handlerExecutor;
+    private static final String DEFAULT_REDIRECT_PREFIX = "redirect:";
+    private HandlerMapping handlerMapping;
+    private ViewResolver viewResolver;
+    private ObjectMapper objectMapper;
 
     @Override
-    public void init() {
-        handlerMappingRegistry = new HandlerMappingRegistry();
-        handlerMappingRegistry.addHandlerMpping(new RequestMapping());
-        handlerMappingRegistry.addHandlerMpping(new AnnotationHandlerMapping("next.controller"));
+    public void init() throws ServletException {
+        objectMapper = new ObjectMapper();
 
-        handlerAdapterRegistry = new HandlerAdapterRegistry();
-        handlerAdapterRegistry.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
-        handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
+        initHandlerMapping();
+        initViewResolver();
+    }
 
-        handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+    private void initHandlerMapping() {
+        RequestMapping requestMapping = new RequestMapping();
+        requestMapping.initialize();
+        AnnotationHandlerMapping annotationHandlerMapping = new AnnotationHandlerMapping(objectMapper, "next");
+        annotationHandlerMapping.initialize();
+
+        handlerMapping = new HandlerMappingComposite(annotationHandlerMapping, requestMapping);
+    }
+
+    private void initViewResolver() {
+        RedirectViewResolver redirectViewResolver = new RedirectViewResolver();
+        JspViewResolver jspViewResolver = new JspViewResolver();
+        JsonViewResolver jsonViewResolver = new JsonViewResolver();
+
+        viewResolver = new ViewResolverComposite(new LinkedHashSet<>(
+                Arrays.asList(redirectViewResolver, jspViewResolver, jsonViewResolver)
+        ));
     }
 
     @Override
@@ -46,23 +58,40 @@ public class DispatcherServlet extends HttpServlet {
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
         try {
-            Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(req);
-            if (!maybeHandler.isPresent()) {
-                resp.setStatus(HttpStatus.NOT_FOUND.value());
-                return;
-            }
-
-
-            ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
-            render(mav, req, resp);
+            HandlerExecution handler = handlerMapping.getHandler(req);
+            ModelAndView modelAndView = handler.handle(req, resp);
+            render(modelAndView, req, resp);
+        } catch (PageNotFoundException e) {
+            logger.error("Page Not Found Exception ", e);
+            resp.sendError(404);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
             throw new ServletException(e.getMessage());
         }
     }
 
-    private void render(ModelAndView mav, HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        View view = mav.getView();
-        view.render(mav.getModel(), req, resp);
+    private void move(String viewName, HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        if (viewName.startsWith(DEFAULT_REDIRECT_PREFIX)) {
+            resp.sendRedirect(viewName.substring(DEFAULT_REDIRECT_PREFIX.length()));
+            return;
+        }
+
+        RequestDispatcher rd = req.getRequestDispatcher(viewName);
+        rd.forward(req, resp);
+    }
+
+    private void render(ModelAndView modelAndView, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        View view;
+        String viewName = modelAndView.getViewName();
+
+        if (viewName == null) {
+            view = modelAndView.getView();
+        } else {
+            view = viewResolver.resolveViewName(viewName);
+        }
+
+        view.render(modelAndView.getModel(), request, response);
     }
 }
