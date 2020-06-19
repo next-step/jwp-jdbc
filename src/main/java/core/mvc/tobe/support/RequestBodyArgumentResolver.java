@@ -3,6 +3,7 @@ package core.mvc.tobe.support;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.annotation.web.PathVariable;
+import core.annotation.web.RequestBody;
 import core.mvc.tobe.MethodParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
 
     @Override
     public boolean supports(MethodParameter methodParameter) {
-        return supportAnnotation(methodParameter, PathVariable.class);
+        return supportAnnotation(methodParameter, RequestBody.class);
     }
 
     @Override

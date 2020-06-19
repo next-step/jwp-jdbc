@@ -38,13 +38,8 @@ public class UserApiController {
     public ModelAndView updateUser(@RequestParam(value = "userId") String userId,
                                    @RequestBody UserUpdatedDto userUpdatedDto,
                                    HttpServletResponse response) {
-        System.out.println(userUpdatedDto);
-        System.out.println(userUpdatedDto.getEmail());
-        System.out.println(userUpdatedDto.getName());
         User user = DataBase.findUserById(userId);
-        System.out.println(user);
         user.update(userUpdatedDto.toUser());
-        System.out.println(user);
 
         response.setStatus(HttpServletResponse.SC_OK);
         return new ModelAndView(new JsonView());
