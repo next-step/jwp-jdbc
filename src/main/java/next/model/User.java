@@ -1,10 +1,14 @@
 package next.model;
 
+import core.util.StringUtil;
+
 public class User {
     private String userId;
     private String password;
     private String name;
     private String email;
+
+    private User() {}
 
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
@@ -30,9 +34,33 @@ public class User {
     }
 
     public void update(User updateUser) {
-        this.password = updateUser.password;
-        this.name = updateUser.name;
-        this.email = updateUser.email;
+        updatePassword(updateUser.password);
+        updateName(updateUser.name);
+        updateEmail(updateUser.email);
+    }
+
+    private void updateEmail(String email) {
+        if (StringUtil.isEmpty(email)) {
+            return;
+        }
+
+        this.email = email;
+    }
+
+    private void updateName(String name) {
+        if (StringUtil.isEmpty(name)) {
+            return;
+        }
+
+        this.name = name;
+    }
+
+    private void updatePassword(String password) {
+        if (StringUtil.isEmpty(password)) {
+            return;
+        }
+
+        this.password = password;
     }
 
     public boolean matchPassword(String password) {

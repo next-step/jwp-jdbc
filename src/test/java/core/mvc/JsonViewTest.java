@@ -1,6 +1,7 @@
 package core.mvc;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ public class JsonViewTest {
     }
 
     @Test
+    @DisplayName("모델에 값이 하나도 없을때")
     void render_no_element() throws Exception {
         view.render(new HashMap<>(), request, response);
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
@@ -35,6 +37,7 @@ public class JsonViewTest {
     }
 
     @Test
+    @DisplayName("모델에 값이 하나만 있을때")
     void render_one_element() throws Exception {
         Map<String, Object> model = new HashMap<>();
         Car expected = new Car("Black", "Sonata");
@@ -48,6 +51,7 @@ public class JsonViewTest {
     }
 
     @Test
+    @DisplayName("모델에 값이 둘 이상 있을때")
     void render_over_two_element() throws Exception {
         Map<String, Object> model = new HashMap<>();
         Car expected = new Car("Black", "Sonata");
