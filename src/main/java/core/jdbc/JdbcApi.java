@@ -65,7 +65,7 @@ public class JdbcApi<T> {
     private List<T> convertToClasses(ResultSet resultSet) throws SQLException {
         List<T> classes = new ArrayList<>();
 
-        if (resultSet.next()) {
+        while (resultSet.next()) {
             classes.add(convert(resultSet));
         }
 
