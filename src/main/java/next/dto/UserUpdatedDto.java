@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.util.StringUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.util.Objects;
 
 @NoArgsConstructor
