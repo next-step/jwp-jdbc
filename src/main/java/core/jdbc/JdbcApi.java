@@ -35,7 +35,7 @@ public class JdbcApi<T> {
 
             preparedStatement.execute();
         } catch (Exception e) {
-            throw new JdbcApiException("Something wrong");
+            throw new JdbcApiException("Fail to execute query : " + e.getMessage());
         }
     }
 
@@ -58,7 +58,7 @@ public class JdbcApi<T> {
 
             return convertToClasses(resultSet);
         } catch (Exception e) {
-            throw new JdbcApiException("Something wrong");
+            throw new JdbcApiException("Fail to execute select query : " + e.getMessage());
         }
     }
 
