@@ -28,11 +28,10 @@ public class JsonView implements View {
 
     private String writeValueAsString(Map<String, ?> model) throws JsonProcessingException {
         if (model.size() == 1) {
-            Object value = model.entrySet()
+            Object value = model.values()
                     .stream()
                     .findFirst()
-                    .get()
-                    .getValue();
+                    .get();
 
             return OBJECT_MAPPER.writeValueAsString(value);
         }
