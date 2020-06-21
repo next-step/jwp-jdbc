@@ -29,7 +29,7 @@ public class QueryStatementCallback<T> extends AbstractStatementCallback<T> {
     public T executeStatement(PreparedStatement ps) throws SQLException {
         setPreparedStatementValues(ps);
 
-        try(ResultSet rs = ps.executeQuery()) {
+        try (ResultSet rs = ps.executeQuery()) {
             T result = resultSetExtractor.extractData(rs);
             return result;
         }

@@ -21,6 +21,18 @@ public class ArgumentPreparedStatementSetter implements PreparedStatementSetter 
         this.args = args;
     }
 
+    private static boolean isStringValue(Class<?> type) {
+        return (CharSequence.class.isAssignableFrom(type) ||
+            StringWriter.class.isAssignableFrom(type));
+    }
+
+    private static boolean isDateValue(Class<?> type) {
+        return (Date.class.isAssignableFrom(type) &&
+            !(java.sql.Date.class.isAssignableFrom(type) ||
+                Time.class.isAssignableFrom(type) ||
+                Timestamp.class.isAssignableFrom(type)));
+    }
+
     @Override
     public void setValues(PreparedStatement ps) throws SqlRunTimeException {
         if (ArrayUtils.isEmpty(args)) {
@@ -29,7 +41,7 @@ public class ArgumentPreparedStatementSetter implements PreparedStatementSetter 
 
         IntStream.rangeClosed(1, args.length)
             .forEach(index -> {
-                Object arg = this.args[index-1];
+                Object arg = this.args[index - 1];
                 setValue(ps, index, arg);
             });
     }
@@ -54,17 +66,5 @@ public class ArgumentPreparedStatementSetter implements PreparedStatementSetter 
             log.error("code: {}, message: {}", e.getErrorCode(), e.getMessage());
             throw new SqlRunTimeException(e.getMessage());
         }
-    }
-
-    private static boolean isStringValue(Class<?> type) {
-        return (CharSequence.class.isAssignableFrom(type) ||
-            StringWriter.class.isAssignableFrom(type));
-    }
-
-    private static boolean isDateValue(Class<?> type) {
-        return (Date.class.isAssignableFrom(type) &&
-            !(java.sql.Date.class.isAssignableFrom(type) ||
-                Time.class.isAssignableFrom(type) ||
-                Timestamp.class.isAssignableFrom(type)));
     }
 }

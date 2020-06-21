@@ -5,5 +5,6 @@ import java.sql.SQLException;
 
 public interface StatementCallback<T> {
     T executeStatement(PreparedStatement ps) throws SQLException;
+
     String getSql();
 }

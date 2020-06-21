@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Objects;
 
 @Slf4j
 public class UpdateStatementCallback extends AbstractStatementCallback<Integer> {

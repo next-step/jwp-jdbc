@@ -24,7 +24,8 @@ public class ConnectionManager {
     public static Connection getConnection() {
         try {
             return getDataSource().getConnection();
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             throw new IllegalStateException(e);
         }
     }

@@ -31,7 +31,7 @@ public class JdbcTemplate {
         return execute(new UpdateStatementCallback(sql, new ArgumentPreparedStatementSetter(args)));
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object ...args) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
         return query(sql, args, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
@@ -55,7 +55,7 @@ public class JdbcTemplate {
         return getSingleResult(query(sql, null, new RowMapperResultSetExtractor<>(rowMapper)));
     }
 
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object ...args) {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) {
         return getSingleResult(query(sql, args, new RowMapperResultSetExtractor<>(rowMapper)));
     }
 
@@ -72,8 +72,8 @@ public class JdbcTemplate {
             throw new IllegalArgumentException();
         }
 
-        try(Connection con = this.dataSource.getConnection();
-            PreparedStatement ps = con.prepareCall(qsc.getSql())) {
+        try (Connection con = this.dataSource.getConnection();
+             PreparedStatement ps = con.prepareCall(qsc.getSql())) {
             T result = qsc.executeStatement(ps);
             return result;
         }
