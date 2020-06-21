@@ -26,12 +26,10 @@ public class QueryStatementCallback<T> extends AbstractStatementCallback<T> {
     }
 
     @Override
-    public T executeStatement(PreparedStatement stmt) throws SQLException {
-        if (Objects.nonNull(pss)) {
-            pss.setValues(stmt);
-        }
+    public T executeStatement(PreparedStatement ps) throws SQLException {
+        setPreparedStatementValues(ps);
 
-        try(ResultSet rs = stmt.executeQuery()) {
+        try(ResultSet rs = ps.executeQuery()) {
             T result = resultSetExtractor.extractData(rs);
             return result;
         }

@@ -19,9 +19,7 @@ public class UpdateStatementCallback extends AbstractStatementCallback<Integer> 
 
     @Override
     public Integer executeStatement(PreparedStatement ps) throws SQLException {
-        if (Objects.nonNull(pss)) {
-            pss.setValues(ps);
-        }
+        setPreparedStatementValues(ps);
 
         int updatedCount = ps.executeUpdate();
         log.debug("SQL update count: {}", updatedCount);

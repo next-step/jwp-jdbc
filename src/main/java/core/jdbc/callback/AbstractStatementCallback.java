@@ -3,6 +3,10 @@ package core.jdbc.callback;
 import core.jdbc.argumentsetter.PreparedStatementSetter;
 import core.util.StringUtils;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Objects;
+
 public abstract class AbstractStatementCallback<T> implements StatementCallback<T> {
     protected final String sql;
     protected final PreparedStatementSetter pss;
@@ -23,5 +27,11 @@ public abstract class AbstractStatementCallback<T> implements StatementCallback<
     @Override
     public String getSql() {
         return sql;
+    }
+
+    public void setPreparedStatementValues(PreparedStatement ps) throws SQLException {
+        if (Objects.nonNull(pss)) {
+            pss.setValues(ps);
+        }
     }
 }
