@@ -1,8 +1,10 @@
 package next.controller;
 
+import next.WebServerLauncher;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -14,13 +16,29 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class UserAcceptanceTest {
     private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceTest.class);
 
+    @BeforeEach
+    void setUp() throws Exception {
+        // 웹 서버 구동하지 않고도 test suite에서 동작할 수 있도록.
+        final Thread serverThread = new Thread(() -> {
+            try {
+                WebServerLauncher.main(null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        serverThread.start();
+        serverThread.join(3000);
+    }
+
     @Test
     @DisplayName("사용자 회원가입/조회/수정/삭제")
     void crud() {
+
         // 회원가입
         UserCreatedDto expected =
                 new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
