@@ -6,6 +6,7 @@ import core.mvc.tobe.MethodParameter;
 import next.dto.UserCreatedDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -30,6 +31,7 @@ class RequestBodyArgumentResolverTest {
                 new UserCreatedDto("hyeyoom", "1234", "chwon", "neoul_chw@icloud.com");
         final String json = JsonUtils.stringify(expected);
         request.setContent(json.getBytes());
+        request.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         // when
         final UserCreatedDto actual = (UserCreatedDto) resolver.resolveArgument(methodParameter, request, response);

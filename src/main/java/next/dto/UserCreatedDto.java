@@ -1,5 +1,7 @@
 package next.dto;
 
+import java.util.Objects;
+
 public class UserCreatedDto {
     private String userId;
     private String password;
@@ -30,5 +32,21 @@ public class UserCreatedDto {
 
     public String getEmail() {
         return email;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserCreatedDto that = (UserCreatedDto) o;
+        return Objects.equals(userId, that.userId) &&
+                Objects.equals(password, that.password) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(email, that.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, password, name, email);
     }
 }
