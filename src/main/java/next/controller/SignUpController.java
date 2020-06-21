@@ -1,19 +1,17 @@
 package next.controller;
 
-import core.annotation.web.Controller;
-import core.annotation.web.RequestMapping;
-import core.annotation.web.RequestMethod;
+import core.annotation.web.*;
 import core.db.DataBase;
 import core.mvc.JsonView;
-import core.mvc.JspView;
 import core.mvc.ModelAndView;
 import next.dto.UserCreatedDto;
+import next.dto.UserFindDto;
+import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
@@ -22,7 +20,7 @@ public class SignUpController {
     private static final Logger log = LoggerFactory.getLogger(SignUpController.class);
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
-    public ModelAndView signUp(UserCreatedDto userCreatedDto, HttpServletResponse response) throws Exception {
+    public ModelAndView signUp(@RequestBody UserCreatedDto userCreatedDto, HttpServletResponse response) throws Exception {
         log.debug("UserCreatedDto: {}", userCreatedDto);
         final User user = new User(
                 userCreatedDto.getUserId(),
@@ -37,18 +35,23 @@ public class SignUpController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
-    public ModelAndView create(String userId) throws Exception {
-        return redirect("/");
-    }
-
-    private ModelAndView redirect(String path) {
-        return new ModelAndView(new JspView(JspView.DEFAULT_REDIRECT_PREFIX + path));
+    public ModelAndView findUser(@RequestParam String userId) throws Exception {
+        log.debug("userId: {}", userId);
+        final User user = DataBase.findUserById(userId);
+        final UserFindDto dto = new UserFindDto(user);
+        final ModelAndView mav = new ModelAndView(new JsonView());
+        mav.addObject("foundUser", dto);
+        return mav;
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
-    public ModelAndView list(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        ModelAndView mav = new ModelAndView(new JspView("/user/list.jsp"));
-        mav.addObject("users", DataBase.findAll());
+    public ModelAndView modifyUser(@RequestParam String userId, @RequestBody UserUpdatedDto dto) throws Exception {
+        log.debug("userId: {}, dto: {}", userId, dto);
+        final User foundUser = DataBase.findUserById(userId);
+        foundUser.update(new User("", "", dto.getName(), dto.getEmail()));
+        DataBase.addUser(foundUser);
+        ModelAndView mav = new ModelAndView(new JsonView());
+        mav.addObject("updatedUser", new UserFindDto(foundUser));
         return mav;
     }
 

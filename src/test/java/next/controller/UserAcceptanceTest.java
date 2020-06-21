@@ -9,11 +9,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -45,12 +47,13 @@ public class UserAcceptanceTest {
         EntityExchangeResult<byte[]> response = client()
                 .post()
                 .uri("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(expected), UserCreatedDto.class)
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody()
                 .returnResult();
-        URI location = response.getResponseHeaders().getLocation();
+        URI location = Objects.requireNonNull(response.getResponseHeaders().getLocation(), "null?!");
         logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
 
         // 조회
