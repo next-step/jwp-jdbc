@@ -16,7 +16,6 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
     private static final Logger logger = LoggerFactory.getLogger(RequestBodyArgumentResolver.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String NEWLINE = "\n";
 
     @Override
     public boolean supports(MethodParameter methodParameter) {
@@ -26,11 +25,7 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
     @Override
     public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
         try {
-            String body = request.getReader()
-                    .lines()
-                    .collect(Collectors.joining(NEWLINE));
-
-            return objectMapper.readValue(body, methodParameter.getType());
+            return objectMapper.readValue(request.getReader(), methodParameter.getType());
         } catch (IOException e) {
             logger.error("Fail to convert value to {}", methodParameter.getType());
             throw new ObjectMapperException(e.getCause());
