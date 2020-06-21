@@ -1,7 +1,7 @@
 package core.jdbc.callback;
 
+import core.jdbc.argumentsetter.PreparedStatementSetter;
 import core.jdbc.resultset.ResultSetExtractor;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

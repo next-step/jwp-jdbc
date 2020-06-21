@@ -1,5 +1,4 @@
-/*
-package core.jdbc;
+package core.jdbc.argumentsetter;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -8,4 +7,3 @@ import java.sql.SQLException;
 public interface PreparedStatementSetter {
     void setValues(PreparedStatement ps) throws SQLException;
 }
-*/

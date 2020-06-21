@@ -1,7 +1,7 @@
 package core.jdbc.callback;
 
+import core.jdbc.argumentsetter.PreparedStatementSetter;
 import core.util.StringUtils;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 
 public abstract class AbstractStatementCallback<T> implements StatementCallback<T> {
     protected final String sql;
