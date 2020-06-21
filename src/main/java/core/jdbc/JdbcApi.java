@@ -112,7 +112,7 @@ public class JdbcApi<T> {
     }
 
     private T resolveArgumentInternal(ResultSet resultSet) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, SQLException {
-        T dao = getDefaultInstance(clazz, resultSet);
+        T dao = getDefaultInstance(resultSet);
 
         for (Field field : clazz.getDeclaredFields()) {
             populateArgument(dao, clazz, field, resultSet);
@@ -122,30 +122,35 @@ public class JdbcApi<T> {
     }
 
     private void populateArgument(Object target, Class<T> clazz, Field field, ResultSet resultSet) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, SQLException {
-        final String setterMethod = "set" + upperFirstChar(field.getName());
+        String setterMethod = "set" + upperFirstChar(field.getName());
 
         if (hasFieldMethod(clazz, setterMethod, field.getType())) {
-            final Method method = clazz.getDeclaredMethod(setterMethod, field.getType());
+            Method method = clazz.getDeclaredMethod(setterMethod, field.getType());
             method.invoke(target, ReflectionUtils.convertStringValue(resultSet.getString(field.getName()), field.getType()));
         }
     }
 
-    private <T> T getDefaultInstance(Class<T> clazz, ResultSet resultSet) throws IllegalAccessException, InvocationTargetException, InstantiationException, SQLException {
+    private T getDefaultInstance(ResultSet resultSet) throws IllegalAccessException, InvocationTargetException, InstantiationException, SQLException {
         for (Constructor constructor : clazz.getConstructors()) {
-            final String[] parameterNames = nameDiscoverer.getParameterNames(constructor);
-            assert parameterNames != null;
+            Object[] args = extractArguments(resultSet, constructor);
 
-            final Class[] parameterTypes = constructor.getParameterTypes();
-            Object[] args = new Object[parameterTypes.length];
-            for (int i = 0; i < parameterTypes.length; i++) {
-                args[i] = parameterTypes[i].cast(resultSet.getString(parameterNames[i]));
-            }
-
-            final Object arg = constructor.newInstance(args);
+            Object arg = constructor.newInstance(args);
 
             return clazz.cast(arg);
         }
 
         throw new IllegalStateException("[" + clazz.getName() + "] supported constructor is empty");
+    }
+
+    private Object[] extractArguments(ResultSet resultSet, Constructor constructor) throws SQLException {
+        String[] parameterNames = nameDiscoverer.getParameterNames(constructor);
+        Class[] parameterTypes = constructor.getParameterTypes();
+
+        Object[] args = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            args[i] = parameterTypes[i].cast(resultSet.getString(parameterNames[i]));
+        }
+
+        return args;
     }
 }
