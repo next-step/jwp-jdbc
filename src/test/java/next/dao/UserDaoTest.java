@@ -36,8 +36,15 @@ public class UserDaoTest {
 
     @Test
     public void findAll() throws Exception {
+        User user1 = new User("userId1", "password1", "name1", "javajigi1@email.com");
+        User user2 = new User("userId2", "password2", "name2", "javajigi2@email.com");
+
         UserDao userDao = new UserDao();
+        userDao.insert(user1);
+        userDao.insert(user2);
+
         List<User> users = userDao.findAll();
-        assertThat(users).hasSize(1);
+        assertThat(users).hasSize(3);
+        assertThat(users).contains(user1, user2);
     }
 }
