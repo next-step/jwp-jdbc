@@ -2,6 +2,7 @@ package next.dao;
 
 import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
+import core.jdbc.resultset.UserRowMapper;
 import core.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import next.model.User;
@@ -39,15 +40,7 @@ public class UserDao {
     public List<User> findAll() throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        List<User> users = jdbcTemplate.query(sql, (rs, rowNum) -> {
-            return User.builder()
-                .userId(rs.getString(1))
-                .password(rs.getString(2))
-                .name(rs.getString(3))
-                .email(rs.getString(4))
-                .build();
-        });
-
+        List<User> users = jdbcTemplate.query(sql, new UserRowMapper());
         log.debug("user: {}", StringUtils.toPrettyJson(users));
 
         return users;
@@ -56,15 +49,7 @@ public class UserDao {
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
 
-        User user = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-            return User.builder()
-                .userId(rs.getString(1))
-                .password(rs.getString(2))
-                .name(rs.getString(3))
-                .email(rs.getString(4))
-                .build();
-        }, userId);
-
+        User user = jdbcTemplate.queryForObject(sql, new UserRowMapper(), userId);
         log.debug("user: {}", StringUtils.toPrettyJson(user));
 
         return user;

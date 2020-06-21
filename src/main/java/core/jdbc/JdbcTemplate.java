@@ -4,11 +4,11 @@ import core.jdbc.callback.QueryStatementCallback;
 import core.jdbc.callback.StatementCallback;
 import core.jdbc.callback.UpdateStatementCallback;
 import core.jdbc.exception.SqlRunTimeException;
+import core.jdbc.resultset.RowMapper;
+import core.jdbc.resultset.RowMapperResultSetExtractor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;

@@ -1,20 +1,9 @@
-/*
 package core.jdbc.resultset;
 
 import java.sql.ResultSet;
-import java.util.Map;
+import java.sql.SQLException;
 
-public class RowMapper<T> {
-    private final Object[] params;
-    private final Map<?, ?> context;
-
-    public RowMapper(Object[] params, Map<?, ?> context) {
-        this.params = params;
-        this.context = context;
-    }
-
-    public T mapRow(ResultSet rs, int rowNum) {
-        return null;
-    }
+@FunctionalInterface
+public interface RowMapper<T> {
+    T mapRow(ResultSet rs, int rowNum) throws SQLException;
 }
-*/
