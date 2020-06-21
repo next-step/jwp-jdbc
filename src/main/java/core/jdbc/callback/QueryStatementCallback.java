@@ -1,17 +1,22 @@
 package core.jdbc.callback;
 
-import core.jdbc.resultset.ResultSetExtractor;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Objects;
 
 public class QueryStatementCallback<T> extends AbstractStatementCallback<T> {
     private final ResultSetExtractor<T> resultSetExtractor;
 
     public QueryStatementCallback(String sql, ResultSetExtractor<T> resultSetExtractor) {
-        super(sql);
+        this(sql, null, resultSetExtractor);
+    }
+
+    public QueryStatementCallback(String sql, PreparedStatementSetter pss, ResultSetExtractor<T> resultSetExtractor) {
+        super(sql, pss);
 
         if (Objects.isNull(resultSetExtractor)) {
             throw new IllegalArgumentException();
@@ -21,8 +26,12 @@ public class QueryStatementCallback<T> extends AbstractStatementCallback<T> {
     }
 
     @Override
-    public T executeStatement(Statement stmt) throws SQLException {
-        try(ResultSet rs = stmt.executeQuery(sql)) {
+    public T executeStatement(PreparedStatement stmt) throws SQLException {
+        if (Objects.nonNull(pss)) {
+            pss.setValues(stmt);
+        }
+
+        try(ResultSet rs = stmt.executeQuery()) {
             T result = resultSetExtractor.extractData(rs);
             return result;
         }

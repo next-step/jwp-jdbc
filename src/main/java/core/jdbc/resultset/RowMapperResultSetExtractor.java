@@ -1,3 +1,4 @@
+/*
 package core.jdbc.resultset;
 
 import java.sql.ResultSet;
@@ -28,3 +29,4 @@ public class RowMapperResultSetExtractor<T> implements ResultSetExtractor<List<T
         return results;
     }
 }
+*/

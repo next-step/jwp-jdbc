@@ -2,7 +2,10 @@ package next.dao;
 
 import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
+import core.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import next.model.User;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,56 +14,59 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class UserDao {
 
     private JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
     public void insert(User user) throws SQLException {
-        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", user);
-
-        try(Connection con = ConnectionManager.getConnection()) {
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-
-            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-                pstmt.setString(1, user.getUserId());
-                pstmt.setString(2, user.getPassword());
-                pstmt.setString(3, user.getName());
-                pstmt.setString(4, user.getEmail());
-
-                pstmt.executeUpdate();
-            }
-        }
+        int insertCount = jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        log.debug("insertCount: {}", insertCount);
     }
 
     public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+        int updateCount = jdbcTemplate.update(
+            "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?",
+            user.getPassword(),
+            user.getName(),
+            user.getEmail(),
+            user.getUserId()
+        );
+
+        log.debug("updateCount: {}", updateCount);
     }
 
     public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+        String sql = "SELECT userId, password, name, email FROM USERS";
+
+        List<User> users = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            return User.builder()
+                .userId(rs.getString(1))
+                .password(rs.getString(2))
+                .name(rs.getString(3))
+                .email(rs.getString(4))
+                .build();
+        });
+
+        log.debug("user: {}", StringUtils.toPrettyJson(users));
+
+        return users;
     }
 
     public User findByUserId(String userId) throws SQLException {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
 
-        try(Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql)) {
+        User user = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+            return User.builder()
+                .userId(rs.getString(1))
+                .password(rs.getString(2))
+                .name(rs.getString(3))
+                .email(rs.getString(4))
+                .build();
+        }, userId);
 
-            pstmt.setString(1, userId);
+        log.debug("user: {}", StringUtils.toPrettyJson(user));
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                User user = null;
-
-                if (rs.next()) {
-                    user = new User(rs.getString("userId"),
-                                    rs.getString("password"),
-                                    rs.getString("name"),
-                                    rs.getString("email"));
-                }
-
-                return user;
-            }
-        }
+        return user;
     }
 }

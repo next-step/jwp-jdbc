@@ -1,9 +1,9 @@
 package core.jdbc.callback;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public interface StatementCallback<T> {
-    T executeStatement(Statement stmt) throws SQLException;
+    T executeStatement(PreparedStatement ps) throws SQLException;
     String getSql();
 }

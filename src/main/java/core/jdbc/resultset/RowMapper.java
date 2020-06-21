@@ -1,3 +1,4 @@
+/*
 package core.jdbc.resultset;
 
 import java.sql.ResultSet;
@@ -16,3 +17,4 @@ public class RowMapper<T> {
         return null;
     }
 }
+*/
