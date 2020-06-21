@@ -19,7 +19,7 @@ import static core.jdbc.ConnectionManager.getConnection;
 import static core.util.ReflectionUtils.hasFieldMethod;
 import static core.util.StringUtil.upperFirstChar;
 
-// 너무 많은 일을 하고 있는거 같다..
+// 너무 많은 일을 하고 있는거 같다.. convert를 따로 빼야할까? 어떻게 빼야할까...
 public class JdbcApi<T> {
     private static final ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
