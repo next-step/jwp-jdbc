@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-@DisplayName("인터셉터들 테스트")
+@DisplayName("interceptors test")
 class InterceptorsTest {
     private final List<Interceptor> interceptorList = Arrays.asList(new TestInterceptor1(), new TestInterceptor2());
     private final Interceptors interceptors = new Interceptors(interceptorList);
@@ -44,12 +44,33 @@ class InterceptorsTest {
     }
 
     @Test
-    @DisplayName("interceptors preProcess 호출시 먼저 선언된 인터셉터의 preProcess 부터 차례대로 호출된다.")
+    @DisplayName("interceptors preProcess 호출시 먼저 선언된 인터셉터의 preProcess 부터 차례대로 호출된다")
     void interceptorsPreProcess() {
         request.setAttribute(TEST, new ArrayList<Integer>());
         interceptors.preProcess(request, response);
 
         assertThat(request.getAttribute(TEST)).isEqualTo(Arrays.asList(1, 3));
+    }
+
+    @Test
+    @DisplayName("interceptors postProcess 호출시 선언된 인터셉터의 역순으로 postProcess 가 호출된다")
+    void interceptorsPostProcess() {
+        request.setAttribute(TEST, new ArrayList<Integer>());
+        interceptors.postProcess(request, response);
+
+        assertThat(request.getAttribute(TEST)).isEqualTo(Arrays.asList(4, 2));
+    }
+
+    @Test
+    @DisplayName("interceptors pre, post 호출 테스트")
+    void interceptorsFullProcess() {
+        request.setAttribute(TEST, new ArrayList<Integer>());
+
+        interceptors.preProcess(request, response);
+        // handling controller
+        interceptors.postProcess(request, response);
+
+        assertThat(request.getAttribute(TEST)).isEqualTo(Arrays.asList(1, 3, 4, 2));
     }
 
     private static class TestInterceptor1 implements Interceptor {

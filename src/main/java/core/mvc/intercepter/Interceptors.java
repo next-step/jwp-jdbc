@@ -20,4 +20,10 @@ public class Interceptors {
     public void preProcess(HttpServletRequest request, HttpServletResponse response) {
         interceptors.forEach(interceptor -> interceptor.preProcess(request, response));
     }
+
+    public void postProcess(HttpServletRequest request, HttpServletResponse response) {
+        for (int i = interceptors.size() - 1 ; i >= 0 ; --i) { //reverse order using stream not clean
+            interceptors.get(i).postProcess(request, response);
+        }
+    }
 }
