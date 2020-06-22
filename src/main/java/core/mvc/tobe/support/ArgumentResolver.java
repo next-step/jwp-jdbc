@@ -10,5 +10,4 @@ public interface ArgumentResolver {
     boolean supports(MethodParameter methodParameter);
 
     Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response);
-
 }
