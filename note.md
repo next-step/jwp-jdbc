@@ -9,6 +9,12 @@ JDBC 라이브러리 구현 요구사항
     - 쿼리에 전달할 인자
     - 조회한 데이터를 추출(매핑)
 2. SQLException을 Runtime으로 변환해 try/catch로 가독성이 부셔지는 일을 막자.
+3. 다음 기능을 만족 
+    - Connection 생성 및 close - 흠.. 아직 고민
+    - Statement 생성 및 close - PreparedStatementCreator jdbc 패키지에 있었다.
+    - ResultSet 생성 및 close - RowMapper 만든다.
+    - SQL 문에 인자 setting - PreparedStatement
+    - 트랜잭션 관리 - ????????????? =_= 엉엉
 
 분석 & 설계
 
@@ -20,6 +26,8 @@ JDBC 라이브러리 구현 요구사항
     - 맵과 객체를 연결
 - CommonJDBC 클래스
     - 위의 친구를 잘 포장하는 친구
+    
+트랜잭션 어쩔겨.. 
 
 
 ## 1단계 - REST API 및 테스트 리팩토링
