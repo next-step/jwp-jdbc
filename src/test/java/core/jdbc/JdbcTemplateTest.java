@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("Jdbc api 테스트")
 class JdbcTemplateTest {
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(new DefaultConnectionManager());
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     private final User nokchaxUser = new User("nokchax", "pw", "녹차", "nokchax@gmail.com");
     private final RowConverter<User> rowToUserConverter = resultSet -> new User(
             resultSet.getString("userId"),
@@ -30,7 +30,7 @@ class JdbcTemplateTest {
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, DefaultConnectionManager.getDataSource());
+        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
         jdbcTemplate.execute(
                 "INSERT INTO USERS VALUES(?, ?, ?, ?)",

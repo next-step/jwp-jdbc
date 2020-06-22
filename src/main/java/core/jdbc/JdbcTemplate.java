@@ -1,5 +1,6 @@
 package core.jdbc;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,14 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-    private final ConnectionManager connectionManager;
+    private final DataSource dataSource;
 
-    public JdbcTemplate(final ConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
+    public JdbcTemplate(final DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void execute(final String sql, final Object... values) {
-        try (Connection connection = connectionManager.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = prepareStatement(connection, sql, values);
 
             preparedStatement.execute();
@@ -36,7 +37,7 @@ public class JdbcTemplate {
     }
 
     private <T> List<T> executeQuery(final String sql, final RowConverter<T> converter, final Object... values) {
-        try (Connection connection = connectionManager.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             PreparedStatement preparedStatement = prepareStatement(connection, sql, values);
 
             ResultSet resultSet = executeQuery(preparedStatement);

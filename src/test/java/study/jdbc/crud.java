@@ -1,7 +1,6 @@
 package study.jdbc;
 
 import core.jdbc.ConnectionManager;
-import core.jdbc.DefaultConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,13 +15,12 @@ import java.sql.SQLException;
 
 @DisplayName("CRUD R를 제외하고는 execute로 통일이 가능하다.")
 public class crud {
-    private static final ConnectionManager connectionManager = new DefaultConnectionManager();
-    @BeforeEach
 
+    @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, DefaultConnectionManager.getDataSource());
+        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
     @Test
@@ -68,7 +66,7 @@ public class crud {
     }
 
     private PreparedStatement prepareStatement(String sql) throws SQLException {
-        Connection connection = connectionManager.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         return connection.prepareStatement(sql);
     }
