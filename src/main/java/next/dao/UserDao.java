@@ -1,15 +1,24 @@
 package next.dao;
 
-import core.jdbc.JdbcApi;
+import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
+import core.jdbc.RowConverter;
 import next.model.User;
 
 import java.util.List;
 
 public class UserDao {
-    private final JdbcApi<User> userDB = new JdbcApi<>(User.class);
+    private static final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+    private static final RowConverter<User> resultSetToUserConverter =
+            resultSet -> new User(
+                    resultSet.getString("userId"),
+                    resultSet.getString("password"),
+                    resultSet.getString("name"),
+                    resultSet.getString("email")
+            );
 
     public void insert(User user) {
-        userDB.execute(
+        jdbcTemplate.execute(
                 "INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(),
                 user.getPassword(),
@@ -19,7 +28,7 @@ public class UserDao {
     }
 
     public void update(User user) {
-        userDB.execute(
+        jdbcTemplate.execute(
                 "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?",
                 user.getPassword(),
                 user.getName(),
@@ -29,10 +38,17 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return userDB.findAll("SELECT userId, password, name, email FROM USERS");
+        return jdbcTemplate.findAll(
+                "SELECT userId, password, name, email FROM USERS",
+                resultSetToUserConverter
+        );
     }
 
     public User findByUserId(String userId) {
-        return userDB.findOne("SELECT userId, password, name, email FROM USERS WHERE userid=?", userId);
+        return jdbcTemplate.findOne(
+                "SELECT userId, password, name, email FROM USERS WHERE userId = ?",
+                resultSetToUserConverter,
+                userId
+        );
     }
 }

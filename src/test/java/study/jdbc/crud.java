@@ -13,10 +13,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static core.jdbc.ConnectionManager.getConnection;
-
 @DisplayName("CRUD R를 제외하고는 execute로 통일이 가능하다.")
 public class crud {
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -67,7 +66,7 @@ public class crud {
     }
 
     private PreparedStatement prepareStatement(String sql) throws SQLException {
-        Connection connection = getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         return connection.prepareStatement(sql);
     }
