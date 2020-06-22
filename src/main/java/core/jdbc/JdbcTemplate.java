@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 /**
@@ -51,17 +48,35 @@ public class JdbcTemplate {
         });
     }
 
-    public int update(String query, Object[] arguments) {
+
+    public int update(String query, Object... arguments) {
+        return update(query, null, arguments);
+    }
+
+    public int update(String query, KeyHolder keyHolder, Object... arguments) {
         return this.execute(query, preparedStatement -> {
             setValues(preparedStatement, arguments);
             int updatedRows = preparedStatement.executeUpdate();
+
+            if(keyHolder == null) {
+                return updatedRows;
+            }
+
+            ResultSet rs = preparedStatement.getGeneratedKeys();
+            if(rs.next()) {
+                long generatedKey = rs.getLong(1);
+                logger.debug("Generated Key: {}", generatedKey);
+                keyHolder.setId(generatedKey);
+            }
+            rs.close();
+
             return updatedRows;
         });
     }
 
     private <T> T execute(String query, PreparedStatementCallback<T> callback) {
         try (Connection connection = ConnectionManager.getConnection(dataSource);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             T result = callback.doInstatement(preparedStatement);
             connection.commit();
