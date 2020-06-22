@@ -7,12 +7,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static core.jdbc.ConnectionManager.getConnection;
-
 public class JdbcTemplate {
+    private final ConnectionManager connectionManager;
+
+    public JdbcTemplate(final ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
 
     public void execute(final String sql, final Object... values) {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = connectionManager.getConnection()) {
             PreparedStatement preparedStatement = prepareStatement(connection, sql, values);
 
             preparedStatement.execute();
@@ -33,7 +36,7 @@ public class JdbcTemplate {
     }
 
     private <T> List<T> executeQuery(final String sql, final RowConverter<T> converter, final Object... values) {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = connectionManager.getConnection()) {
             PreparedStatement preparedStatement = prepareStatement(connection, sql, values);
 
             ResultSet resultSet = executeQuery(preparedStatement);

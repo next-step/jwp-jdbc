@@ -1,6 +1,6 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
+import core.jdbc.DefaultConnectionManager;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ public class UserDaoTest {
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+        DatabasePopulatorUtils.execute(populator, DefaultConnectionManager.getDataSource());
     }
 
     @Test
