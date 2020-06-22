@@ -13,9 +13,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("인터셉터 테스트")
 class InterceptorTest {
-    TestInterceptor testInterceptor;
-    MockHttpServletRequest request;
-    MockHttpServletResponse response;
+    private TestInterceptor testInterceptor;
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
 
     @BeforeEach
     void setEnv() {
