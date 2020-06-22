@@ -4,13 +4,9 @@ import core.jdbc.exception.SqlRunTimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.StringWriter;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -19,18 +15,6 @@ public class ArgumentPreparedStatementSetter implements PreparedStatementSetter 
 
     public ArgumentPreparedStatementSetter(Object[] args) {
         this.args = args;
-    }
-
-    private static boolean isStringValue(Class<?> type) {
-        return (CharSequence.class.isAssignableFrom(type) ||
-            StringWriter.class.isAssignableFrom(type));
-    }
-
-    private static boolean isDateValue(Class<?> type) {
-        return (Date.class.isAssignableFrom(type) &&
-            !(java.sql.Date.class.isAssignableFrom(type) ||
-                Time.class.isAssignableFrom(type) ||
-                Timestamp.class.isAssignableFrom(type)));
     }
 
     @Override
@@ -47,20 +31,22 @@ public class ArgumentPreparedStatementSetter implements PreparedStatementSetter 
     }
 
     protected void setValue(PreparedStatement ps, int paramPos, Object arg) {
+        PreparedStatementType foundType = Arrays.stream(PreparedStatementType.values())
+            .filter(type -> type.getChecker().apply(arg))
+            .findFirst()
+            .get();
+
+        invokeSetter(foundType, ps, paramPos, arg);
+    }
+
+    private void invokeSetter(
+        PreparedStatementType type,
+        PreparedStatement ps,
+        int paramPos,
+        Object arg
+    ) {
         try {
-            if (isStringValue(arg.getClass())) {
-                ps.setString(paramPos, arg.toString());
-            }
-            else if (isDateValue(arg.getClass())) {
-                ps.setTimestamp(paramPos, new java.sql.Timestamp(((java.util.Date) arg).getTime()));
-            }
-            else if (arg instanceof Calendar) {
-                Calendar cal = (Calendar) arg;
-                ps.setTimestamp(paramPos, new java.sql.Timestamp(cal.getTime().getTime()), cal);
-            }
-            else {
-                ps.setObject(paramPos, arg);
-            }
+            type.getSetter().accept(ps, paramPos, arg);
         }
         catch (SQLException e) {
             log.error("code: {}, message: {}", e.getErrorCode(), e.getMessage());
