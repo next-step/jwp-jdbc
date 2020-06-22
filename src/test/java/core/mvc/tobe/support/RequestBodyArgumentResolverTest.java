@@ -22,12 +22,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RequestBodyArgumentResolverTest {
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private RequestBodyArgumentResolver argumentResolver = new RequestBodyArgumentResolver();
+    private static final RequestBodyArgumentResolver argumentResolver = new RequestBodyArgumentResolver();
 
     @DisplayName("RequestBody Argument Resolver Test")
     @ParameterizedTest(name = "MethodParameter: {0}")
     @MethodSource("sampleRequestBodyMethodParameter")
-    void PathVariableResolveArguments(HttpServletRequest request, MethodParameter mp, Object expectedResult) {
+    void pathVariableResolveArguments(HttpServletRequest request, MethodParameter mp, Object expectedResult) {
         MockHttpServletResponse response = new MockHttpServletResponse();
         Object result = argumentResolver.resolveArgument(mp, request, response);
 

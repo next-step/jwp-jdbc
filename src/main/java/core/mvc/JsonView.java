@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -23,16 +24,18 @@ public class JsonView implements View {
 
         String body = writeValueAsString(model);
         response.setContentLength(body.getBytes(StandardCharsets.UTF_8).length);
-        response.getWriter().write(body);
+
+        PrintWriter writer = response.getWriter();
+        writer.write(body);
+        writer.flush();
     }
 
     private String writeValueAsString(Map<String, ?> model) throws JsonProcessingException {
         if (model.size() == 1) {
-            Object value = model.entrySet()
+            Object value = model.values()
                     .stream()
                     .findFirst()
-                    .get()
-                    .getValue();
+                    .get();
 
             return OBJECT_MAPPER.writeValueAsString(value);
         }
