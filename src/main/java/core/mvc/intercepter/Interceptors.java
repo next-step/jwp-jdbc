@@ -22,7 +22,7 @@ public class Interceptors {
     }
 
     public void postProcess(HttpServletRequest request, HttpServletResponse response) {
-        for (int i = interceptors.size() - 1 ; i >= 0 ; --i) { //reverse order using stream not clean
+        for (int i = interceptors.size() - 1 ; i >= 0 ; --i) { //reverse order using stream not tidy
             interceptors.get(i).postProcess(request, response);
         }
     }
