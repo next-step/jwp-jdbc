@@ -83,27 +83,4 @@ public class TransactionTest {
                 rs.getString("email")
         );
     }
-
-
-    @Test
-    public void a() {
-        try {
-            langTest();
-        } catch (Exception e) {
-            System.out.println("parentException");
-        }
-    }
-
-    public void langTest() {
-        try {
-            System.out.println("try");
-
-            throw new Exception();
-        } catch (Exception e) {
-            System.out.println("catch");
-            throw new RuntimeException("d");
-        } finally {
-            System.out.println("final");
-        }
-    }
 }
