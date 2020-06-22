@@ -2,13 +2,16 @@ package core.jdbc;
 
 import core.jdbc.exceptions.UnableToAccessException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.List;
 
 public class CommonJdbc implements JdbcOperation {
 
-    public CommonJdbc(Connection connection) {
+    private DataSource dataSource;
 
+    public CommonJdbc(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
