@@ -42,7 +42,7 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         return jdbcTemplate.findOne(
-                "SELECT userId, password, name, email FROM USERS WHERE userId=?",
+                "SELECT userId, password, name, email FROM USERS WHERE userId = ?",
                 resultSet -> new User(
                         resultSet.getString("userId"),
                         resultSet.getString("password"),
