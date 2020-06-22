@@ -92,6 +92,10 @@ public class DispatcherServlet extends HttpServlet {
             view = viewResolver.resolveViewName(viewName);
         }
 
+        if(view == null) {
+            throw new ServletException("Could not resolve view with name " + viewName);
+        }
+
         view.render(modelAndView.getModel(), request, response);
     }
 }
