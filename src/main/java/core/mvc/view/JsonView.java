@@ -24,7 +24,7 @@ public class JsonView implements View {
         ObjectMapper objectMapper = new ObjectMapper();
 
         if (map.keySet().size() == 0) {
-            return "";
+            return "{}";
         }
 
         if (map.keySet().size() == 1) {
