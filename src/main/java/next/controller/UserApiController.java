@@ -55,7 +55,7 @@ public class UserApiController {
             mav.addObject("user", foundUser);
         }
         else {
-            response.setStatus(HttpStatus.NOT_FOUND.value());
+            throw new NullPointerException("사용자를 찾을 수 없습니다.");
         }
 
         return mav;
@@ -75,10 +75,9 @@ public class UserApiController {
 
         if (Objects.nonNull(foundUser)) {
             foundUser.update(new User(userId, foundUser.getPassword(), userDto.getName(), userDto.getEmail()));
-            //mav.addObject("user", foundUser);
         }
         else {
-            response.setStatus(HttpStatus.NOT_FOUND.value());
+            throw new NullPointerException("사용자를 찾을 수 없습니다.");
         }
 
         return mav;
