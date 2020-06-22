@@ -10,6 +10,17 @@ JDBC 라이브러리 구현 요구사항
     - 조회한 데이터를 추출(매핑)
 2. SQLException을 Runtime으로 변환해 try/catch로 가독성이 부셔지는 일을 막자.
 
+분석 & 설계
+
+- SQL 연산을 표현하는 JdbcOperation 정의
+    - query: 리스트를 조회
+    - queryForSingleObject: 단일 row 조회 (=_=윈도우 API WaitForSingleObject가 떠오름..)
+    - update: 업데이트(insert, update, delete 쿼리??)
+- 결과 매퍼 (RowMapper)
+    - 맵과 객체를 연결
+- CommonJDBC 클래스
+    - 위의 친구를 잘 포장하는 친구
+
 
 ## 1단계 - REST API 및 테스트 리팩토링
 
