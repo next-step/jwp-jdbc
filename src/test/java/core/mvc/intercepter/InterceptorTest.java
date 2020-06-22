@@ -1,0 +1,56 @@
+package core.mvc.intercepter;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DisplayName("인터셉터 테스트")
+class InterceptorTest {
+    TestInterceptor testInterceptor;
+    MockHttpServletRequest request;
+    MockHttpServletResponse response;
+
+    @BeforeEach
+    void setEnv() {
+        testInterceptor = new TestInterceptor();
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+    }
+
+    @Test
+    @DisplayName("인터셉터는 controller 단 기능 수행 이전에 역할을 수행할 수 있어야 한다")
+    void preProcess() {
+        assertThat(request.getAttribute("test")).isNull();
+        testInterceptor.preProcess(request, response);
+        assertThat(request.getAttribute("test")).isNotNull();
+        assertThat(request.getAttribute("test")).isEqualTo(true);
+    }
+
+    @Test
+    @DisplayName("인터셉터는 controller 단 기능 수행 이후에 역할을 수행할 수 있어야 한다.")
+    void postProcess() {
+        assertThat(request.getAttribute("test")).isNull();
+        testInterceptor.postProcess(request, response);
+        assertThat(request.getAttribute("test")).isNotNull();
+        assertThat(request.getAttribute("test")).isEqualTo(false);
+    }
+
+    private static class TestInterceptor implements Interceptor {
+        @Override
+        public void preProcess(HttpServletRequest request, HttpServletResponse response) {
+            request.setAttribute("test", true);
+        }
+
+        @Override
+        public void postProcess(HttpServletRequest request, HttpServletResponse response) {
+            request.setAttribute("test", false);
+        }
+    }
+}
