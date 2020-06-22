@@ -64,7 +64,7 @@ public class JdbcApi {
 
     private void validUnique(final List<?> classes) {
         if (classes.size() > 1) {
-            throw new IllegalArgumentException("Query result not unique");
+            throw new IllegalArgumentException("Query result not unique : " + classes.size());
         }
     }
 
