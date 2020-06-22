@@ -6,13 +6,8 @@ import core.jdbc.resultset.UserRowMapper;
 import core.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import next.model.User;
-import org.springframework.jdbc.core.RowMapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -20,12 +15,19 @@ public class UserDao {
 
     private JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 
-    public void insert(User user) throws SQLException {
-        int insertCount = jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+    public void insert(User user) {
+        int insertCount = jdbcTemplate.update(
+            "INSERT INTO USERS VALUES (?, ?, ?, ?)",
+            user.getUserId(),
+            user.getPassword(),
+            user.getName(),
+            user.getEmail()
+        );
+
         log.debug("insertCount: {}", insertCount);
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         int updateCount = jdbcTemplate.update(
             "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?",
             user.getPassword(),
@@ -37,7 +39,7 @@ public class UserDao {
         log.debug("updateCount: {}", updateCount);
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
 
         List<User> users = jdbcTemplate.query(sql, new UserRowMapper());
@@ -46,7 +48,7 @@ public class UserDao {
         return users;
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
 
         User user = jdbcTemplate.queryForObject(sql, new UserRowMapper(), userId);

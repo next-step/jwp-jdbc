@@ -30,29 +30,12 @@ public class JdbcTemplate {
     public int update(String sql, Object... args) {
         return execute(new UpdateStatementCallback(sql, new ArgumentPreparedStatementSetter(args)));
     }
-
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
-        return query(sql, args, new RowMapperResultSetExtractor<>(rowMapper));
-    }
-
     public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
         return query(sql, null, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
-    public <T> List<T> query(String sql, Object[] args, RowMapper<T> rowMapper) {
-        return query(sql, args, new RowMapperResultSetExtractor<>(rowMapper));
-    }
-
     private <T> List<T> query(String sql, Object[] args, RowMapperResultSetExtractor<T> rse) {
         return (List<T>) execute(new QueryStatementCallback(sql, new ArgumentPreparedStatementSetter(args), rse));
-    }
-
-    public <T> T queryForObject(String sql, Object[] args, RowMapper<T> rowMapper) {
-        return getSingleResult(query(sql, args, new RowMapperResultSetExtractor<>(rowMapper)));
-    }
-
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper) {
-        return getSingleResult(query(sql, null, new RowMapperResultSetExtractor<>(rowMapper)));
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) {
@@ -78,7 +61,7 @@ public class JdbcTemplate {
             return result;
         }
         catch (SQLException e) {
-            log.error("code: {}, messgea: {}", e.getErrorCode(), e.getMessage());
+            log.error("code: {}, message: {}", e.getErrorCode(), e.getMessage());
             throw new SqlRunTimeException();
         }
     }
