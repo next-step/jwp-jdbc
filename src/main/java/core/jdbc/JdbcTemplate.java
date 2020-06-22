@@ -21,62 +21,58 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
+    public <T> List<T> queryForList(String query, RowMapper<T> rowMapper) {
+        return this.queryForList(query, new Object[] {}, rowMapper);
+    }
+
     public <T> List<T> queryForList(String query, Object[] arguments, RowMapper<T> rowMapper) {
         return this.query(query, arguments, new RowMapperResultSetExtractor(rowMapper));
     }
 
+    public <T> T queryForObject(String query, RowMapper<T> rowMapper) {
+        return this.queryForObject(query, new Object[] {}, rowMapper);
+    }
+
     public <T> T queryForObject(String query, Object[] arguments, RowMapper<T> rowMapper) {
-        List<T> resultList = this.query(query, arguments, new RowMapperResultSetExtractor(rowMapper));
-
-        if (resultList == null || resultList.isEmpty()) {
-            return null;
-        }
-
-        if (resultList.size() > 1) {
-            throw new IncorrectResultSizeDataAccessException(1, resultList.size());
-        }
-
-        return resultList.iterator().next();
+        return getSingleResult(this.query(query, arguments, new RowMapperResultSetExtractor(rowMapper)));
     }
 
     private <T> T query(String query, Object[] arguments, ResultSetExtractor rse) {
-        return this.execute(query, preparedStatement -> {
-            setValues(preparedStatement, arguments);
-
+        return this.execute(query, arguments, preparedStatement -> {
             ResultSet rs = preparedStatement.executeQuery();
             return (T) rse.extractData(rs);
         });
     }
-
 
     public int update(String query, Object... arguments) {
         return update(query, null, arguments);
     }
 
     public int update(String query, KeyHolder keyHolder, Object... arguments) {
-        return this.execute(query, preparedStatement -> {
-            setValues(preparedStatement, arguments);
+        return this.execute(query, arguments, preparedStatement -> {
             int updatedRows = preparedStatement.executeUpdate();
 
             if(keyHolder == null) {
                 return updatedRows;
             }
 
-            ResultSet rs = preparedStatement.getGeneratedKeys();
-            if(rs.next()) {
-                long generatedKey = rs.getLong(1);
-                logger.debug("Generated Key: {}", generatedKey);
-                keyHolder.setId(generatedKey);
+            try(ResultSet rs = preparedStatement.getGeneratedKeys()) {
+                if(rs.next()) {
+                    long generatedKey = rs.getLong(1);
+                    logger.debug("Generated Key: {}", generatedKey);
+                    keyHolder.setId(generatedKey);
+                }
             }
-            rs.close();
 
             return updatedRows;
         });
     }
 
-    private <T> T execute(String query, PreparedStatementCallback<T> callback) {
+    private <T> T execute(String query, Object[] arguments, PreparedStatementCallback<T> callback) {
         try (Connection connection = ConnectionManager.getConnection(dataSource);
              PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
+            setValues(preparedStatement, arguments);
 
             T result = callback.doInstatement(preparedStatement);
             connection.commit();
@@ -96,5 +92,17 @@ public class JdbcTemplate {
         for (int i = 0; i < arguments.length; i++) {
             preparedStatement.setObject(i + 1, arguments[i]);
         }
+    }
+
+    private <T> T getSingleResult(List<T> result) {
+        if (result == null || result.isEmpty()) {
+            return null;
+        }
+
+        if (result.size() > 1) {
+            throw new IncorrectResultSizeDataAccessException(1, result.size());
+        }
+
+        return result.iterator().next();
     }
 }
