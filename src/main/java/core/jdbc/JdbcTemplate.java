@@ -22,7 +22,7 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> queryForList(String query, RowMapper<T> rowMapper) {
-        return this.queryForList(query, new Object[] {}, rowMapper);
+        return this.queryForList(query, new Object[]{}, rowMapper);
     }
 
     public <T> List<T> queryForList(String query, Object[] arguments, RowMapper<T> rowMapper) {
@@ -30,7 +30,7 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String query, RowMapper<T> rowMapper) {
-        return this.queryForObject(query, new Object[] {}, rowMapper);
+        return this.queryForObject(query, new Object[]{}, rowMapper);
     }
 
     public <T> T queryForObject(String query, Object[] arguments, RowMapper<T> rowMapper) {
@@ -52,12 +52,12 @@ public class JdbcTemplate {
         return this.execute(query, arguments, preparedStatement -> {
             int updatedRows = preparedStatement.executeUpdate();
 
-            if(keyHolder == null) {
+            if (keyHolder == null) {
                 return updatedRows;
             }
 
-            try(ResultSet rs = preparedStatement.getGeneratedKeys()) {
-                if(rs.next()) {
+            try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
+                if (rs.next()) {
                     long generatedKey = rs.getLong(1);
                     logger.debug("Generated Key: {}", generatedKey);
                     keyHolder.setId(generatedKey);
@@ -69,8 +69,8 @@ public class JdbcTemplate {
     }
 
     private <T> T execute(String query, Object[] arguments, PreparedStatementCallback<T> callback) {
-        try (Connection connection = ConnectionManager.getConnection(dataSource);
-             PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             setValues(preparedStatement, arguments);
 
@@ -80,6 +80,8 @@ public class JdbcTemplate {
             return result;
         } catch (SQLException e) {
             logger.error("Sql Exception", e);
+
+            DataSourceUtils.releaseConnection(connection);
             throw new JdbcTemplateException("Sql Exception", e);
         }
     }
