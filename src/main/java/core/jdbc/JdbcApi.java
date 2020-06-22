@@ -44,10 +44,10 @@ public class JdbcApi<T> {
     }
 
     public T findOne(final String sql, final Object... values) {
-        List<T> classes = executeQuery(sql, values);
-        validUnique(classes);
+        List<T> results = findAll(sql, values);
+        validUnique(results);
 
-        return classes.isEmpty() ? null : classes.get(0);
+        return results.isEmpty() ? null : results.get(0);
     }
 
     private List<T> executeQuery(final String sql, final Object... values) {
