@@ -1,5 +1,6 @@
 package core.mvc;
 
+import core.mvc.tobe.interceptor.ApiElapsedTimeInterceptor;
 import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
@@ -25,6 +26,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerAdapterRegistry handlerAdapterRegistry;
 
+    private HandlerInterceptorRegistry handlerInterceptorRegistry;
+
     private HandlerExecutor handlerExecutor;
 
     @Override
@@ -38,6 +41,9 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        handlerInterceptorRegistry = new HandlerInterceptorRegistry();
+        handlerInterceptorRegistry.addHandlerInterceptor(new ApiElapsedTimeInterceptor());
     }
 
     @Override
@@ -45,6 +51,7 @@ public class DispatcherServlet extends HttpServlet {
         String requestUri = req.getRequestURI();
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
+        Object handler = null;
         try {
             Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(req);
             if (!maybeHandler.isPresent()) {
@@ -52,12 +59,23 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
+            handler = maybeHandler.get();
 
-            ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+            if (!handlerInterceptorRegistry.applyPreHandle(req, resp, handler)) {
+                return;
+            }
+
+            ModelAndView mav = handlerExecutor.handle(req, resp, handler);
+
+            handlerInterceptorRegistry.applyPostHandle(req, resp, handler, mav);
             render(mav, req, resp);
-        } catch (Throwable e) {
+            handlerInterceptorRegistry.applyAfterCompletion(req, resp, handler, null);
+        }
+        catch (Throwable e) {
             logger.error("Exception : {}", e);
-            throw new ServletException(e.getMessage());
+            ServletException exception = new ServletException(e.getMessage());
+            handlerInterceptorRegistry.applyAfterCompletion(req, resp, handler, exception);
+            throw exception;
         }
     }
 
