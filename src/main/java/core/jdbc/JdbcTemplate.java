@@ -9,7 +9,7 @@ import java.util.List;
 
 import static core.jdbc.ConnectionManager.getConnection;
 
-public class JdbcApi {
+public class JdbcTemplate {
 
     public void execute(final String sql, final Object... values) {
         try (Connection connection = getConnection()) {
@@ -27,7 +27,7 @@ public class JdbcApi {
 
     public <T> T findOne(final String sql, final RowConverter<T> converter, final Object... values) {
         List<T> results = findAll(sql, converter, values);
-        validUnique(results);
+        validateUnique(results);
 
         return results.isEmpty() ? null : results.get(0);
     }
@@ -62,7 +62,7 @@ public class JdbcApi {
         }
     }
 
-    private void validUnique(final List<?> classes) {
+    private void validateUnique(final List<?> classes) {
         if (classes.size() > 1) {
             throw new IllegalArgumentException("Query result not unique : " + classes.size());
         }

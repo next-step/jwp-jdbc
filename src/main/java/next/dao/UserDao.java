@@ -1,15 +1,15 @@
 package next.dao;
 
-import core.jdbc.JdbcApi;
+import core.jdbc.JdbcTemplate;
 import next.model.User;
 
 import java.util.List;
 
 public class UserDao {
-    private final JdbcApi jdbcApi = new JdbcApi();
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
     public void insert(User user) {
-        jdbcApi.execute(
+        jdbcTemplate.execute(
                 "INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 user.getUserId(),
                 user.getPassword(),
@@ -19,7 +19,7 @@ public class UserDao {
     }
 
     public void update(User user) {
-        jdbcApi.execute(
+        jdbcTemplate.execute(
                 "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?",
                 user.getPassword(),
                 user.getName(),
@@ -29,7 +29,7 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return jdbcApi.findAll(
+        return jdbcTemplate.findAll(
                 "SELECT userId, password, name, email FROM USERS",
                 resultSet -> new User(
                         resultSet.getString("userId"),
@@ -41,7 +41,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) {
-        return jdbcApi.findOne(
+        return jdbcTemplate.findOne(
                 "SELECT userId, password, name, email FROM USERS WHERE userId=?",
                 resultSet -> new User(
                         resultSet.getString("userId"),

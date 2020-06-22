@@ -15,8 +15,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("Jdbc api 테스트")
-class JdbcApiTest {
-    private final JdbcApi jdbcApi = new JdbcApi();
+class JdbcTemplateTest {
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
     private final User nokchaxUser = new User("nokchax", "pw", "녹차", "nokchax@gmail.com");
     private final RowConverter<User> rowToUserConverter = resultSet -> new User(
             resultSet.getString("userId"),
@@ -32,7 +32,7 @@ class JdbcApiTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
-        jdbcApi.execute(
+        jdbcTemplate.execute(
                 "INSERT INTO USERS VALUES(?, ?, ?, ?)",
                 nokchaxUser.getUserId(),
                 nokchaxUser.getPassword(),
@@ -45,7 +45,7 @@ class JdbcApiTest {
     @DisplayName("findOne 에서 하나 이상의 결과를 리턴하면 예외를 발생시킨다")
     void findOneThrowException() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> jdbcApi.findOne(
+                .isThrownBy(() -> jdbcTemplate.findOne(
                         "SELECT * FROM USERS",
                         rowToUserConverter
                 ));
@@ -54,7 +54,7 @@ class JdbcApiTest {
     @Test
     @DisplayName("findOne 테스트")
     void findOne() {
-        User user = jdbcApi.findOne(
+        User user = jdbcTemplate.findOne(
                 "SELECT * FROM USERS WHERE userID = '" + nokchaxUser.getUserId() + "'",
                 rowToUserConverter
         );
@@ -65,7 +65,7 @@ class JdbcApiTest {
     @Test
     @DisplayName("findAll 테스트")
     void findAll() {
-        List<User> users = jdbcApi.findAll(
+        List<User> users = jdbcTemplate.findAll(
                 "SELECT * FROM USERS",
                 rowToUserConverter
         );
@@ -76,7 +76,7 @@ class JdbcApiTest {
     @Test
     @DisplayName("findAll 값을 찾지 못하더라도 빈 리스트를 리턴한다")
     void findAllReturnEmptyList() {
-        List<User> users = jdbcApi.findAll(
+        List<User> users = jdbcTemplate.findAll(
                 "SELECT * FROM USERS WHERE userId = 'someone that not exist'",
                 rowToUserConverter
         );
@@ -90,6 +90,6 @@ class JdbcApiTest {
     @DisplayName("sql 쿼리가 null 일 경우 예외 발생")
     void throwExceptionWhenSqlIsNotValid(final String sql) {
         assertThatExceptionOfType(JdbcApiException.class)
-                .isThrownBy(() -> jdbcApi.execute(sql));
+                .isThrownBy(() -> jdbcTemplate.execute(sql));
     }
 }
