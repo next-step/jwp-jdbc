@@ -42,23 +42,12 @@ public class JdbcTemplate {
         return resultList.iterator().next();
     }
 
-    public <T> T query(String query, Object[] arguments, ResultSetExtractor rse) {
+    private <T> T query(String query, Object[] arguments, ResultSetExtractor rse) {
         return this.execute(query, preparedStatement -> {
-            ResultSet rs = null;
+            setValues(preparedStatement, arguments);
 
-            Object result;
-            try {
-
-                setValues(preparedStatement, arguments);
-
-                rs = preparedStatement.executeQuery();
-                result = rse.extractData(rs);
-            } finally {
-                if (rs != null) {
-                    rs.close();
-                }
-            }
-            return (T) result;
+            ResultSet rs = preparedStatement.executeQuery();
+            return (T) rse.extractData(rs);
         });
     }
 
@@ -71,40 +60,16 @@ public class JdbcTemplate {
     }
 
     private <T> T execute(String query, PreparedStatementCallback<T> callback) {
-        Connection connection = ConnectionManager.getConnection(dataSource);
-        PreparedStatement preparedStatement = null;
+        try (Connection connection = ConnectionManager.getConnection(dataSource);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
             T result = callback.doInstatement(preparedStatement);
-
             connection.commit();
 
             return result;
         } catch (SQLException e) {
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException ex) {
-                logger.error("Rollback failed", ex);
-                throw new JdbcTemplateException("Rollback failed", ex);
-            }
             logger.error("Sql Exception", e);
             throw new JdbcTemplateException("Sql Exception", e);
-        } finally {
-            try {
-                if (preparedStatement != null) {
-                    preparedStatement.close();
-                }
-
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException ex) {
-                logger.error("Jdbc close failed", ex);
-                throw new JdbcTemplateException("Jdbc close failed", ex);
-            }
         }
     }
 
