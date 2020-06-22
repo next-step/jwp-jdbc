@@ -37,6 +37,10 @@ public class MethodParameter {
         return type == int.class || type == Integer.class;
     }
 
+    public boolean isAnnotated() {
+        return annotations != null && annotations.length != 0;
+    }
+
     public String getParameterName() {
         return parameterName;
     }

@@ -25,12 +25,13 @@ public class ControllerScanner {
     private static final Logger logger = LoggerFactory.getLogger(core.mvc.tobe.ControllerScanner.class);
 
     private static final List<ArgumentResolver> argumentResolvers = asList(
-                new HttpRequestArgumentResolver(),
-                new HttpResponseArgumentResolver(),
-                new RequestParamArgumentResolver(),
-                new PathVariableArgumentResolver(),
-                new ModelArgumentResolver()
-        );
+            new HttpRequestArgumentResolver(),
+            new HttpResponseArgumentResolver(),
+            new RequestParamArgumentResolver(),
+            new PathVariableArgumentResolver(),
+            new ModelArgumentResolver(),
+            new RequestBodyArgumentResolver()
+    );
 
     private static final ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 

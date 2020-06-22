@@ -6,6 +6,11 @@ public class User {
     private String name;
     private String email;
 
+    // Added non-arg constructor for missing properties ._.
+    // I reckon jackson infers the signature of constructor using properties of json.
+    public User() {
+    }
+
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
         this.password = password;
