@@ -28,4 +28,12 @@ public class ConnectionManager {
             throw new IllegalStateException(e);
         }
     }
+
+    public static Connection getConnection(DataSource dataSource) {
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 }
