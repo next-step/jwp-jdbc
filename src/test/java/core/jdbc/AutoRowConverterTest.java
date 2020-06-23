@@ -31,18 +31,17 @@ class AutoRowConverterTest {
     @Test
     @DisplayName("수동 row converter 와 서로 같은지 확인")
     void compareWithManual() {
-        User one = jdbcTemplate.findOne(
-                "SELECT userId, password, name, email FROM USERS WHERE userId = ?",
-                resultSetToUserConverter,
-                "admin"
-        );
-
-        User another = jdbcTemplate.findOne(
-                "SELECT userId, password, name, email FROM USERS WHERE userId = ?",
-                new AutoRowConverter<>(User.class),
-                "admin"
-        );
+        User one = findAdmin(resultSetToUserConverter);
+        User another = findAdmin(new AutoRowConverter<>(User.class));
 
         assertThat(one).isEqualTo(another);
+    }
+
+    private User findAdmin(RowConverter<User> rowConverter) {
+        return jdbcTemplate.findOne(
+                "SELECT userId, password, name, email FROM USERS WHERE userId = ?",
+                rowConverter,
+                "admin"
+        );
     }
 }
