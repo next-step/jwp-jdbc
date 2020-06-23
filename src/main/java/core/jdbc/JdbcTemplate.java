@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 /**
@@ -24,87 +21,68 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
+    public <T> List<T> queryForList(String query, RowMapper<T> rowMapper) {
+        return this.queryForList(query, new Object[]{}, rowMapper);
+    }
+
     public <T> List<T> queryForList(String query, Object[] arguments, RowMapper<T> rowMapper) {
         return this.query(query, arguments, new RowMapperResultSetExtractor(rowMapper));
     }
 
-    public <T> T queryForObject(String query, Object[] arguments, RowMapper<T> rowMapper) {
-        List<T> resultList = this.query(query, arguments, new RowMapperResultSetExtractor(rowMapper));
-
-        if (resultList == null || resultList.isEmpty()) {
-            return null;
-        }
-
-        if (resultList.size() > 1) {
-            throw new IncorrectResultSizeDataAccessException(1, resultList.size());
-        }
-
-        return resultList.iterator().next();
+    public <T> T queryForObject(String query, RowMapper<T> rowMapper) {
+        return this.queryForObject(query, new Object[]{}, rowMapper);
     }
 
-    public <T> T query(String query, Object[] arguments, ResultSetExtractor rse) {
-        return this.execute(query, preparedStatement -> {
-            ResultSet rs = null;
+    public <T> T queryForObject(String query, Object[] arguments, RowMapper<T> rowMapper) {
+        return getSingleResult(this.query(query, arguments, new RowMapperResultSetExtractor(rowMapper)));
+    }
 
-            Object result;
-            try {
-
-                setValues(preparedStatement, arguments);
-
-                rs = preparedStatement.executeQuery();
-                result = rse.extractData(rs);
-            } finally {
-                if (rs != null) {
-                    rs.close();
-                }
-            }
-            return (T) result;
+    private <T> T query(String query, Object[] arguments, ResultSetExtractor rse) {
+        return this.execute(query, arguments, preparedStatement -> {
+            ResultSet rs = preparedStatement.executeQuery();
+            return (T) rse.extractData(rs);
         });
     }
 
-    public int update(String query, Object[] arguments) {
-        return this.execute(query, preparedStatement -> {
-            setValues(preparedStatement, arguments);
+    public int update(String query, Object... arguments) {
+        return update(query, null, arguments);
+    }
+
+    public int update(String query, KeyHolder keyHolder, Object... arguments) {
+        return this.execute(query, arguments, preparedStatement -> {
             int updatedRows = preparedStatement.executeUpdate();
+
+            if (keyHolder == null) {
+                return updatedRows;
+            }
+
+            try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
+                if (rs.next()) {
+                    long generatedKey = rs.getLong(1);
+                    logger.debug("Generated Key: {}", generatedKey);
+                    keyHolder.setId(generatedKey);
+                }
+            }
+
             return updatedRows;
         });
     }
 
-    private <T> T execute(String query, PreparedStatementCallback<T> callback) {
-        Connection connection = ConnectionManager.getConnection(dataSource);
-        PreparedStatement preparedStatement = null;
+    private <T> T execute(String query, Object[] arguments, PreparedStatementCallback<T> callback) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
+            setValues(preparedStatement, arguments);
+
             T result = callback.doInstatement(preparedStatement);
-
             connection.commit();
 
             return result;
         } catch (SQLException e) {
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException ex) {
-                logger.error("Rollback failed", ex);
-                throw new JdbcTemplateException("Rollback failed", ex);
-            }
             logger.error("Sql Exception", e);
-            throw new JdbcTemplateException("Sql Exception", e);
-        } finally {
-            try {
-                if (preparedStatement != null) {
-                    preparedStatement.close();
-                }
 
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException ex) {
-                logger.error("Jdbc close failed", ex);
-                throw new JdbcTemplateException("Jdbc close failed", ex);
-            }
+            DataSourceUtils.releaseConnection(connection);
+            throw new JdbcTemplateException("Sql Exception", e);
         }
     }
 
@@ -116,5 +94,17 @@ public class JdbcTemplate {
         for (int i = 0; i < arguments.length; i++) {
             preparedStatement.setObject(i + 1, arguments[i]);
         }
+    }
+
+    private <T> T getSingleResult(List<T> result) {
+        if (result == null || result.isEmpty()) {
+            return null;
+        }
+
+        if (result.size() > 1) {
+            throw new IncorrectResultSizeDataAccessException(1, result.size());
+        }
+
+        return result.iterator().next();
     }
 }

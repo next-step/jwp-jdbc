@@ -32,7 +32,6 @@ public class JdbcTemplateTest {
         jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
     }
 
-
     @Test
     @DisplayName("복수 row 선택 테스트")
     public void queryForListTest() {
