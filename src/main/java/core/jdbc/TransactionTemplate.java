@@ -31,7 +31,7 @@ public class TransactionTemplate {
             callback.doInTransaction();
 
             connection.commit();
-            logger.info("Transactin Commit");
+            logger.info("Transaction Commit");
         } catch (SQLException | DataAccessException e) {
             try {
                 connection.rollback();
