@@ -1,7 +1,6 @@
 package next.dao;
 
 import core.containter.SingletonContainer;
-import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
 import core.jdbc.RowConverter;
 import next.model.User;
