@@ -75,8 +75,7 @@ public class JdbcTemplate {
             setValues(preparedStatement, arguments);
 
             T result = callback.doInstatement(preparedStatement);
-            connection.commit();
-
+            logger.info("query : {}", query);
             return result;
         } catch (SQLException e) {
             logger.error("Sql Exception", e);
