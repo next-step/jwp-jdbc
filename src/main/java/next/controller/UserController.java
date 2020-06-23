@@ -33,7 +33,6 @@ public class UserController {
     @RequestMapping(value = "/users", method = RequestMethod.POST)
     public ModelAndView create(User user) throws Exception {
         logger.debug("User : {}", user);
-        System.out.println(user.getUserId());
         DataBase.addUser(user);
         return redirect("/");
     }
