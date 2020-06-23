@@ -48,7 +48,7 @@ public class AutoRowConverter<T> implements RowConverter<T> {
             return defaultConstructor.newInstance();
         } catch (InstantiationException | IllegalAccessException |
                 InvocationTargetException | NoSuchMethodException e) {
-            throw new IllegalArgumentException("Fail to create new instance of " + clazz.getName());
+            throw new ConvertException("Fail to create new instance of " + clazz.getName());
         }
     }
 
