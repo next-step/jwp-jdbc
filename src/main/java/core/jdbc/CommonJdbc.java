@@ -9,8 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class CommonJdbc implements JdbcOperation {
 
@@ -29,11 +29,7 @@ public class CommonJdbc implements JdbcOperation {
                 final Connection connection = dataSource.getConnection();
                 final PreparedStatement pstmt = connection.prepareStatement(sql);
         ) {
-            final int argsLength = args != null ? args.length : 0;
-            for (int i = 0; i < argsLength; i++) {
-                // idx, value, type
-                setArguments(pstmt, i + 1, args[i]);
-            }
+            setArguments(pstmt, args);
             rs = pstmt.executeQuery();
 
             T ret = null;
@@ -49,29 +45,45 @@ public class CommonJdbc implements JdbcOperation {
 
     @Override
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) throws UnableToAccessException {
-        return null;
+        try (
+                final Connection connection = dataSource.getConnection();
+                final PreparedStatement pstmt = connection.prepareStatement(sql);
+        ) {
+            ResultSet rs;
+            setArguments(pstmt, args);
+            rs = pstmt.executeQuery();
+
+            final List<T> results = new ArrayList<>();
+            int rowNum = 0;
+            while (rs.next()) {
+                results.add(rowMapper.mapRow(rs, rowNum++));
+            }
+            return results;
+        } catch (SQLException throwables) {
+            throw new UnableToAccessException(":'(");
+        }
     }
 
     @Override
     public int update(String sql, Object... args) throws UnableToAccessException {
-        return 0;
+        try (
+                final Connection connection = dataSource.getConnection();
+                final PreparedStatement pstmt = connection.prepareStatement(sql);
+        ) {
+            setArguments(pstmt, args);
+            final int affectedRows = pstmt.executeUpdate();
+            log.debug("affected rows: {}", affectedRows);
+            return affectedRows;
+        } catch (SQLException throwables) {
+            throw new UnableToAccessException("메세지는 나중에 적자..");
+        }
     }
 
-    private void setArguments(PreparedStatement pstmt, int idx, Object value) throws SQLException {
-        // 응 bad smell 나도 알아 ㅇㅅㅇ
-        final Class<?> clazz = value.getClass();
-        if (clazz.isAssignableFrom(int.class) || clazz.isAssignableFrom(Integer.class)) {
-            pstmt.setInt(idx, (Integer) value);
+    private void setArguments(PreparedStatement pstmt, Object[] values) throws SQLException {
+        final int length = values != null ? values.length : 0;
+        for (int i = 1; i <= length; i++) {
+            pstmt.setObject(i, values[i - 1]);
         }
-
-        if (clazz.isAssignableFrom(long.class) || clazz.isAssignableFrom(Long.class)) {
-            pstmt.setLong(idx, (Long) value);
-        }
-
-        if (clazz.isAssignableFrom(String.class)) {
-            pstmt.setString(idx, (String) value);
-        }
-        pstmt.setObject(idx, value);
     }
 
 }
