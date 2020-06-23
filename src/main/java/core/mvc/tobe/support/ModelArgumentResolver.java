@@ -22,7 +22,7 @@ public class ModelArgumentResolver implements ArgumentResolver {
 
     @Override
     public boolean supports(MethodParameter methodParameter) {
-        return !isSimpleType(methodParameter.getType()) && !methodParameter.isAnnotated();
+        return !isSimpleType(methodParameter.getType());
     }
 
     private boolean isSimpleType(Class<?> clazz) {

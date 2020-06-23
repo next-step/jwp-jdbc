@@ -1,5 +1,46 @@
 # 나만의 라이브러리 구현
 
+## 2단계 - JDBC 라이브러리 구현
+
+JDBC 라이브러리 구현 요구사항
+
+1. JDBC에 대한 공통 라이브러리를 만들어 개발자가 다음에만 집중하도록 함.
+    - SQL 쿼리
+    - 쿼리에 전달할 인자
+    - 조회한 데이터를 추출(매핑)
+2. SQLException을 Runtime으로 변환해 try/catch로 가독성이 부셔지는 일을 막자.
+3. 다음 기능을 만족 
+    - Connection 생성 및 close - 흠.. 아직 고민
+    - Statement 생성 및 close - PreparedStatementCreator jdbc 패키지에 있었다.
+    - ResultSet 생성 및 close - RowMapper 만든다.
+    - SQL 문에 인자 setting - PreparedStatement
+    - 트랜잭션 관리 - ????????????? =_= 엉엉
+
+분석 & 설계
+
+- SQL 연산을 표현하는 JdbcOperation 정의
+    - query: 리스트를 조회
+    - queryForSingleObject: 단일 row 조회 (=_=윈도우 API WaitForSingleObject가 떠오름..)
+    - update: 업데이트(insert, update, delete 쿼리??)
+- 결과 매퍼 (RowMapper)
+    - 맵과 객체를 연결
+- CommonJDBC 클래스
+    - 위의 친구를 잘 포장하는 친구
+    
+트랜잭션 어쩔겨..  
+트랜잭션을 어떻게 해보자.  
+
+일단 트랜잭션이 성립하려면
+
+- 같은 스레드에서 돌아야함
+- 성공 아니면 실패 뿐
+
+TransactionSynchronizationManager 같은 것들은 target의 invoke 전 후로 개입함. (커밋, 롤백 마커 등)  
+이건 AOP에서 해봐야하려나.. =ㅅ=;  
+
+
+
+
 ## 1단계 - REST API 및 테스트 리팩토링
 
 > 지금까지 구현한 @MVC 프레임워크는 HTML 밖에 지원하지 않는다.

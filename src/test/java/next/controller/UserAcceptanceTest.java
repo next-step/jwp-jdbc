@@ -4,7 +4,7 @@ import next.WebServerLauncher;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -18,13 +18,12 @@ import java.net.URI;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 public class UserAcceptanceTest {
     private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceTest.class);
 
-    @BeforeEach
-    void setUp() throws Exception {
+    @BeforeAll
+    static void setUp() throws Exception {
         // 웹 서버 구동하지 않고도 test suite에서 동작할 수 있도록.
         final Thread serverThread = new Thread(() -> {
             try {
