@@ -1,5 +1,8 @@
 package core.mvc;
 
+import core.containter.SingletonContainer;
+import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
 import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.intercepter.Interceptors;
@@ -45,6 +48,8 @@ public class DispatcherServlet extends HttpServlet {
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
 
         interceptors = new Interceptors(Collections.singleton(new StopwatchInterceptor()));
+
+        SingletonContainer.addSingletons(Collections.singleton(new JdbcTemplate(ConnectionManager.getDataSource())));
     }
 
     @Override
