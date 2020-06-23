@@ -38,6 +38,6 @@ public class UserDaoTest {
     public void findAll() throws Exception {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
-        assertThat(users).hasSize(1);
+        assertThat(users).hasSize(4);
     }
 }

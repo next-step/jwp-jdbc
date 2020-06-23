@@ -1,5 +1,6 @@
 package core.jdbc;
 
+import core.jdbc.exceptions.UnableToAccessException;
 import next.model.User;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import java.sql.Connection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CommonJdbcTest {
 
@@ -149,5 +151,17 @@ class CommonJdbcTest {
                 "newguy"
         );
         assertThat(actual).isNull();
+    }
+
+    @DisplayName("잘못된 쿼리의 경우 UnableToAccessException 발생")
+    @Test
+    void test_exception() {
+        assertThatThrownBy(() -> {
+            commonJdbc.queryForSingleObject(
+                    "SELECT * FROM some_where_i_belong",
+                    (rs, rowNum) -> null,
+                    ""
+            );
+        }).isInstanceOf(UnableToAccessException.class);
     }
 }
