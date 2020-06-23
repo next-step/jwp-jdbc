@@ -1,5 +1,6 @@
 package next.dao;
 
+import core.containter.SingletonContainer;
 import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
 import core.jdbc.RowConverter;
@@ -8,7 +9,7 @@ import next.model.User;
 import java.util.List;
 
 public class UserDao {
-    private static final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+    private static final JdbcTemplate jdbcTemplate = SingletonContainer.getInstance(JdbcTemplate.class);
     private static final RowConverter<User> resultSetToUserConverter =
             resultSet -> new User(
                     resultSet.getString("userId"),
