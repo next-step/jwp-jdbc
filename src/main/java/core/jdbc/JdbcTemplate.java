@@ -80,7 +80,7 @@ public class JdbcTemplate {
             return result;
         } catch (SQLException e) {
             logger.error("Sql Exception", e);
-            throw new JdbcTemplateException("Sql Exception", e);
+            throw new DataAccessException("Sql Exception", e);
         } finally {
             DataSourceUtils.releaseConnection(connection);
         }

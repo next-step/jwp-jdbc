@@ -13,7 +13,7 @@ public class DataSourceUtils {
         try {
             return doGetConnection(dataSource);
         } catch (SQLException e) {
-            throw new JdbcTemplateException("Failed to Create JDBC Connection", e);
+            throw new DataAccessException("Failed to Create JDBC Connection", e);
         }
     }
 
@@ -42,7 +42,7 @@ public class DataSourceUtils {
         try {
             doReleaseConnection(connection);
         } catch (SQLException e) {
-            throw new JdbcTemplateException("Failed to close JDBC Connection", e);
+            throw new DataAccessException("Failed to close JDBC Connection", e);
         }
     }
 

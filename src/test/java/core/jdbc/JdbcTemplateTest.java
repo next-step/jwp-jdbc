@@ -8,8 +8,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import java.sql.SQLException;
-import java.sql.SQLSyntaxErrorException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -78,7 +76,7 @@ public class JdbcTemplateTest {
         assertThatThrownBy(() -> {
             String query = "SELECT * FROMA USERS";
             List<User> users = jdbcTemplate.queryForList(query, new Object[]{}, getUserMapper());
-        }).isInstanceOf(JdbcTemplateException.class);
+        }).isInstanceOf(DataAccessException.class);
     }
 
     private RowMapper<User> getUserMapper() {
