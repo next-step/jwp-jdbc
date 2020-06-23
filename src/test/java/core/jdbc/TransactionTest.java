@@ -47,7 +47,7 @@ public class TransactionTest {
             User user = findByUserId("KingCjy");
             updateEmailFail(user.getUserId(), "dododododo@dodo.dodo");
             connection.commit();
-        } catch (JdbcTemplateException e) {
+        } catch (DataAccessException e) {
             try {
                 connection.rollback();
                 logger.info("Rollback Called");
@@ -65,7 +65,7 @@ public class TransactionTest {
 
     public User findByUserId(String userId) {
         String query = "SELECT * FROM USERS WHERE userId = ?";
-        User user = jdbcTemplate.queryForObject(query, new Object[]{userId}, getUserMapper());
+        User user = jdbcTemplate.queryForObject(query, getUserMapper(), userId);
 
         return user;
     }

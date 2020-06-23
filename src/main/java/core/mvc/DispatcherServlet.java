@@ -3,6 +3,7 @@ package core.mvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.*;
+import core.mvc.tobe.support.TimeMeasureInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +22,11 @@ public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
     private static final String DEFAULT_REDIRECT_PREFIX = "redirect:";
+
     private HandlerMapping handlerMapping;
     private ViewResolver viewResolver;
     private ObjectMapper objectMapper;
+    private HandlerInterceptor handlerInterceptor;
 
     @Override
     public void init() throws ServletException {
@@ -31,6 +34,11 @@ public class DispatcherServlet extends HttpServlet {
 
         initHandlerMapping();
         initViewResolver();
+        initHandlerInterceptor();
+    }
+
+    private void initHandlerInterceptor() {
+        handlerInterceptor = new HandlerInterceptorComposite(new TimeMeasureInterceptor());
     }
 
     private void initHandlerMapping() {
@@ -59,7 +67,9 @@ public class DispatcherServlet extends HttpServlet {
 
         try {
             HandlerExecution handler = handlerMapping.getHandler(req);
+            handlerInterceptor.preHandle(req, resp);
             ModelAndView modelAndView = handler.handle(req, resp);
+            handlerInterceptor.postHandler(req, resp);
             render(modelAndView, req, resp);
         } catch (PageNotFoundException e) {
             logger.error("Page Not Found Exception ", e);

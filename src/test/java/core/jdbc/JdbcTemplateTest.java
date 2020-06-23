@@ -8,8 +8,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import java.sql.SQLException;
-import java.sql.SQLSyntaxErrorException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,7 +49,7 @@ public class JdbcTemplateTest {
         String query = "SELECT * FROM USERS WHERE userId = ?";
         User expected = new User("KingCjy", "as", "KingCjy", "tlssycks@gmail.com");
 
-        User actual = jdbcTemplate.queryForObject(query, new Object[]{"KingCjy"}, getUserMapper());
+        User actual = jdbcTemplate.queryForObject(query, getUserMapper(), "KingCjy");
 
         assertThat(actual).isEqualTo(expected);
         System.out.println(actual);
@@ -66,7 +64,7 @@ public class JdbcTemplateTest {
         String selectQuery = "SELECT * FROM USERS WHERE userId = ?";
 
         int updatedRow = jdbcTemplate.update(query, new Object[]{changeName, userId});
-        User user = jdbcTemplate.queryForObject(selectQuery, new Object[]{userId}, getUserMapper());
+        User user = jdbcTemplate.queryForObject(selectQuery, getUserMapper(), userId);
 
         assertThat(updatedRow).isOne();
         assertThat(user.getName()).isEqualTo(changeName);
@@ -78,7 +76,7 @@ public class JdbcTemplateTest {
         assertThatThrownBy(() -> {
             String query = "SELECT * FROMA USERS";
             List<User> users = jdbcTemplate.queryForList(query, new Object[]{}, getUserMapper());
-        }).isInstanceOf(JdbcTemplateException.class);
+        }).isInstanceOf(DataAccessException.class);
     }
 
     private RowMapper<User> getUserMapper() {
