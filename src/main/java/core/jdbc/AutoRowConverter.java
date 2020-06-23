@@ -4,6 +4,7 @@ import core.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
@@ -42,7 +43,9 @@ public class AutoRowConverter<T> implements RowConverter<T> {
     // 새 인스턴스 생성
     private Object newInstance() {
         try {
-            return clazz.getDeclaredConstructor().newInstance();
+            Constructor<T> defaultConstructor = clazz.getDeclaredConstructor();
+            defaultConstructor.setAccessible(true);
+            return defaultConstructor.newInstance();
         } catch (InstantiationException | IllegalAccessException |
                 InvocationTargetException | NoSuchMethodException e) {
             throw new IllegalArgumentException("Fail to create new instance of " + clazz.getName());
