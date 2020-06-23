@@ -38,7 +38,7 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         String query = "SELECT * FROM USERS WHERE userId=?";
-        User user = jdbcTemplate.queryForObject(query, new Object[]{userId}, getUserMapper());
+        User user = jdbcTemplate.queryForObject(query, getUserMapper(), userId);
 
         return user;
     }

@@ -23,4 +23,9 @@ public class ConnectionHolder {
     public Connection getConnection() {
         return connection;
     }
+
+    public void release() {
+        this.dataSource = null;
+        this.connection = null;
+    }
 }

@@ -22,7 +22,7 @@ public class DataSourceUtils {
             return dataSource.getConnection();
         }
 
-        ConnectionHolder connectionHolder = TransactionSynchronizationManager.getResources(dataSource);
+        ConnectionHolder connectionHolder = TransactionSynchronizationManager.getResources();
 
         if (connectionHolder != null) {
             return connectionHolder.getConnection();
@@ -39,18 +39,30 @@ public class DataSourceUtils {
     }
 
     public static void releaseConnection(Connection connection) {
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            return;
-        }
-
-        if (connection == null) {
-            return;
-        }
-
         try {
-            connection.close();
+            doReleaseConnection(connection);
         } catch (SQLException e) {
             throw new JdbcTemplateException("Failed to close JDBC Connection", e);
         }
+    }
+
+    public static void doReleaseConnection(Connection connection) throws SQLException {
+        if(connection == null) {
+            return;
+        }
+
+        ConnectionHolder connectionHolder = TransactionSynchronizationManager.getResources();
+
+        if(connectionHolder != null && connection == connectionHolder.getConnection()) {
+            connectionHolder.release();
+            TransactionSynchronizationManager.unbindResource();
+            return;
+        }
+
+        doCloseConnection(connection);
+    }
+
+    private static void doCloseConnection(Connection connection) throws SQLException {
+        connection.close();
     }
 }

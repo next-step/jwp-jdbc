@@ -51,7 +51,7 @@ public class JdbcTemplateTest {
         String query = "SELECT * FROM USERS WHERE userId = ?";
         User expected = new User("KingCjy", "as", "KingCjy", "tlssycks@gmail.com");
 
-        User actual = jdbcTemplate.queryForObject(query, new Object[]{"KingCjy"}, getUserMapper());
+        User actual = jdbcTemplate.queryForObject(query, getUserMapper(), "KingCjy");
 
         assertThat(actual).isEqualTo(expected);
         System.out.println(actual);
@@ -66,7 +66,7 @@ public class JdbcTemplateTest {
         String selectQuery = "SELECT * FROM USERS WHERE userId = ?";
 
         int updatedRow = jdbcTemplate.update(query, new Object[]{changeName, userId});
-        User user = jdbcTemplate.queryForObject(selectQuery, new Object[]{userId}, getUserMapper());
+        User user = jdbcTemplate.queryForObject(selectQuery, getUserMapper(), userId);
 
         assertThat(updatedRow).isOne();
         assertThat(user.getName()).isEqualTo(changeName);
