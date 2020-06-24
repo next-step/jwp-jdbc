@@ -18,4 +18,5 @@ public class JsonUtils {
             throw new ObjectMapperException(e);
         }
     }
+
 }
