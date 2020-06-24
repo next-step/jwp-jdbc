@@ -1,5 +1,9 @@
 package next.dto;
 
+import lombok.Getter;
+import next.model.User;
+
+@Getter
 public class UserCreatedDto {
     private String userId;
     private String password;
@@ -16,19 +20,7 @@ public class UserCreatedDto {
         this.email = email;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
+    public User toUser() {
+        return new User(this.userId, this.password, this.name, this.email);
     }
 }
