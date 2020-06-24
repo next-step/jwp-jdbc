@@ -62,7 +62,7 @@ public class JdbcTemplate {
         try {
             return converter.convert(resultSet);
         } catch (Exception e) {
-            throw new JdbcApiException("Fail to convert result set to target dao");
+            throw new JdbcApiException("Fail to convert result set to target dao : " + e.getMessage());
         }
     }
 

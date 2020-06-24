@@ -1,21 +1,14 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
+import core.containter.SingletonContainer;
+import core.jdbc.AutoRowConverter;
 import core.jdbc.JdbcTemplate;
-import core.jdbc.RowConverter;
 import next.model.User;
 
 import java.util.List;
 
 public class UserDao {
-    private static final JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-    private static final RowConverter<User> resultSetToUserConverter =
-            resultSet -> new User(
-                    resultSet.getString("userId"),
-                    resultSet.getString("password"),
-                    resultSet.getString("name"),
-                    resultSet.getString("email")
-            );
+    private static final JdbcTemplate jdbcTemplate = SingletonContainer.getInstance(JdbcTemplate.class);
 
     public void insert(User user) {
         jdbcTemplate.execute(
@@ -40,14 +33,19 @@ public class UserDao {
     public List<User> findAll() {
         return jdbcTemplate.findAll(
                 "SELECT userId, password, name, email FROM USERS",
-                resultSetToUserConverter
+                resultSet -> new User(
+                        resultSet.getString("userId"),
+                        resultSet.getString("password"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email")
+                )
         );
     }
 
     public User findByUserId(String userId) {
         return jdbcTemplate.findOne(
                 "SELECT userId, password, name, email FROM USERS WHERE userId = ?",
-                resultSetToUserConverter,
+                new AutoRowConverter<>(User.class),
                 userId
         );
     }
