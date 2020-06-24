@@ -57,6 +57,9 @@ dependencies {
     testImplementation 'org.springframework:spring-test:' + springVersion
     testImplementation 'io.projectreactor.netty:reactor-netty:0.9.7.RELEASE'
     testImplementation 'org.springframework:spring-webflux:' + springVersion
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 
 test {
