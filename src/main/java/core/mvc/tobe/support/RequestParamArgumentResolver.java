@@ -1,7 +1,7 @@
 package core.mvc.tobe.support;
 
 import core.annotation.web.RequestParam;
-import core.mvc.MethodArgumentTypeNotSupportedException;
+import core.mvc.exception.MethodArgumentTypeNotSupportedException;
 import core.mvc.tobe.MethodParameter;
 import org.apache.commons.lang3.StringUtils;
 

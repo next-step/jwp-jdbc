@@ -6,22 +6,22 @@ import org.springframework.util.StopWatch;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @Slf4j
-public class ApiElapsedTimeInterceptor implements HandlerInterceptor {
-    private final StopWatch stopwatch = new StopWatch();
+public class UserFormInterceptor extends MappedInterceptor {
+    public UserFormInterceptor(String ...matchingUris) {
+        super(matchingUris);
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        log.debug("ApiElapsedTimeInterceptor - preHandle()");
-        stopwatch.start();
+        log.debug("UserFormInterceptor - preHandle()");
         return true;
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        log.debug("ApiElapsedTimeInterceptor - postHandle()");
-        stopwatch.stop();
-        log.debug("elapsedNanos - {}", stopwatch.getLastTaskTimeNanos());
+        log.debug("UserFormInterceptor - postHandle()");
     }
 }

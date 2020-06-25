@@ -6,6 +6,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface HandlerInterceptor {
+    default boolean matches(String requestUri) {
+        return true;
+    }
+
     default boolean preHandle(
         HttpServletRequest request,
         HttpServletResponse response,
