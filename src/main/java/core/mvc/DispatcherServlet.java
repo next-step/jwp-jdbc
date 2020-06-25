@@ -35,9 +35,9 @@ public class DispatcherServlet extends HttpServlet {
 
     @Override
     public void init() {
-        interceptorRegistry = new InterceptorRegistry();
-        interceptorRegistry.addInterceptor(new ApiElapsedTimeInterceptor());
-        interceptorRegistry.addInterceptor(new UserFormInterceptor("/users/loginForm", "/users/form"));
+        interceptorRegistry = new InterceptorRegistry()
+            .addInterceptor(new ApiElapsedTimeInterceptor())
+            .addInterceptor(new UserFormInterceptor("/users/loginForm", "/users/form"));
 
         handlerMappingRegistry = new HandlerMappingRegistry();
         handlerMappingRegistry.addHandlerMpping(new RequestMapping());

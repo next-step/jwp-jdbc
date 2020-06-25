@@ -2,7 +2,6 @@ package core.mvc.tobe.interceptor;
 
 import com.google.common.collect.Lists;
 import core.mvc.ModelAndView;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
