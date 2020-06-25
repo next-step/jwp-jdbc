@@ -13,6 +13,9 @@ public class User {
         this.email = email;
     }
 
+    public User() {
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -33,6 +36,11 @@ public class User {
         this.password = updateUser.password;
         this.name = updateUser.name;
         this.email = updateUser.email;
+    }
+
+    public void update(String name, String email) {
+        this.name = name;
+        this.email = email;
     }
 
     public boolean matchPassword(String password) {
