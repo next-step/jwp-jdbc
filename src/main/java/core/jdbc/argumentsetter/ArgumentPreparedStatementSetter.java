@@ -46,7 +46,7 @@ public class ArgumentPreparedStatementSetter implements PreparedStatementSetter 
         Object arg
     ) {
         try {
-            type.getSetter().accept(ps, paramPos, arg);
+            type.accept(ps, paramPos, arg);
         }
         catch (SQLException e) {
             log.error("code: {}, message: {}", e.getErrorCode(), e.getMessage());

@@ -14,14 +14,15 @@ public class RequestMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
     private Map<String, Controller> mappings = new HashMap<>();
 
+    @Override
     public void initialize() {
-        mappings.put("/", new HomeController());
-        mappings.put("/users/form", new ForwardController("/user/form.jsp"));
-        mappings.put("/users/loginForm", new ForwardController("/user/login.jsp"));
-        mappings.put("/users/login", new LoginController());
-        mappings.put("/users/logout", new LogoutController());
-        mappings.put("/users/updateForm", new UpdateFormUserController());
-        mappings.put("/users/update", new UpdateUserController());
+        put("/", new HomeController());
+        put("/users/form", new ForwardController("/user/form.jsp"));
+        put("/users/loginForm", new ForwardController("/user/login.jsp"));
+        put("/users/login", new LoginController());
+        put("/users/logout", new LogoutController());
+        put("/users/updateForm", new UpdateFormUserController());
+        put("/users/update", new UpdateUserController());
 
         logger.info("Initialized Request Mapping!");
         mappings.keySet().forEach(path -> {
@@ -29,7 +30,7 @@ public class RequestMapping implements HandlerMapping {
         });
     }
 
-    public Controller getHandler(HttpServletRequest request) {
+    public Object getHandler(HttpServletRequest request) {
         return mappings.get(request.getRequestURI());
     }
 

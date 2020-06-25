@@ -2,8 +2,13 @@ package core.mvc;
 
 import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
+import core.mvc.exception.HandlerNotFoundException;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.mvc.tobe.interceptor.ApiElapsedTimeInterceptor;
+import core.mvc.tobe.interceptor.InterceptorChain;
+import core.mvc.tobe.interceptor.InterceptorRegistry;
+import core.mvc.tobe.interceptor.UserFormInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,12 +19,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
 
 @WebServlet(name = "dispatcher", urlPatterns = "/", loadOnStartup = 1)
 public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
+
+    private InterceptorRegistry interceptorRegistry;
 
     private HandlerMappingRegistry handlerMappingRegistry;
 
@@ -29,6 +35,10 @@ public class DispatcherServlet extends HttpServlet {
 
     @Override
     public void init() {
+        interceptorRegistry = new InterceptorRegistry()
+            .addInterceptor(new ApiElapsedTimeInterceptor())
+            .addInterceptor(new UserFormInterceptor("/users/loginForm", "/users/form"));
+
         handlerMappingRegistry = new HandlerMappingRegistry();
         handlerMappingRegistry.addHandlerMpping(new RequestMapping());
         handlerMappingRegistry.addHandlerMpping(new AnnotationHandlerMapping("next.controller"));
@@ -45,19 +55,30 @@ public class DispatcherServlet extends HttpServlet {
         String requestUri = req.getRequestURI();
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
+        Object handler = null;
+        InterceptorChain interceptorChain = new InterceptorChain(interceptorRegistry.getMatchedInterceptors(requestUri));
+
         try {
-            Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(req);
-            if (!maybeHandler.isPresent()) {
-                resp.setStatus(HttpStatus.NOT_FOUND.value());
+            handler = handlerMappingRegistry.getHandler(req);
+            if (!interceptorChain.applyPreHandle(req, resp, handler)) {
                 return;
             }
 
+            ModelAndView mav = handlerExecutor.handle(req, resp, handler);
 
-            ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+            interceptorChain.applyPostHandle(req, resp, handler, mav);
             render(mav, req, resp);
-        } catch (Throwable e) {
+            interceptorChain.applyAfterCompletion(req, resp, handler, null);
+        }
+        catch (HandlerNotFoundException e) {
+            resp.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
+        catch (Throwable e) {
             logger.error("Exception : {}", e);
-            throw new ServletException(e.getMessage());
+            ServletException exception = new ServletException(e.getMessage());
+            interceptorChain.applyAfterCompletion(req, resp, handler, exception);
+            throw exception;
         }
     }
 

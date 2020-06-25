@@ -65,4 +65,8 @@ public enum PreparedStatementType {
     private static void setObject(PreparedStatement ps, int paramPos, Object arg) throws SQLException {
         ps.setObject(paramPos, arg);
     }
+
+    public void accept(PreparedStatement ps, int paramPos, Object arg) throws SQLException {
+        this.setter.accept(ps, paramPos, arg);
+    }
 }
