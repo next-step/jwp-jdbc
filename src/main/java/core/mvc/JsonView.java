@@ -44,8 +44,7 @@ public class JsonView implements View {
         }
 
         if (model.size() == 1) {
-            final Object o = model.keySet().stream()
-                    .map(k -> model.get(k))
+            final Object o = model.values().stream()
                     .findFirst()
                     .orElseThrow(RuntimeException::new);
 
