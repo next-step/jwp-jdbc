@@ -2,6 +2,7 @@ package core.mvc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import core.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +40,7 @@ public class JsonView implements View {
         final ObjectMapper objectMapper = new ObjectMapper();
 
         if (model.isEmpty()) {
-            return "";
+            return StringUtils.EMPTY;
         }
 
         if (model.size() == 1) {
