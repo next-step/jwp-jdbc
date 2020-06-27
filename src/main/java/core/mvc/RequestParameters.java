@@ -10,17 +10,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RequestParameters {
-    private Map<String, Object> parameters;
+    private Map<String, Object> parameters = new HashMap<>();
 
     public RequestParameters(HttpServletRequest request) throws IOException {
-        String requestBody = CharStreams.toString(request.getReader());
-
-        if (requestBody.isEmpty()) {
-            this.parameters = new HashMap<>();
-            return;
-        }
-
         if (request.getHeader("content-type").equals("application/json")) {
+            String requestBody = CharStreams.toString(request.getReader());
+            if (requestBody.isEmpty()) {
+                return;
+            }
+
             this.parameters = ObjectMapperUtils.readValue(requestBody, new TypeReference<Map<String, Object>>() {
             });
             return;
