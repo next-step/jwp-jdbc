@@ -18,4 +18,13 @@ public class JsonUtils {
             throw new ObjectMapperException(e);
         }
     }
+
+    public static String toJsonAsString(Object object) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writeValueAsString(object);
+        } catch (IOException e) {
+            throw new ObjectMapperException(e);
+        }
+    }
 }

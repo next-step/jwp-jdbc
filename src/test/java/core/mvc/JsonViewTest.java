@@ -41,6 +41,7 @@ public class JsonViewTest {
         model.put("car", expected);
 
         view.render(model, request, response);
+        System.out.println(response.getContentAsString());
 
         Car actual = JsonUtils.toObject(response.getContentAsString(), Car.class);
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
