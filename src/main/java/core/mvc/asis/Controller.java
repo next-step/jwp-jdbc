@@ -1,8 +1,10 @@
 package core.mvc.asis;
 
+import core.mvc.ModelAndView;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface Controller {
-    String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception;
+    ModelAndView execute(HttpServletRequest req, HttpServletResponse resp) throws Exception;
 }
