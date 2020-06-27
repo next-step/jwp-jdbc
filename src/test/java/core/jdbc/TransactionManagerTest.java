@@ -2,6 +2,7 @@ package core.jdbc;
 
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +17,9 @@ import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TransactionTest {
+public class TransactionManagerTest {
 
-    private static final Logger log = LoggerFactory.getLogger(TransactionTest.class);
+    private static final Logger log = LoggerFactory.getLogger(TransactionManagerTest.class);
 
     @BeforeEach
     public void setup() {
@@ -27,6 +28,7 @@ public class TransactionTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
+    @DisplayName("정상적인 트랜잭션이 제대로 커밋 되었는지 테스트 해보았다.")
     @Test
     void transaction_commit() {
         TransactionManager.beginTransaction();
@@ -48,6 +50,7 @@ public class TransactionTest {
         assertThat(user).isNotNull();
     }
 
+    @DisplayName("고의적으로 익셉션을 발생시켜 트랜잭션이 롤백 되었는지 확인해보았다.")
     @Test
     void transaction_rollback() {
         TransactionManager.beginTransaction();
