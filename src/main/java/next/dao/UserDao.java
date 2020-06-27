@@ -2,27 +2,27 @@ package next.dao;
 
 import core.jdbc.CommonJdbc;
 import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcOperation;
 import next.model.User;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
 
-    public void insert(User user) throws SQLException {
-        final CommonJdbc commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
+    public void insert(User user) {
+        final JdbcOperation commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
         final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         commonJdbc.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public void update(User user) throws SQLException {
-        final CommonJdbc commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
+    public void update(User user) {
+        final JdbcOperation commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
         final String sql = "UPDATE users SET password=?, name=?, email=? WHERE userId=?";
         commonJdbc.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
-        final CommonJdbc commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
+    public List<User> findAll() {
+        final JdbcOperation commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
         final String sql = "SELECT userId, password, name, email FROM users";
         return commonJdbc.query(
                 sql,
@@ -32,8 +32,8 @@ public class UserDao {
                 null);
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        final CommonJdbc commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
+    public User findByUserId(String userId) {
+        final JdbcOperation commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         return commonJdbc.queryForSingleObject(sql,
                 (rs, rowNum) -> new User(
