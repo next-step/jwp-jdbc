@@ -17,14 +17,8 @@ public class ObjectMapperUtils {
 
     public <T> T readValue(String content, TypeReference<T> valueTypeRef) {
         try {
-            //test
-            System.out.println("test123 : " + content);
-
             return mapper.readValue(content, valueTypeRef);
         } catch (JsonProcessingException e) {
-            //test
-            e.printStackTrace();
-
             throw new JdbcException(ExceptionStatus.JSON_PARSE_EXCEPTION);
         }
     }
