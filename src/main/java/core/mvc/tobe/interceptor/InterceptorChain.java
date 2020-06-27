@@ -39,7 +39,7 @@ public class InterceptorChain {
             return;
         }
 
-        for (int i = matchedInterceptors.size()-1; i >= 0; i--) {
+        for (int i = matchedInterceptors.size() - 1; i >= 0; i--) {
             HandlerInterceptor handlerInterceptor = matchedInterceptors.get(i);
             handlerInterceptor.postHandle(request, response, handler, modelAndView);
         }
@@ -50,7 +50,7 @@ public class InterceptorChain {
             return;
         }
 
-        for (int i = matchedInterceptors.size()-1; i >= 0; i--) {
+        for (int i = matchedInterceptors.size() - 1; i >= 0; i--) {
             HandlerInterceptor handlerInterceptor = matchedInterceptors.get(i);
             handlerInterceptor.afterCompletion(request, response, handler, exception);
         }

@@ -1,16 +1,12 @@
 package core.mvc.tobe;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import core.annotation.web.RequestMethod;
 import core.mvc.HandlerMapping;
-import core.mvc.tobe.interceptor.HandlerInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Map;
 
 public class AnnotationHandlerMapping implements HandlerMapping {
@@ -21,8 +17,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private Map<HandlerKey, HandlerExecution> handlerExecutions = Maps.newHashMap();
 
-    private List<HandlerInterceptor> interceptors = Lists.newArrayList();
-
     public AnnotationHandlerMapping(Object... basePackage) {
         this.basePackage = basePackage;
         controllerScanner = new ControllerScanner();
@@ -31,10 +25,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     public void initialize() {
         logger.info("## Initialized Annotation Handler Mapping");
         handlerExecutions.putAll(controllerScanner.scan(basePackage));
-
-        if (!CollectionUtils.isEmpty(interceptors)) {
-            interceptors.addAll(interceptors);
-        }
     }
 
     public Object getHandler(HttpServletRequest request) {
