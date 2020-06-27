@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class CommonJdbc implements JdbcOperation {
 
@@ -23,13 +24,13 @@ public class CommonJdbc implements JdbcOperation {
     }
 
     @Override
-    public <T> T queryForSingleObject(String sql, RowMapper<T> rowMapper, Object... args) throws UnableToAccessException {
+    public <T> T queryForSingleObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) throws UnableToAccessException {
         ResultSet rs = null;
         try (
                 final Connection connection = dataSource.getConnection();
                 final PreparedStatement pstmt = connection.prepareStatement(sql);
         ) {
-            setArguments(pstmt, args);
+            Objects.requireNonNull(pss).setValues(pstmt);
             rs = pstmt.executeQuery();
 
             T ret = null;
@@ -45,13 +46,17 @@ public class CommonJdbc implements JdbcOperation {
     }
 
     @Override
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) throws UnableToAccessException {
+    public <T> T queryForSingleObject(String sql, RowMapper<T> rowMapper, Object... args) throws UnableToAccessException {
+        return queryForSingleObject(sql, rowMapper, ps -> setArguments(ps, args));
+    }
+
+    @Override
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) throws UnableToAccessException {
         ResultSet rs = null;
         try (
                 final Connection connection = dataSource.getConnection();
                 final PreparedStatement pstmt = connection.prepareStatement(sql);
         ) {
-            setArguments(pstmt, args);
             rs = pstmt.executeQuery();
 
             final List<T> results = new ArrayList<>();
@@ -68,18 +73,33 @@ public class CommonJdbc implements JdbcOperation {
     }
 
     @Override
-    public int update(String sql, Object... args) throws UnableToAccessException {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) throws UnableToAccessException {
+        return query(sql, rowMapper, ps -> setArguments(ps, args));
+    }
+
+    @Override
+    public int update(String sql, PreparedStatementSetter pss) {
         try (
                 final Connection connection = dataSource.getConnection();
                 final PreparedStatement pstmt = connection.prepareStatement(sql);
         ) {
-            setArguments(pstmt, args);
+            Objects.requireNonNull(pss).setValues(pstmt);
             final int affectedRows = pstmt.executeUpdate();
             log.debug("affected rows: {}", affectedRows);
             return affectedRows;
         } catch (SQLException throwables) {
             throw new UnableToAccessException("메세지는 나중에 적자..");
         }
+    }
+
+    @Override
+    public int update(String sql, Object... args) throws UnableToAccessException {
+        return update(sql, ps -> {
+            final int length = args != null ? args.length : 0;
+            for (int i = 1; i <= length; i++) {
+                ps.setObject(i, args[i - 1]);
+            }
+        });
     }
 
     private void setArguments(PreparedStatement pstmt, Object[] values) throws SQLException {

@@ -29,7 +29,7 @@ public class UserDao {
     public List<User> findAll() {
         final JdbcOperation commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
         final String sql = "SELECT userId, password, name, email FROM users";
-        return commonJdbc.query(sql, userRowMapper, null);
+        return commonJdbc.query(sql, userRowMapper, (Object[]) null);
     }
 
     public User findByUserId(String userId) {

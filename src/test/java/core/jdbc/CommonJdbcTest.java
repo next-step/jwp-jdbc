@@ -20,7 +20,7 @@ class CommonJdbcTest {
 
     private static final Logger log = LoggerFactory.getLogger(CommonJdbcTest.class);
 
-    private CommonJdbc commonJdbc;
+    private JdbcOperation commonJdbc;
     private final RowMapper<User> userRowMapper = (rs, rowNum) -> new User(
             rs.getString("userId"), rs.getString("password"),
             rs.getString("name"), rs.getString("email"));
