@@ -29,7 +29,7 @@ public class TransactionTest {
 
     @Test
     void transaction_commit() {
-        MyTransactionManager.beginTransaction();
+        TransactionManager.beginTransaction();
         final Service1 s1 = new Service1();
         final Service2 s2 = new Service2();
 
@@ -38,9 +38,9 @@ public class TransactionTest {
             s1.test();
             s2.test();
             // aop로 프록시 해야 할 부분
-            MyTransactionManager.commit();
+            TransactionManager.commit();
         } catch (Throwable t) {
-            MyTransactionManager.rollback();
+            TransactionManager.rollback();
         }
 
         final User user = findUser();
@@ -50,7 +50,7 @@ public class TransactionTest {
 
     @Test
     void transaction_rollback() {
-        MyTransactionManager.beginTransaction();
+        TransactionManager.beginTransaction();
         final Service1 s1 = new Service1();
         final Service2 s2 = new Service2();
 
@@ -60,9 +60,9 @@ public class TransactionTest {
                 throw new RuntimeException("잘가");
             }
             s2.test();
-            MyTransactionManager.commit();
+            TransactionManager.commit();
         } catch (Throwable t) {
-            MyTransactionManager.rollback();
+            TransactionManager.rollback();
         }
 
         final User user = findUser();
@@ -99,7 +99,7 @@ public class TransactionTest {
 
     public static class Service1 {
         public void test() {
-            final Connection conn = MyTransactionManager.getConnection();
+            final Connection conn = TransactionManager.getConnection();
             final String sql = "INSERT INTO users VALUES ('tester', '1234abcd', 'chwon', 'a@b.com')";
             try (final PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 final int affectedRows = pstmt.executeUpdate();
@@ -113,7 +113,7 @@ public class TransactionTest {
 
     public static class Service2 {
         public void test() {
-            final Connection conn = MyTransactionManager.getConnection();
+            final Connection conn = TransactionManager.getConnection();
             final String sql = "UPDATE users SET name='wonch' WHERE userId = 'tester'";
             try (final PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 final int affectedRows = pstmt.executeUpdate();
