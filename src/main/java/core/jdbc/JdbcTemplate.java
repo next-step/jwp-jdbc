@@ -9,11 +9,8 @@ import java.util.List;
 public class JdbcTemplate {
 
     public void update(String sql, Object... args) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             for (int i = 0; i < args.length; i++) {
                 final Object value = args[i];
@@ -27,24 +24,13 @@ public class JdbcTemplate {
             }
 
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper) throws SQLException {
-        Connection con = null;
-        Statement stmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            stmt = con.createStatement();
-            rs = stmt.executeQuery(sql);
+        try (Connection con = ConnectionManager.getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             int rowNum = 0;
             List<T> result = new ArrayList<>();
@@ -53,26 +39,17 @@ public class JdbcTemplate {
             }
 
             return result;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
+        try (Connection con = ConnectionManager.getConnection();
+<<<<<<< Updated upstream
+             PreparedStatement pstmt = con.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery();) {
+=======
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+>>>>>>> Stashed changes
 
             for (int i = 0; i < args.length; i++) {
                 final Object value = args[i];
@@ -84,24 +61,13 @@ public class JdbcTemplate {
                     pstmt.setInt(i + 1, (Integer) args[i]);
                 }
             }
-            rs = pstmt.executeQuery();
 
-            T result = null;
-            if (rs.next()) {
-                result = rowMapper.mapRow(rs, 0);
-            }
-            return result;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                return rowMapper.mapRow(rs, 0);
             }
         }
-
     }
 }
