@@ -1,14 +1,10 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
 import next.model.User;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -19,22 +15,22 @@ public class UserDao {
         jdbcTemplate = new JdbcTemplate();
     }
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         final String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
         jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         final String sql = "SELECT * FROM USERS";
         return jdbcTemplate.query(sql, this::createUser);
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
         return jdbcTemplate.queryForObject(sql, this::createUser, userId);
     }
