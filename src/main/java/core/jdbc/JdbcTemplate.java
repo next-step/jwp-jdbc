@@ -28,24 +28,11 @@ public class JdbcTemplate implements AutoCloseable {
     }
 
     public <T> T queryForObject(String sql, List<Object> args, Class<T> type) {
-        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setPreparedStatement(pstmt, args);
-            return getObject(pstmt, type).orElse(null);
-        } catch (SQLException e) {
-            throw new JdbcException(ExceptionStatus.QUERY_FOR_OBJECT_fAIL, e);
+        List<T> resultList = queryForList(sql, args, type);
+        if (resultList.isEmpty()) {
+            return null;
         }
-    }
-
-    private <T> Optional<T> getObject(PreparedStatement pstmt, Class<T> type) {
-        try (ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                Map<String, Object> resultMap = getFieldMap(rs, type);
-                return Optional.of(ObjectMapperUtils.convertValue(resultMap, type));
-            }
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new JdbcException(ExceptionStatus.GET_OBJECT_FAIL);
-        }
+        return resultList.get(0);
     }
 
     public <T> List<T> queryForList(String sql, List<Object> args, Class<T> type) {
