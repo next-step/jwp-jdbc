@@ -13,17 +13,18 @@ public class UserDao {
     private static final String FIND_BY_ID = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
     public void insert(User user) throws Exception {
-        try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
-            List<Object> args = Arrays.asList(user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
-            jdbcTemplate.update(INSERT_QUERY, args);
-        }
+        update(INSERT_QUERY, user);
     }
 
     public void update(User user) throws Exception {
+        update(UPDATE_QUERY, user);
+    }
+
+    private void update(String query, User user) throws Exception {
         try (JdbcTemplate jdbcTemplate = new JdbcTemplate()) {
             jdbcTemplate.beginTransaction();
             List<Object> args = Arrays.asList(user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
-            jdbcTemplate.update(UPDATE_QUERY, args);
+            jdbcTemplate.update(query, args);
             jdbcTemplate.commit();
         }
     }
