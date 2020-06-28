@@ -2,14 +2,14 @@ package core.jdbc;
 
 import core.exception.ExceptionStatus;
 import core.exception.JdbcException;
-import core.util.ObjectMapperUtils;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class JdbcTemplate implements AutoCloseable {
     private Connection con;
@@ -18,59 +18,59 @@ public class JdbcTemplate implements AutoCloseable {
         this.con = ConnectionManager.getConnection();
     }
 
-    public void update(String sql, List<Object> args) {
+    public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setPreparedStatement(pstmt, args);
+            preparedStatementSetter.setValue(pstmt);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcException(ExceptionStatus.UPDATE_fAIL, e);
         }
     }
 
-    public <T> T queryForObject(String sql, List<Object> args, Class<T> type) {
-        List<T> resultList = queryForList(sql, args, type);
-        if (resultList.isEmpty()) {
-            return null;
-        }
-        return resultList.get(0);
+    public void update(String sql, Object... args) {
+        update(sql, createPreparedStatementSetter(args));
     }
 
-    public <T> List<T> queryForList(String sql, List<Object> args, Class<T> type) {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
         try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setPreparedStatement(pstmt, args);
-            return getObjectList(pstmt, type);
+            preparedStatementSetter.setValue(pstmt);
+            List<T> resultList = getResultList(pstmt, rowMapper);
+            if (resultList.isEmpty()) {
+                return null;
+            }
+            return resultList.get(0);
         } catch (SQLException e) {
-            throw new JdbcException(ExceptionStatus.GET_OBJECT_LIST_FAIL, e);
+            throw new JdbcException(ExceptionStatus.UPDATE_fAIL, e);
         }
     }
 
-    private <T> List<T> getObjectList(PreparedStatement pstmt, Class<T> type) {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) {
+        PreparedStatementSetter preparedStatementSetter = createPreparedStatementSetter(args);
+        return queryForObject(sql, rowMapper, preparedStatementSetter);
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
+        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+            preparedStatementSetter.setValue(pstmt);
+            return getResultList(pstmt, rowMapper);
+        } catch (SQLException e) {
+            throw new JdbcException(ExceptionStatus.UPDATE_fAIL, e);
+        }
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
+        PreparedStatementSetter preparedStatementSetter = createPreparedStatementSetter(args);
+        return query(sql, rowMapper, preparedStatementSetter);
+    }
+
+    private <T> List<T> getResultList(PreparedStatement pstmt, RowMapper<T> rowMapper) throws SQLException {
         List<T> resultList = new ArrayList<>();
         try (ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
-                Map<String, Object> resultMap = getFieldMap(rs, type);
-                resultList.add(ObjectMapperUtils.convertValue(resultMap, type));
+                resultList.add(rowMapper.mapRow(rs));
             }
-            return resultList;
-        } catch (SQLException e) {
-            throw new JdbcException(ExceptionStatus.GET_OBJECT_FAIL);
         }
-    }
-
-    public <T> List<T> queryForList(String sql, Class<T> type) {
-        List<T> resultList = new ArrayList<>();
-        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    Map<String, Object> resultMap = getFieldMap(rs, type);
-                    resultList.add(ObjectMapperUtils.convertValue(resultMap, type));
-                }
-            }
-
-            return resultList;
-        } catch (SQLException e) {
-            throw new JdbcException(ExceptionStatus.QUERY_FOR_LIST_fAIL, e);
-        }
+        return resultList;
     }
 
     public void beginTransaction() {
@@ -106,26 +106,12 @@ public class JdbcTemplate implements AutoCloseable {
         }
     }
 
-    private void setPreparedStatement(PreparedStatement pstmt, List<Object> args) {
-        try {
-            for (int i = 0; i < args.size(); i++) {
-                pstmt.setObject(i + 1, args.get(i));
+    private PreparedStatementSetter createPreparedStatementSetter(Object... args) {
+        return preparedStatement -> {
+            for (int i = 0; i < args.length; i++) {
+                preparedStatement.setObject(i + 1, args[i]);
             }
-        } catch (SQLException e) {
-            throw new JdbcException(ExceptionStatus.NOT_CORRESPOND_PARAMETER_INDEX, e);
-        }
-    }
-
-    private <T> Map<String, Object> getFieldMap(ResultSet rs, Class<T> type) {
-        try {
-            Map<String, Object> resultMap = new HashMap<>();
-            for (Field field : type.getDeclaredFields()) {
-                resultMap.put(field.getName(), rs.getObject(field.getName()));
-            }
-            return resultMap;
-        } catch (SQLException e) {
-            throw new JdbcException(ExceptionStatus.INVALID_COLUMN_LABEL, e);
-        }
+        };
     }
 
     @Override
