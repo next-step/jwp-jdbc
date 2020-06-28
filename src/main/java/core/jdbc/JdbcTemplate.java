@@ -1,12 +1,10 @@
 package core.jdbc;
 
-import next.model.User;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JdbcTemplate {
 
@@ -32,6 +30,34 @@ public class JdbcTemplate {
         } finally {
             if (pstmt != null) {
                 pstmt.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) throws SQLException {
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            con = ConnectionManager.getConnection();
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+
+            List<T> result = new ArrayList<>();
+            while (rs.next()) {
+                result.add(rowMapper.mapRow(rs, 1));
+            }
+
+            return result;
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt != null) {
+                stmt.close();
             }
             if (con != null) {
                 con.close();

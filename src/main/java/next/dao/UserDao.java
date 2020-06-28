@@ -30,36 +30,8 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        List<User> result = new ArrayList<>();
-
-        Connection con = null;
-        Statement stmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            final String sql = "SELECT * FROM USERS";
-            stmt = con.createStatement();
-
-            final ResultSet rs = stmt.executeQuery(sql);
-
-            while (rs.next()) {
-                final String userId = rs.getString("userId");
-                final String password = rs.getString("password");
-                final String name = rs.getString("name");
-                final String email = rs.getString("email");
-
-                final User user = new User(userId, password, name, email);
-                result.add(user);
-            }
-        } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
-        return result;
+        final String sql = "SELECT * FROM USERS";
+        return jdbcTemplate.query(sql, this::createUser);
     }
 
     public User findByUserId(String userId) throws SQLException {
