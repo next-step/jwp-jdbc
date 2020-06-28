@@ -1,0 +1,13 @@
+POST http://localhost:8080/api/users
+Content-Type: application/x-www-form-urlencoded
+
+userId=ju&password=123&name=234&email=liquidjoo%40gmail.com
+###
+
+
+POST http://localhost:8080/users
+Content-Type: application/x-www-form-urlencoded
+
+userId=ju&password=123&name=234&email=liquidjoo%40gmail.com
+
+###
