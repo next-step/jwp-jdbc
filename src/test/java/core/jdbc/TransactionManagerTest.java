@@ -31,20 +31,13 @@ public class TransactionManagerTest {
     @DisplayName("정상적인 트랜잭션이 제대로 커밋 되었는지 테스트 해보았다.")
     @Test
     void transaction_commit() {
-        TransactionManager.beginTransaction();
         final Service1 s1 = new Service1();
         final Service2 s2 = new Service2();
-
-        try {
-            // aop로 프록시 해야 할 부분
+        TransactionManager.processTransaction(() -> {
             s1.test();
             s2.test();
-            // aop로 프록시 해야 할 부분
-            TransactionManager.commit();
-        } catch (Throwable t) {
-            TransactionManager.rollback();
-        }
-
+            return "._.";
+        });
         final User user = findUser();
         log.debug("user: {}", user);
         assertThat(user).isNotNull();
