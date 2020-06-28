@@ -11,19 +11,22 @@ public class JdbcTemplate {
     public void update(String sql, Object... args) throws SQLException {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            for (int i = 0; i < args.length; i++) {
-                final Object value = args[i];
-
-                if (value instanceof String) {
-                    pstmt.setString(i + 1, (String) args[i]);
-                }
-                if (value instanceof Integer) {
-                    pstmt.setInt(i + 1, (Integer) args[i]);
-                }
-            }
-
+            setArgs(pstmt, args);
             pstmt.executeUpdate();
+        }
+    }
+
+    private void setArgs(PreparedStatement pstmt, Object[] args) throws SQLException {
+        for (int i = 0; i < args.length; i++) {
+            final int index = i + 1;
+            final Object value = args[i];
+
+            if (value instanceof String) {
+                pstmt.setString(index, (String) args[i]);
+            }
+            if (value instanceof Integer) {
+                pstmt.setInt(index, (Integer) args[i]);
+            }
         }
     }
 
@@ -44,23 +47,9 @@ public class JdbcTemplate {
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException {
         try (Connection con = ConnectionManager.getConnection();
-<<<<<<< Updated upstream
-             PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery();) {
-=======
              PreparedStatement pstmt = con.prepareStatement(sql)) {
->>>>>>> Stashed changes
 
-            for (int i = 0; i < args.length; i++) {
-                final Object value = args[i];
-
-                if (value instanceof String) {
-                    pstmt.setString(i + 1, (String) args[i]);
-                }
-                if (value instanceof Integer) {
-                    pstmt.setInt(i + 1, (Integer) args[i]);
-                }
-            }
+            setArgs(pstmt, args);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (!rs.next()) {
