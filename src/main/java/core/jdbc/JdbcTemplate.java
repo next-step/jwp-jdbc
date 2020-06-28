@@ -46,9 +46,10 @@ public class JdbcTemplate {
             stmt = con.createStatement();
             rs = stmt.executeQuery(sql);
 
+            int rowNum = 0;
             List<T> result = new ArrayList<>();
             while (rs.next()) {
-                result.add(rowMapper.mapRow(rs, 1));
+                result.add(rowMapper.mapRow(rs, rowNum++));
             }
 
             return result;
@@ -87,7 +88,7 @@ public class JdbcTemplate {
 
             T result = null;
             if (rs.next()) {
-                result = rowMapper.mapRow(rs, 1);
+                result = rowMapper.mapRow(rs, 0);
             }
             return result;
         } finally {
