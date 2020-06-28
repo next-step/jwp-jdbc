@@ -9,11 +9,15 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ObjectMapperUtils {
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
+
+    public <T> T convertValue(Object object, Class<T> clazz) {
+        return mapper.convertValue(object, clazz);
+    }
 
     public <T> T readValue(String content, TypeReference<T> valueTypeRef) {
         try {
-            return objectMapper.readValue(content, valueTypeRef);
+            return mapper.readValue(content, valueTypeRef);
         } catch (JsonProcessingException e) {
             throw new JdbcException(ExceptionStatus.JSON_PARSE_EXCEPTION);
         }
