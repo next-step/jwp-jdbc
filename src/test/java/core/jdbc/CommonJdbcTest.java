@@ -1,6 +1,6 @@
 package core.jdbc;
 
-import core.jdbc.exceptions.UnableToAccessException;
+import core.jdbc.exceptions.DataAccessException;
 import next.model.User;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +12,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import java.sql.Connection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,29 +21,33 @@ class CommonJdbcTest {
 
     private static final Logger log = LoggerFactory.getLogger(CommonJdbcTest.class);
 
-    private CommonJdbc commonJdbc;
+    private JdbcOperation commonJdbc;
+    private final RowMapper<User> userRowMapper = (rs, rowNum) -> new User(
+            rs.getString("userId"), rs.getString("password"),
+            rs.getString("name"), rs.getString("email"));
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void beforeAll() {
         // 처음엔 beforeAll로 처리하려고 했지만 테스트 간 독립적으로 데이터를 유지하기 위해
         final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
+    }
 
-        commonJdbc = new CommonJdbc(ConnectionManager.getDataSource());
+    @BeforeEach
+    void setUp() {
+        commonJdbc = new CommonJdbc();
     }
 
     // todo: 쿼리가 잘못된 경우 TooManyResultSet 같은 예외가 필요할거 같음.
     @DisplayName("쿼리 하나에 오브젝트 하나")
     @Test
-    void queryForSingleObject() throws Exception {
+    void queryForSingleObject() {
         // 이미 jwp.sql에 넣어둠.
         final User expected = new User("hyeyoom", "1234abcd", "chwon", "neoul_chw@icloud.com");
         final User actual = commonJdbc.queryForSingleObject(
                 "SELECT userId, password, name, email FROM users WHERE userid=?",
-                (rs, rowNum) -> new User(
-                        rs.getString("userId"), rs.getString("password"),
-                        rs.getString("name"), rs.getString("email")),
+                userRowMapper,
                 "hyeyoom"
         );
         assertThat(actual).isEqualTo(expected);
@@ -55,9 +58,7 @@ class CommonJdbcTest {
     void query() {
         final List<User> users = commonJdbc.query(
                 "SELECT userId, password, name, email FROM users",
-                (rs, rowNum) -> new User(
-                        rs.getString("userId"), rs.getString("password"),
-                        rs.getString("name"), rs.getString("email")),
+                userRowMapper,
                 (Object[]) null     // well.. it's ugly isn't it??
         );
         assertThat(users.size()).isGreaterThan(0);
@@ -65,7 +66,8 @@ class CommonJdbcTest {
 
     @DisplayName("Insert를 실험해보자.")
     @Test
-    void test_insert() {
+    void insert() {
+        TransactionManager.beginTransaction();
         final User expected = new User("newguy", "1234abcd", "new", "new@noob.io");
         final int affectedRows = commonJdbc.update(
                 "INSERT INTO users VALUES (?, ?, ?, ?)",
@@ -77,18 +79,18 @@ class CommonJdbcTest {
 
         final User actual = commonJdbc.queryForSingleObject(
                 "SELECT userId, password, name, email FROM users WHERE userid=?",
-                (rs, rowNum) -> new User(
-                        rs.getString("userId"), rs.getString("password"),
-                        rs.getString("name"), rs.getString("email")),
+                userRowMapper,
                 "newguy"
         );
+        TransactionManager.commit();
         assertThat(actual).isEqualTo(expected);
     }
 
     @DisplayName("Update를 실험해보자.")
     @Test
-    void test_update() {
-        final User expected = new User("newguy", "1234abcd", "new", "new@noob.io");
+    void update() {
+        TransactionManager.beginTransaction();
+        final User expected = new User("newguy1", "1234abcd", "new", "new@noob.io");
         final int affectedRowsForInsert = commonJdbc.update(
                 "INSERT INTO users VALUES (?, ?, ?, ?)",
                 expected.getUserId(), expected.getPassword(), expected.getName(), expected.getEmail()
@@ -103,12 +105,11 @@ class CommonJdbcTest {
         );
         log.debug("affected rows for update: {}", affectedRowsForInsert);
         assertThat(affectedRowsForUpdate).isEqualTo(1);
+        TransactionManager.commit();
 
         final User actual = commonJdbc.queryForSingleObject(
                 "SELECT userId, password, name, email FROM users WHERE userid=?",
-                (rs, rowNum) -> new User(
-                        rs.getString("userId"), rs.getString("password"),
-                        rs.getString("name"), rs.getString("email")),
+                userRowMapper,
                 "newguy"
         );
         assertThat(actual.getName()).isEqualTo("hyeyoom");
@@ -116,7 +117,7 @@ class CommonJdbcTest {
 
     @DisplayName("Delete를 실험해보자.")
     @Test
-    void test_delete() {
+    void delete() {
         final User user = new User("newguy", "1234abcd", "new", "new@noob.io");
         final int affectedRowsForInsert = commonJdbc.update(
                 "INSERT INTO users VALUES (?, ?, ?, ?)",
@@ -128,9 +129,7 @@ class CommonJdbcTest {
 
         final User selectTest = commonJdbc.queryForSingleObject(
                 "SELECT userId, password, name, email FROM users WHERE userid=?",
-                (rs, rowNum) -> new User(
-                        rs.getString("userId"), rs.getString("password"),
-                        rs.getString("name"), rs.getString("email")),
+                userRowMapper,
                 "newguy"
         );
         log.debug("selectTest: {}", selectTest);
@@ -145,9 +144,7 @@ class CommonJdbcTest {
 
         final User actual = commonJdbc.queryForSingleObject(
                 "SELECT userId, password, name, email FROM users WHERE userid=?",
-                (rs, rowNum) -> new User(
-                        rs.getString("userId"), rs.getString("password"),
-                        rs.getString("name"), rs.getString("email")),
+                userRowMapper,
                 "newguy"
         );
         assertThat(actual).isNull();
@@ -155,13 +152,13 @@ class CommonJdbcTest {
 
     @DisplayName("잘못된 쿼리의 경우 UnableToAccessException 발생")
     @Test
-    void test_exception() {
+    void exception() {
         assertThatThrownBy(() -> {
             commonJdbc.queryForSingleObject(
                     "SELECT * FROM some_where_i_belong",
                     (rs, rowNum) -> null,
                     ""
             );
-        }).isInstanceOf(UnableToAccessException.class);
+        }).isInstanceOf(DataAccessException.class);
     }
 }
