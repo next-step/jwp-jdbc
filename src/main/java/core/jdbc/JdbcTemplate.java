@@ -32,16 +32,11 @@ public class JdbcTemplate implements AutoCloseable {
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
-        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
-            preparedStatementSetter.setValue(pstmt);
-            List<T> resultList = getResultList(pstmt, rowMapper);
-            if (resultList.isEmpty()) {
-                return null;
-            }
-            return resultList.get(0);
-        } catch (SQLException e) {
-            throw new JdbcException(ExceptionStatus.UPDATE_fAIL, e);
+        List<T> resultList = query(sql, rowMapper, preparedStatementSetter);
+        if (resultList.isEmpty()) {
+            return null;
         }
+        return resultList.get(0);
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) {
@@ -54,7 +49,7 @@ public class JdbcTemplate implements AutoCloseable {
             preparedStatementSetter.setValue(pstmt);
             return getResultList(pstmt, rowMapper);
         } catch (SQLException e) {
-            throw new JdbcException(ExceptionStatus.UPDATE_fAIL, e);
+            throw new JdbcException(ExceptionStatus.QUERY_fAIL, e);
         }
     }
 
