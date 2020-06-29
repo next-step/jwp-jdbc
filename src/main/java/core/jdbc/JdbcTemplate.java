@@ -21,15 +21,7 @@ public class JdbcTemplate {
 
     private void setArgs(PreparedStatement pstmt, Object[] args) throws SQLException {
         for (int i = 0; i < args.length; i++) {
-            final int index = i + 1;
-            final Object value = args[i];
-
-            if (value instanceof String) {
-                pstmt.setString(index, (String) args[i]);
-            }
-            if (value instanceof Integer) {
-                pstmt.setInt(index, (Integer) args[i]);
-            }
+            pstmt.setObject(i + 1, args[i]);
         }
     }
 
