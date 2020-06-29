@@ -10,13 +10,16 @@ import java.util.List;
 public class JdbcTemplate {
 
     public void update(String sql, Object... args) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setArgs(pstmt, args);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        }
+        final PreparedStatementSetter preparedStatementSetter = createPreparedStatementSetter(args);
+        update(sql, preparedStatementSetter);
+    }
+
+    private PreparedStatementSetter createPreparedStatementSetter(Object... args) {
+        return ps -> {
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
+            }
+        };
     }
 
     public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
@@ -31,29 +34,9 @@ public class JdbcTemplate {
         }
     }
 
-    private void setArgs(PreparedStatement pstmt, Object[] args) throws SQLException {
-        for (int i = 0; i < args.length; i++) {
-            pstmt.setObject(i + 1, args[i]);
-        }
-    }
-
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            setArgs(pstmt, args);
-
-            List<T> result = new ArrayList<>();
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    result.add(rowMapper.mapRow(rs));
-                }
-            }
-
-            return result;
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        }
+        final PreparedStatementSetter preparedStatementSetter = createPreparedStatementSetter(args);
+        return query(sql, rowMapper, preparedStatementSetter);
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
@@ -76,22 +59,8 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            setArgs(pstmt, args);
-
-            T result = null;
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    result = rowMapper.mapRow(rs);
-                }
-            }
-
-            return result;
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        }
+        final PreparedStatementSetter preparedStatementSetter = createPreparedStatementSetter(args);
+        return queryForObject(sql, rowMapper, preparedStatementSetter);
     }
 
 
