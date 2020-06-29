@@ -8,12 +8,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class RequestParameters {
     private Map<String, Object> parameters = new HashMap<>();
 
     public RequestParameters(HttpServletRequest request) throws IOException {
-        if (request.getHeader("content-type").equals("application/json")) {
+        String contentType = request.getHeader("content-type");
+        if (Objects.nonNull(contentType) && contentType.equals("application/json")) {
             String requestBody = CharStreams.toString(request.getReader());
             if (requestBody.isEmpty()) {
                 return;

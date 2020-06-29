@@ -1,9 +1,11 @@
 package core.mvc;
 
+import core.interceptor.InterceptorRegistry;
 import core.mvc.asis.Controller;
 import core.mvc.asis.LegacyHandlerMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecution;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ public class DispatcherServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
     private static final List<HandlerMapping> handlerMappings = new ArrayList<>();
+    private static final InterceptorRegistry interceptorRegistry = new InterceptorRegistry();
 
     private AnnotationHandlerMapping mapping;
     private LegacyHandlerMapping rm;
@@ -35,6 +38,7 @@ public class DispatcherServlet extends HttpServlet {
         handlerMappings.add(new AnnotationHandlerMapping(CONTROLLER_PATH));
     }
 
+    @SneakyThrows
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String requestUri = req.getRequestURI();
@@ -42,7 +46,14 @@ public class DispatcherServlet extends HttpServlet {
 
         Object handler = getHandler(req);
         ModelAndView modelAndView;
+
+        Throwable throwable = null;
         try {
+            boolean preHandleResult = interceptorRegistry.preHandle(req, resp, handler);
+            if (!preHandleResult) {
+                return;
+            }
+
             if (handler instanceof Controller) {
                 modelAndView = ((Controller) handler).execute(req, resp);
             } else if (handler instanceof HandlerExecution) {
@@ -50,10 +61,14 @@ public class DispatcherServlet extends HttpServlet {
             } else {
                 throw new ServletException("Invalid handler");
             }
+            interceptorRegistry.postHandle(req, resp, handler, modelAndView);
             modelAndView.render(req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
+            throwable = e;
             throw new ServletException(e.getMessage());
+        } finally {
+            interceptorRegistry.afterCompletion(req, resp, handler, (Exception) throwable);
         }
     }
 
