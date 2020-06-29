@@ -35,7 +35,7 @@ public class UserDao {
         return jdbcTemplate.queryForObject(sql, this::createUser, userId);
     }
 
-    private User createUser(ResultSet rs, int rowNum) throws SQLException {
+    private User createUser(ResultSet rs) throws SQLException {
         return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                 rs.getString("email"));
     }

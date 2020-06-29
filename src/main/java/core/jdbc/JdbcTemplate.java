@@ -1,7 +1,5 @@
 package core.jdbc;
 
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +35,9 @@ public class JdbcTemplate {
              Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            int rowNum = 0;
             List<T> result = new ArrayList<>();
             while (rs.next()) {
-                result.add(rowMapper.mapRow(rs, rowNum++));
+                result.add(rowMapper.mapRow(rs));
             }
 
             return result;
@@ -55,12 +52,14 @@ public class JdbcTemplate {
 
             setArgs(pstmt, args);
 
+            T result = null;
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (!rs.next()) {
-                    return null;
+                if (rs.next()) {
+                    result = rowMapper.mapRow(rs);
                 }
-                return rowMapper.mapRow(rs, 0);
             }
+
+            return result;
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }

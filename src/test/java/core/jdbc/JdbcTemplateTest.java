@@ -74,7 +74,7 @@ class JdbcTemplateTest {
     void queryForObjectNotExist() {
         final String sql = "SELECT * FROM USERS WHERE userId = ?";
 
-        final User result = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new User(), "9999");
+        final User result = jdbcTemplate.queryForObject(sql, rs -> new User(), "9999");
 
         assertThat(result).isNull();
     }
@@ -84,7 +84,7 @@ class JdbcTemplateTest {
     void queryNotExist() {
         final String sql = "SELECT * FROM USERS";
 
-        final List<User> result = jdbcTemplate.query(sql, (rs, rowNum) -> new User());
+        final List<User> result = jdbcTemplate.query(sql, rs -> new User());
 
         assertThat(result).isEmpty();
     }
