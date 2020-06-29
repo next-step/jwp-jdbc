@@ -16,6 +16,7 @@ import next.model.User;
 import javax.servlet.http.HttpServletResponse;
 
 import static javax.servlet.http.HttpServletResponse.SC_CREATED;
+import static org.springframework.http.HttpHeaders.LOCATION;
 
 @Controller
 public class UserApiController {
@@ -23,9 +24,9 @@ public class UserApiController {
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(@ResponseBody UserCreatedDto userCreatedDto, HttpServletResponse response) throws Exception {
         response.setStatus(SC_CREATED);
-        response.setHeader("location", String.format("/api/users?userId=%s", userCreatedDto.getUserId()));
+        response.setHeader(LOCATION, String.format("/api/users?userId=%s", userCreatedDto.getUserId()));
         DataBase.addUser(userCreatedDto.toEntity());
-        return new ModelAndView(new JspView("/"));
+        return new ModelAndView(new JsonView());
     }
 
 
