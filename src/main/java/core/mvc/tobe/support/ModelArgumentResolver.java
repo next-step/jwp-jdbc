@@ -14,7 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static core.util.ReflectionUtils.hasFieldMethod;
-import static core.util.StringUtil.upperFirstChar;
+import static core.util.StringUtils.upperFirstChar;
 
 public class ModelArgumentResolver implements ArgumentResolver {
 
