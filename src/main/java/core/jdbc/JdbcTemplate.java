@@ -1,6 +1,9 @@
 package core.jdbc;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,14 +33,18 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
         try (Connection con = ConnectionManager.getConnection();
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement pstmt = con.prepareStatement(sql);
+        ) {
+
+            setArgs(pstmt, args);
 
             List<T> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(rowMapper.mapRow(rs));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    result.add(rowMapper.mapRow(rs));
+                }
             }
 
             return result;
