@@ -1,12 +1,16 @@
 package next.model;
 
 import next.dto.UserCreatedDto;
+import next.dto.UserUpdatedDto;
 
 public class User {
     private String userId;
     private String password;
     private String name;
     private String email;
+
+    public User() {
+    }
 
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
@@ -51,6 +55,11 @@ public class User {
 
     public static User userCreateDtoToUser(UserCreatedDto userCreatedDto) {
         return new User(userCreatedDto.getUserId(), userCreatedDto.getPassword(), userCreatedDto.getName(), userCreatedDto.getEmail());
+    }
+
+    public void updateUser(UserUpdatedDto userUpdatedDto) {
+        this.name = userUpdatedDto.getName();
+        this.email = userUpdatedDto.getEmail();
     }
 
     @Override

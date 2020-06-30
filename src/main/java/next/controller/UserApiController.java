@@ -9,6 +9,7 @@ import core.mvc.JsonView;
 import core.mvc.ModelAndView;
 
 import next.dto.UserCreatedDto;
+import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.springframework.http.HttpStatus;
 
@@ -33,6 +34,13 @@ public class UserApiController {
         ModelAndView modelAndView = new ModelAndView(new JsonView());
         modelAndView.addObject("user", user);
         return modelAndView;
+    }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
+    public ModelAndView modifyUser(@RequestParam String userId, UserUpdatedDto userUpdatedDto) {
+        User user = DataBase.findUserById(userId);
+        user.updateUser(userUpdatedDto);
+        return new ModelAndView(new JsonView());
     }
 
 }
