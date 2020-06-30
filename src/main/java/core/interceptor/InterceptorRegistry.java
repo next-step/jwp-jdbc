@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InterceptorRegistry {
-    private static final List<HandlerInterceptorAdapter> interceptors = new ArrayList<>();
+    private final List<HandlerInterceptorAdapter> interceptors = new ArrayList<>();
 
     public InterceptorRegistry() {
         interceptors.add(new RunningTimeInterceptor());

@@ -27,7 +27,6 @@ public class DispatcherServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
     private static final List<HandlerMapping> handlerMappings = new ArrayList<>();
-    private static final InterceptorRegistry interceptorRegistry = new InterceptorRegistry();
 
     private AnnotationHandlerMapping mapping;
     private LegacyHandlerMapping rm;
@@ -48,6 +47,7 @@ public class DispatcherServlet extends HttpServlet {
         ModelAndView modelAndView;
 
         Throwable throwable = null;
+        InterceptorRegistry interceptorRegistry = new InterceptorRegistry();
         try {
             boolean preHandleResult = interceptorRegistry.preHandle(req, resp, handler);
             if (!preHandleResult) {
