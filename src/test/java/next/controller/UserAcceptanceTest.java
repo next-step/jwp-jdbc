@@ -36,7 +36,7 @@ public class UserAcceptanceTest {
         logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
 
         // 조회
-       /* User actual = client()
+        User actual = client()
                 .get()
                 .uri(location.toString())
                 .exchange()
@@ -65,7 +65,7 @@ public class UserAcceptanceTest {
                 .expectBody(User.class)
                 .returnResult().getResponseBody();
         assertThat(actual.getName()).isEqualTo(updateUser.getName());
-        assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());*/
+        assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
     }
 
     private WebTestClient client() {
