@@ -1,10 +1,9 @@
 package core.mvc;
 
 import core.interceptor.InterceptorRegistry;
-import core.mvc.asis.Controller;
 import core.mvc.asis.LegacyHandlerMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
-import core.mvc.tobe.HandlerExecution;
+import core.mvc.tobe.Handler;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,13 +53,7 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
-            if (handler instanceof Controller) {
-                modelAndView = ((Controller) handler).execute(req, resp);
-            } else if (handler instanceof HandlerExecution) {
-                modelAndView = ((HandlerExecution) handler).handle(req, resp);
-            } else {
-                throw new ServletException("Invalid handler");
-            }
+            modelAndView = ((Handler) handler).handle(req, resp);
             interceptorRegistry.postHandle(req, resp, handler, modelAndView);
             modelAndView.render(req, resp);
         } catch (Throwable e) {

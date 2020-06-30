@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
 @Getter
-public class HandlerExecution {
+public class HandlerExecution implements Handler {
     private Object object;
     private Method method;
     private String path;
@@ -22,8 +22,14 @@ public class HandlerExecution {
         this.methodParameters = new MethodParameters(method);
     }
 
+    @Override
     public ModelAndView handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         Object[] args = this.methodParameters.getArgs(request, response, this.path);
         return (ModelAndView) method.invoke(this.object, args);
+    }
+
+    @Override
+    public String getHandlerName() {
+        return this.method.getName();
     }
 }

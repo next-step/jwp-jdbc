@@ -1,12 +1,10 @@
 package core.interceptor;
 
 import core.mvc.ModelAndView;
-import core.mvc.asis.Controller;
-import core.mvc.tobe.HandlerExecution;
+import core.mvc.tobe.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,14 +28,7 @@ public class RunningTimeInterceptor extends HandlerInterceptorAdapter {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object obj, Exception e) throws Exception {
         long runningTime = this.endAt - this.startAt;
-        String name;
-        if (obj instanceof Controller) {
-            name = ((Controller) obj).getClass().getSimpleName();
-        } else if (obj instanceof HandlerExecution) {
-            name = ((HandlerExecution) obj).getMethod().getName();
-        } else {
-            throw new ServletException("Invalid handler");
-        }
+        String name = ((Handler) obj).getHandlerName();
 
         logger.debug(name + " running time : " + runningTime + "ms");
     }
