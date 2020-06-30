@@ -2,12 +2,14 @@ package core.interceptor;
 
 import core.mvc.ModelAndView;
 import core.mvc.tobe.Handler;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Getter
 public class RunningTimeInterceptor extends HandlerInterceptorAdapter {
     private static final Logger logger = LoggerFactory.getLogger(RunningTimeInterceptor.class);
 
