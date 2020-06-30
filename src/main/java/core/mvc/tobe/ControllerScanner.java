@@ -8,7 +8,7 @@ import core.mvc.tobe.support.HttpResponseArgumentResolver;
 import core.mvc.tobe.support.ModelArgumentResolver;
 import core.mvc.tobe.support.PathVariableArgumentResolver;
 import core.mvc.tobe.support.RequestParamArgumentResolver;
-import core.mvc.tobe.support.ResponseBodyArgumentResolver;
+import core.mvc.tobe.support.RequestBodyArgumentResolver;
 import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
@@ -37,7 +37,7 @@ public class ControllerScanner {
             new HttpResponseArgumentResolver(),
             new RequestParamArgumentResolver(),
             new PathVariableArgumentResolver(),
-            new ResponseBodyArgumentResolver(),
+            new RequestBodyArgumentResolver(),
             new ModelArgumentResolver()
     );
 

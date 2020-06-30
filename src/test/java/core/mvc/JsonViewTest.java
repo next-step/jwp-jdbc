@@ -31,9 +31,11 @@ public class JsonViewTest {
 
     @Test
     void render_no_element() throws Exception {
-        view.render(new HashMap<>(), request, response);
+        HashMap<String, Object> model = new HashMap<>();
+        view.render(model, request, response);
+
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
-        assertThat(response.getContentAsString()).isBlank();
+        assertThat(response.getContentAsString()).isEqualTo(objectMapper.writeValueAsString(model));
     }
 
     @Test
