@@ -74,7 +74,7 @@ class JdbcTemplateTest {
     void queryForObjectNotExist() {
         final String sql = "SELECT * FROM USERS WHERE userId = ?";
 
-        final User result = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new User(), "9999");
+        final User result = jdbcTemplate.queryForObject(sql, rs -> new User(), "9999");
 
         assertThat(result).isNull();
     }
@@ -84,8 +84,53 @@ class JdbcTemplateTest {
     void queryNotExist() {
         final String sql = "SELECT * FROM USERS";
 
-        final List<User> result = jdbcTemplate.query(sql, (rs, rowNum) -> new User());
+        final List<User> result = jdbcTemplate.query(sql, rs -> new User());
 
         assertThat(result).isEmpty();
     }
+
+    @Test
+    @DisplayName("query 호출 시 PreparedStatementSetter 로 값을 넣을 수 있다")
+    void queryPreparedStatementSetterTest() {
+        final String sql = "SELECT * FROM USERS WHERE userId = ?";
+        final String userId = "1";
+        createUser(userId);
+
+        final List<User> result = jdbcTemplate.query(sql, rs -> new User(), ps -> ps.setString(1, userId));
+
+        assertThat(result).isNotEmpty();
+    }
+
+    private void createUser(String userId) {
+        final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        final Object[] args = {userId, 2, 3, 4};
+
+        jdbcTemplate.update(sql, args);
+    }
+
+    @Test
+    @DisplayName("queryForObject 호출 시 PreparedStatementSetter 로 값을 넣을 수 있다")
+    void queryForObjectPreparedStatementSetterTest() {
+        final String sql = "SELECT * FROM USERS WHERE userId = ?";
+        final String userId = "1";
+        createUser(userId);
+
+        final User result = jdbcTemplate.queryForObject(sql, rs -> new User(), ps -> ps.setString(1, userId));
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    @DisplayName("update 호출 시 PreparedStatementSetter 로 값을 넣을 수 있다")
+    void updatePreparedStatementSetterTest() {
+        final String userId = "1";
+        final String insertSql = "INSERT INTO USERS VALUES (?, 2, 3, 4)";
+
+        jdbcTemplate.update(insertSql, ps -> ps.setString(1, userId));
+
+        final String selectSql = "SELECT * FROM USERS WHERE userId = ?";
+        final User user = jdbcTemplate.queryForObject(selectSql, rs -> new User(), userId);
+        assertThat(user).isNotNull();
+    }
+
 }
