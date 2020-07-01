@@ -41,7 +41,7 @@ class DispatcherServletTest {
     }
 
     private void createUser(User user) throws Exception {
-        request.setRequestURI("/users/create");
+        request.setRequestURI("/users");
         request.setMethod("POST");
         request.setParameter("userId", user.getUserId());
         request.setParameter("password", user.getPassword());

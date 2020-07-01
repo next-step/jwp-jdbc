@@ -3,8 +3,8 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
+import core.annotation.web.RequestParam;
 import core.db.DataBase;
-import core.mvc.DispatcherServlet;
 import core.mvc.JspView;
 import core.mvc.ModelAndView;
 import next.model.User;
@@ -18,13 +18,20 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @RequestMapping(value = "/users/create", method = RequestMethod.POST)
-    public ModelAndView create(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        User user = new User(
-                req.getParameter("userId"),
-                req.getParameter("password"),
-                req.getParameter("name"),
-                req.getParameter("email"));
+    @RequestMapping(value = "/users/profile", method = RequestMethod.GET)
+    public ModelAndView profile(@RequestParam String userId) throws Exception {
+        logger.debug("userId : {}", userId);
+        User user = DataBase.findUserById(userId);
+        if (user == null) {
+            throw new NullPointerException("사용자를 찾을 수 없습니다.");
+        }
+        ModelAndView mav = new ModelAndView(new JspView("/user/profile.jsp"));
+        mav.addObject("user", user);
+        return mav;
+    }
+
+    @RequestMapping(value = "/users", method = RequestMethod.POST)
+    public ModelAndView create(User user) throws Exception {
         logger.debug("User : {}", user);
         DataBase.addUser(user);
         return redirect("/");
