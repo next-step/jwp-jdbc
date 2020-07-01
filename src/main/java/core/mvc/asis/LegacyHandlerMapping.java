@@ -2,6 +2,7 @@ package core.mvc.asis;
 
 import core.mvc.DispatcherServlet;
 import core.mvc.HandlerMapping;
+import core.mvc.tobe.Handler;
 import next.controller.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 public class LegacyHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
-    private Map<String, Controller> mappings = new HashMap<>();
+    private Map<String, Handler> mappings = new HashMap<>();
 
     public LegacyHandlerMapping() {
         mappings.put("/", new HomeController());
@@ -29,11 +30,11 @@ public class LegacyHandlerMapping implements HandlerMapping {
         });
     }
 
-    public Controller getHandler(HttpServletRequest request) {
+    public Handler getHandler(HttpServletRequest request) {
         return mappings.get(request.getRequestURI());
     }
 
-    void put(String url, Controller controller) {
-        mappings.put(url, controller);
+    void put(String url, Handler handler) {
+        mappings.put(url, handler);
     }
 }

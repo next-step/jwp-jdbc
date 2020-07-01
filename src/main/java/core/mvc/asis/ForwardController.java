@@ -2,11 +2,12 @@ package core.mvc.asis;
 
 import core.mvc.JspView;
 import core.mvc.ModelAndView;
+import core.mvc.tobe.Handler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class ForwardController implements Controller {
+public class ForwardController implements Handler {
     private String forwardUrl;
 
     public ForwardController(String forwardUrl) {
@@ -17,7 +18,12 @@ public class ForwardController implements Controller {
     }
 
     @Override
-    public ModelAndView execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         return new ModelAndView(new JspView(forwardUrl));
+    }
+
+    @Override
+    public String getHandlerName() {
+        return this.getClass().getSimpleName();
     }
 }
