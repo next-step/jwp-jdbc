@@ -1,38 +1,62 @@
 package core.mvc.tobe;
 
-import com.google.common.collect.Maps;
 import core.annotation.web.Controller;
+import core.annotation.web.RequestMapping;
+import core.mvc.tobe.HandlerExecution;
+import core.mvc.tobe.HandlerKey;
+import core.mvc.tobe.support.*;
 import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
 
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
+
+import static core.util.ReflectionUtils.newInstance;
+import static java.util.Arrays.asList;
 
 public class ControllerScanner {
-    private static final Logger log = LoggerFactory.getLogger(ControllerScanner.class);
 
-    private Reflections reflections;
+    private static final Logger logger = LoggerFactory.getLogger(core.mvc.tobe.ControllerScanner.class);
 
-    public ControllerScanner(Object... basePackage) {
-        reflections = new Reflections(basePackage);
-    }
+    private static final List<ArgumentResolver> argumentResolvers = asList(
+                new HttpRequestArgumentResolver(),
+                new HttpResponseArgumentResolver(),
+                new RequestParamArgumentResolver(),
+                new PathVariableArgumentResolver(),
+                new ModelArgumentResolver()
+        );
 
-    public Map<Class<?>, Object> getControllers() {
-        Set<Class<?>> preInitiatedControllers = reflections.getTypesAnnotatedWith(Controller.class);
-        return instantiateControllers(preInitiatedControllers);
-    }
+    private static final ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
-    Map<Class<?>, Object> instantiateControllers(Set<Class<?>> preInitiatedControllers) {
-        Map<Class<?>, Object> controllers = Maps.newHashMap();
-        try {
-            for (Class<?> clazz : preInitiatedControllers) {
-                controllers.put(clazz, clazz.newInstance());
-            }
-        } catch (InstantiationException | IllegalAccessException e) {
-            log.error(e.getMessage());
+    public Map<HandlerKey, HandlerExecution> scan(Object... basePackage) {
+        Reflections reflections = new Reflections(basePackage, new TypeAnnotationsScanner(), new SubTypesScanner(), new MethodAnnotationsScanner());
+        Map<HandlerKey, HandlerExecution> handlers = new HashMap<>();
+
+        Set<Class<?>> controllers = reflections.getTypesAnnotatedWith(Controller.class);
+        for (Class<?> controller : controllers) {
+            Object target = newInstance(controller);
+            addHandlerExecution(handlers, target, controller.getMethods());
         }
 
-        return controllers;
+        return handlers;
     }
+
+    private void addHandlerExecution(Map<HandlerKey, HandlerExecution> handlers, final Object target, Method[] methods) {
+        Arrays.stream(methods)
+                .filter(method -> method.isAnnotationPresent(RequestMapping.class))
+                .forEach(method -> {
+                    RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+                    HandlerKey handlerKey = new HandlerKey(requestMapping.value(), requestMapping.method());
+                    HandlerExecution handlerExecution = new HandlerExecution(nameDiscoverer, argumentResolvers, target, method);
+                    handlers.put(handlerKey, handlerExecution);
+                    logger.info("Add - method: {}, path: {}, HandlerExecution: {}", requestMapping.method(), requestMapping.value(), method.getName());
+                });
+    }
+
 }
