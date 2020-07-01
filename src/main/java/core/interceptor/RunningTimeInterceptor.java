@@ -13,23 +13,26 @@ import javax.servlet.http.HttpServletResponse;
 public class RunningTimeInterceptor extends HandlerInterceptorAdapter {
     private static final Logger logger = LoggerFactory.getLogger(RunningTimeInterceptor.class);
 
-    private long startAt;
-    private long endAt;
+    private static final String START_AT = "startAt";
+    private static final String END_AT = "endAt";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object obj) throws Exception {
-        this.startAt = System.currentTimeMillis();
+        request.setAttribute(START_AT, System.currentTimeMillis());
         return true;
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object obj, ModelAndView mav) throws Exception {
-        this.endAt = System.currentTimeMillis();
+        request.setAttribute(END_AT, System.currentTimeMillis());
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object obj, Exception e) throws Exception {
-        long runningTime = this.endAt - this.startAt;
+        long startAt = (long) request.getAttribute(START_AT);
+        long endAt = (long) request.getAttribute(END_AT);
+
+        long runningTime = endAt - startAt;
         String name = ((Handler) obj).getHandlerName();
 
         logger.debug(name + " running time : " + runningTime + "ms");
