@@ -2,6 +2,8 @@ package core.mvc.tobe;
 
 import core.annotation.web.RequestMethod;
 
+import static core.util.PathPatternUtil.isUrlMatch;
+
 public class HandlerKey {
     private String url;
     private RequestMethod requestMethod;
@@ -9,6 +11,23 @@ public class HandlerKey {
     public HandlerKey(String url, RequestMethod requestMethod) {
         this.url = url;
         this.requestMethod = requestMethod;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public RequestMethod getRequestMethod() {
+        return requestMethod;
+    }
+
+    public boolean isMatch(HandlerKey handlerKey) {
+        if (!requestMethod.equals(handlerKey.getRequestMethod())) {
+            return false;
+        }
+
+        boolean result = isUrlMatch(url, handlerKey.getUrl());
+        return result;
     }
 
     @Override
