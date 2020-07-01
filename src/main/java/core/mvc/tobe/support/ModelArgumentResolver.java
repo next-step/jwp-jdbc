@@ -1,5 +1,6 @@
 package core.mvc.tobe.support;
 
+import core.mvc.JsonUtils;
 import core.mvc.tobe.MethodParameter;
 import core.util.ReflectionUtils;
 import org.apache.commons.lang3.ClassUtils;
@@ -8,6 +9,7 @@ import org.springframework.core.ParameterNameDiscoverer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -33,6 +35,9 @@ public class ModelArgumentResolver implements ArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
         try {
+            if(request.getContentType().equals("application/json")) {
+                return getJsonObject(methodParameter.getType(), request);
+            }
             return resolveArgumentInternal(methodParameter, request, response);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(methodParameter.getType() + " Constructor access failed", e);
@@ -42,6 +47,8 @@ public class ModelArgumentResolver implements ArgumentResolver {
             throw new IllegalStateException(methodParameter.getType() + " target invoke failed", e);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException(methodParameter.getType() + " method not found", e);
+        } catch (IOException e) {
+            throw new IllegalStateException(methodParameter.getType() + "Can not read request body", e);
         }
     }
 
@@ -82,6 +89,10 @@ public class ModelArgumentResolver implements ArgumentResolver {
         }
 
         throw new IllegalStateException("[" + clazz.getName() + "] supported constructor is empty");
+    }
+
+    private <T> T getJsonObject(Class<T> clazz, HttpServletRequest request) throws IOException {
+        return JsonUtils.toObject(request.getReader().readLine(), clazz);
     }
 
 }
