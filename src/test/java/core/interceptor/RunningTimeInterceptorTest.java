@@ -8,13 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RunningTimeInterceptorTest {
     private RunningTimeInterceptor interceptor;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private HandlerExecution handlerExecution;
+
     @BeforeEach
     void setUp() {
         AnnotationHandlerMapping annotationHandlerMapping = new AnnotationHandlerMapping("next.controller");
@@ -28,6 +29,7 @@ public class RunningTimeInterceptorTest {
     void preHandle() throws Exception {
         boolean actual = interceptor.preHandle(request, response, handlerExecution);
         assertThat(actual).isTrue();
+        assertThat(request.getAttribute("startAt")).isNotNull();
     }
 
     @Test
@@ -38,8 +40,11 @@ public class RunningTimeInterceptorTest {
         Thread.sleep(expected);
         interceptor.postHandle(request, response, handlerExecution, mav);
 
-        long actual = interceptor.getEndAt() - interceptor.getStartAt();
-        assertThat(actual).isGreaterThan(expected);
+        Long startAt = (Long) request.getAttribute("startAt");
+        Long endAt = (Long) request.getAttribute("endAt");
+
+        assertThat(endAt).isNotNull();
+        assertThat(endAt - startAt).isGreaterThan(expected);
     }
 
     @Test
