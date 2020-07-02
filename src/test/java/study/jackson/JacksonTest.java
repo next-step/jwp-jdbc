@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,5 +68,19 @@ public class JacksonTest {
         assertThat(map.size()).isEqualTo(2);
         assertThat(map.get("color")).isEqualTo("black");
         assertThat(map.get("type")).isEqualTo("sedan");
+    }
+
+    @DisplayName("Map -> JSON 테스트")
+    @Test
+    void Map2JSON() throws Exception {
+        String expected = "{\"color\":\"black\",\"type\":\"sedan\"}";
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("color", "black");
+        map.put("type", "sedan");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        logger.debug("{}", objectMapper.writeValueAsString(map));
+        assertThat(objectMapper.writeValueAsString(map)).isEqualTo(expected);
     }
 }
