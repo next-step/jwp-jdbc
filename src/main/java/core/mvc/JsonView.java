@@ -25,15 +25,15 @@ public class JsonView implements View {
                 models.add(model.get(key));
             }
             request.setAttribute(DATA, JsonUtils.toJsonAsString(models));
-        } else {
-            String firstKey = keys.stream()
-                    .findFirst()
-                    .orElseThrow(IllegalArgumentException::new);
-
-            request.setAttribute(DATA, JsonUtils.toJsonAsString(model.get(firstKey)));
+            RestRequestDispatcher.forward(request, response);
+            return;
         }
 
-        RestRequestDispatcher.forward(request, response);
+        String firstKey = keys.stream()
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
 
+        request.setAttribute(DATA, JsonUtils.toJsonAsString(model.get(firstKey)));
+        RestRequestDispatcher.forward(request, response);
     }
 }
