@@ -1,9 +1,8 @@
 package core.mvc;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -14,8 +13,9 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 public class JsonViewTest {
-    private static final Logger logger = LoggerFactory.getLogger( JsonViewTest.class );
+
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private View view;
@@ -57,6 +57,6 @@ public class JsonViewTest {
         view.render(model, request, response);
 
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
-        logger.debug("response body : {}", response.getContentAsString());
+        log.debug("response body : {}", response.getContentAsString());
     }
 }

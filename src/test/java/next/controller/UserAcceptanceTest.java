@@ -1,12 +1,11 @@
 package next.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
@@ -15,8 +14,8 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 public class UserAcceptanceTest {
-    private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceTest.class);
 
     @Test
     @DisplayName("사용자 회원가입/조회/수정/삭제")
@@ -33,7 +32,7 @@ public class UserAcceptanceTest {
                 .expectBody()
                 .returnResult();
         URI location = response.getResponseHeaders().getLocation();
-        logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
+        log.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
 
         // 조회
         User actual = client()
