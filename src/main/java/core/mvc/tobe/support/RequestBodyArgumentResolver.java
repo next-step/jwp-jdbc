@@ -27,5 +27,4 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
             throw new IllegalStateException(e);
         }
     }
-
 }

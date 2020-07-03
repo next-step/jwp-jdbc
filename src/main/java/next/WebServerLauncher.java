@@ -42,7 +42,6 @@ public class WebServerLauncher {
         tomcat.stop();
     }
 
-
     public static void main(String[] args) throws Exception {
         WebServerLauncher webServerLauncher = new WebServerLauncher();
         webServerLauncher.start();

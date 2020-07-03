@@ -20,7 +20,6 @@ public class JsonView implements View {
         }
 
         Object target = model;
-
         if(model.size() == 1){
             String key = model.keySet().iterator().next();
             target = model.get(key);

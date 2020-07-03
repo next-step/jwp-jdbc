@@ -32,6 +32,7 @@ public class UserAcceptanceTest {
     void destroy () throws Exception {
         webServerLauncher.stop();
     }
+
     @Test
     @DisplayName("사용자 회원가입/조회/수정/삭제")
     void crud() {
@@ -45,7 +46,6 @@ public class UserAcceptanceTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody()
-
                 .returnResult();
         URI location = response.getResponseHeaders().getLocation();
         logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
@@ -71,7 +71,6 @@ public class UserAcceptanceTest {
                 .body(Mono.just(updateUser), UserUpdatedDto.class)
                 .exchange()
                 .expectStatus().isOk();
-
 
         actual = client()
                 .get()
