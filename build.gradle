@@ -51,6 +51,8 @@ dependencies {
     implementation 'org.apache.tomcat.embed:tomcat-embed-logging-juli:8.5.2'
     implementation 'org.apache.tomcat.embed:tomcat-embed-jasper:' + tomcatVersion
 
+    implementation 'org.projectlombok:lombok:1.18.12'
+
     runtimeOnly 'com.h2database:h2:1.4.200'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2'
     testImplementation 'org.assertj:assertj-core:3.16.1'
