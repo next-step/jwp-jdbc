@@ -13,7 +13,14 @@ public class DataBase {
         users.put("admin", new User("admin", "password", "자바지기", "admin@slipp.net"));
     }
 
+    private DataBase() {
+    }
+
     public static void addUser(User user) {
+        users.put(user.getUserId(), user);
+    }
+
+    public static void updateUser(User user) {
         users.put(user.getUserId(), user);
     }
 
