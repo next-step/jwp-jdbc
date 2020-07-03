@@ -22,7 +22,6 @@ public class RestRequestDispatcher {
         if (Objects.nonNull(data)) {
             response.getWriter().println(data);
         }
-        logger.info(data.toString());
     }
 
 }
