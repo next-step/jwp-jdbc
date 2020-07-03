@@ -12,7 +12,6 @@ public class JsonView implements View {
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
         if (model.size() == 0) {
             RestRequestDispatcher.forward(request, response);
             return;

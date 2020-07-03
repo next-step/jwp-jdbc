@@ -1,5 +1,7 @@
 package core.mvc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
 import javax.servlet.ServletException;
@@ -11,6 +13,7 @@ import java.util.Objects;
 
 public class RestRequestDispatcher {
     private static final String DATA = "data";
+    private static final Logger logger = LoggerFactory.getLogger(RestRequestDispatcher.class);
 
     public static void forward(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
@@ -19,6 +22,7 @@ public class RestRequestDispatcher {
         if (Objects.nonNull(data)) {
             response.getWriter().println(data);
         }
+        logger.info(data.toString());
     }
 
 }
