@@ -1,8 +1,11 @@
 package next.controller;
 
+import next.WebServerLauncher;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -18,6 +21,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserAcceptanceTest {
     private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceTest.class);
 
+    private WebServerLauncher webServerLauncher;
+    @BeforeEach
+    void init () throws Exception {
+        webServerLauncher = new WebServerLauncher();
+        webServerLauncher.start();;
+    }
+
+    @AfterEach
+    void destroy () throws Exception {
+        webServerLauncher.stop();
+    }
     @Test
     @DisplayName("사용자 회원가입/조회/수정/삭제")
     void crud() {
@@ -31,6 +45,7 @@ public class UserAcceptanceTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody()
+
                 .returnResult();
         URI location = response.getResponseHeaders().getLocation();
         logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
@@ -43,6 +58,7 @@ public class UserAcceptanceTest {
                 .expectStatus().isOk()
                 .expectBody(User.class)
                 .returnResult().getResponseBody();
+
         assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
         assertThat(actual.getName()).isEqualTo(expected.getName());
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
