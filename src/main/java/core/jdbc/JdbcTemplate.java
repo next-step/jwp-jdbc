@@ -9,16 +9,15 @@ import java.util.List;
 
 public class JdbcTemplate {
 
-    public int execute(String sql, Object... parameters) throws SQLException {
-        return prepareQuery(pstmt -> pstmt.executeUpdate(), sql, parameters);
+    public int execute(PrepareStatementQuery query) {
+        return prepareQuery(query, pstmt -> pstmt.executeUpdate());
     }
 
-    public <T> T queryOne(RowMapper<T> rowMapper, String sql, Object... parameters)
-        throws SQLException {
-        return prepareQuery(pstmt -> {
+    public <T> T queryOne(PrepareStatementQuery query, RowMapper<T> rowMapper) {
+        return prepareQuery(query, pstmt -> {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.getFetchSize() > 1) {
-                    throw new JdbcTemplateException("not one");
+                    throw new DataAccessException("not one");
                 }
 
                 while (rs.next()) {
@@ -26,42 +25,36 @@ public class JdbcTemplate {
                 }
                 return null;
             }
-        }, sql, parameters);
+        });
     }
 
-    public <T> List<T> queryList(RowMapper<T> rowMapper, String sql, Object... parameters)
-        throws SQLException {
-
-        return prepareQuery(pstmt -> {
+    public <T> List<T> queryList(PrepareStatementQuery query, RowMapper<T> rowMapper) {
+        return prepareQuery(query, pstmt -> {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.getFetchSize() > 1) {
-                    throw new JdbcTemplateException("not one");
+                    throw new DataAccessException("not one");
                 }
                 if (rs.getFetchSize() > 1) {
-                    throw new JdbcTemplateException("not one");
+                    throw new DataAccessException("not one");
                 }
 
                 List<T> list = new ArrayList<>();
                 while (rs.next()) {
                     list.add(rowMapper.mapRow(rs));
                 }
-
                 return list;
             }
-        }, sql, parameters);
+        });
     }
 
-    private <T> T prepareQuery(PrepareStatementCallback<T> callback, String sql,
-        Object... parameters) throws SQLException {
+    private <T> T prepareQuery(PrepareStatementQuery query, PrepareStatementCallback<T> callback) {
         try (
             Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
+            PreparedStatement pstmt = query.create(con);
         ) {
-            for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
-                pstmt.setObject(parameterIndex + 1, parameters[parameterIndex]);
-            }
-
             return callback.doInPrepareStatement(pstmt);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 }
