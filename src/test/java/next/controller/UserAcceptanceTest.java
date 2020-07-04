@@ -52,7 +52,11 @@ public class UserAcceptanceTest {
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
 
         // 수정
-        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
+        UserUpdatedDto updateUser = UserUpdatedDto.builder()
+                .name("코난")
+                .email("conan@nextstep.camp")
+                .build();
+
         client()
                 .put()
                 .uri(location.toString())

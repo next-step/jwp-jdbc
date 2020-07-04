@@ -3,6 +3,7 @@ package next.model;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import next.dto.UserUpdatedDto;
 
 @NoArgsConstructor
 @Getter
@@ -25,6 +26,11 @@ public class User {
         this.password = updateUser.password;
         this.name = updateUser.name;
         this.email = updateUser.email;
+    }
+
+    public void update(UserUpdatedDto userUpdatedDto) {
+        this.name = userUpdatedDto.getName();
+        this.email = userUpdatedDto.getEmail();
     }
 
     public boolean matchPassword(String password) {
