@@ -4,8 +4,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import next.model.User;
 
+@ToString
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserCreatedDto {
