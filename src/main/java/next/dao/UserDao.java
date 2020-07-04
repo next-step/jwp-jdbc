@@ -26,7 +26,6 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
         final String sql = "SELECT * FROM USERS";
-
         return this.jdbcTemplate.queryList(new PrepareStatementQuery(sql),
             rs -> new User(
                 rs.getString("userId"),
@@ -37,7 +36,6 @@ public class UserDao {
 
     public User findByUserId(String userId) throws SQLException {
         final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-
         return this.jdbcTemplate.queryOne(new PrepareStatementQuery(sql, userId),
             rs -> new User(
                 rs.getString("userId"),
