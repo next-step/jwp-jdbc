@@ -3,6 +3,7 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
+import core.annotation.web.RequestParam;
 import core.db.DataBase;
 import core.mvc.JsonUtils;
 import core.mvc.JsonView;
@@ -48,8 +49,7 @@ public class UserRestController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
-    public ModelAndView updateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String userId = request.getParameter("userId");
+    public ModelAndView updateUser(@RequestParam String userId, HttpServletRequest request) throws IOException {
         User user = Optional.ofNullable(DataBase.findUserById(userId))
                 .orElseThrow(() -> new IllegalArgumentException("not found user"));
 
