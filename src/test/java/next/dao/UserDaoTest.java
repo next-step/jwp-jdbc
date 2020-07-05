@@ -1,6 +1,7 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.custom.DefaultUserRepository;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,29 @@ public class UserDaoTest {
     public void findAll() throws Exception {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
+        assertThat(users).hasSize(1);
+    }
+
+    @Test
+    void crudTest() {
+        User expected = new User("userId", "password", "name", "javajigi@email.com");
+        DefaultUserRepository defaultUserRepository = new DefaultUserRepository();
+        defaultUserRepository.save(expected);
+
+        User actual = defaultUserRepository.findById("userId");
+        assertThat(actual).isEqualTo(expected);
+
+        expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
+        defaultUserRepository.update(expected);
+
+        actual = defaultUserRepository.findById("userId");
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void findAllTest() {
+        DefaultUserRepository defaultUserRepository = new DefaultUserRepository();
+        List<Object> users = defaultUserRepository.findAll();
         assertThat(users).hasSize(1);
     }
 }
