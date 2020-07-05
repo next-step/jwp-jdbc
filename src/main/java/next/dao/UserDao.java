@@ -34,4 +34,8 @@ public class UserDao {
                 rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email")),
                 userId);
     }
+
+    public void deleteAll() {
+        jdbcTemplate.execute("DELETE FROM USERS");
+    }
 }

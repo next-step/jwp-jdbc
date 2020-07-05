@@ -41,7 +41,7 @@ public class JdbcTemplate {
              PreparedStatement pstmt = con.prepareStatement(sql);) {
             setArguments(pstmt, args);
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
+            while (rs.next()) {
                 rows.add(rowMapper.mapRow(rs));
             }
             return rows;
