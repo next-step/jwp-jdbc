@@ -1,22 +1,20 @@
 package next.dto;
 
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserUpdatedDto {
+
     private String name;
     private String email;
 
-    private UserUpdatedDto() {
-    }
-
+    @Builder
     public UserUpdatedDto(String name, String email) {
         this.name = name;
         this.email = email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
     }
 }
