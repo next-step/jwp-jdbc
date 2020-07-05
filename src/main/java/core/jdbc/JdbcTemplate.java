@@ -16,14 +16,16 @@ public class JdbcTemplate {
     public <T> T queryOne(PrepareStatementQuery query, RowMapper<T> rowMapper) {
         return prepareQuery(query, pstmt -> {
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.getFetchSize() > 1) {
+                T result =null;
+                while (rs.next()) {
+                    result = rowMapper.mapRow(rs);
+                }
+
+                if(rs.next()){
                     throw new DataAccessException("not one");
                 }
 
-                while (rs.next()) {
-                    return rowMapper.mapRow(rs);
-                }
-                return null;
+                return result;
             }
         });
     }
@@ -31,13 +33,6 @@ public class JdbcTemplate {
     public <T> List<T> queryList(PrepareStatementQuery query, RowMapper<T> rowMapper) {
         return prepareQuery(query, pstmt -> {
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.getFetchSize() > 1) {
-                    throw new DataAccessException("not one");
-                }
-                if (rs.getFetchSize() > 1) {
-                    throw new DataAccessException("not one");
-                }
-
                 List<T> list = new ArrayList<>();
                 while (rs.next()) {
                     list.add(rowMapper.mapRow(rs));
