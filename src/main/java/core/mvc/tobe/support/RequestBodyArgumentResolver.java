@@ -1,6 +1,6 @@
 package core.mvc.tobe.support;
 
-import core.annotation.web.ResponseBody;
+import core.annotation.web.RequestBody;
 import core.mvc.JsonUtils;
 import core.mvc.tobe.MethodParameter;
 import org.slf4j.Logger;
@@ -11,13 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-public class ResponseBodyArgumentResolver extends AbstractAnnotationArgumentResolver {
+public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResolver {
 
-    private static final Logger logger = LoggerFactory.getLogger(ResponseBodyArgumentResolver.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestBodyArgumentResolver.class);
 
     @Override
     public boolean supports(MethodParameter methodParameter) {
-        return supportAnnotation(methodParameter, ResponseBody.class);
+        return supportAnnotation(methodParameter, RequestBody.class);
     }
 
     @Override

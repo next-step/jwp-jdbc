@@ -1,78 +1,41 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
 import next.model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
+    private final JdbcTemplate jdbcTemplate;
 
-            if (con != null) {
-                con.close();
-            }
-        }
+    public UserDao() {
+        jdbcTemplate = new JdbcTemplate();
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public void insert(User user) {
+        jdbcTemplate.execute("INSERT INTO USERS VALUES (?, ?, ?, ?)",
+                user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+    public void update(User user) {
+        jdbcTemplate.execute("UPDATE USERS SET userId=?, password=?, name=?, email=? WHERE userid=?",
+                user.getUserId(), user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    public List<User> findAll() {
+        return jdbcTemplate.queryForList("SELECT userId, password, name, email FROM USERS",
+                rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email")));
 
-            rs = pstmt.executeQuery();
+    }
 
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
+    public User findByUserId(String userId) {
+        return jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?",
+                rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email")),
+                userId);
+    }
 
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    public void deleteAll() {
+        jdbcTemplate.execute("DELETE FROM USERS");
     }
 }
