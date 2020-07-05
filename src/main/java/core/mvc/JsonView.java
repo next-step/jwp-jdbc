@@ -17,6 +17,7 @@ public class JsonView implements View {
         String contentType = response.getContentType();
         if (contentType == null) {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
         }
         logger.debug("{}", model);
         if (model.size() == 1) {
@@ -25,6 +26,14 @@ public class JsonView implements View {
 
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(value);
+            response.getWriter().write(json);
+            response.getWriter().flush();
+            response.getWriter().close();
+        }
+
+        if (model.size() > 1) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(model);
             response.getWriter().write(json);
             response.getWriter().flush();
             response.getWriter().close();
