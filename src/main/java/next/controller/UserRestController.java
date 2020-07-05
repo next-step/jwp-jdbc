@@ -32,7 +32,6 @@ public class UserRestController {
         modelAndView.addObject("user", user);
 
         response.setHeader("Location", String.format("/api/users?userId=%s", user.getUserId()));
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return modelAndView;
     }
 
@@ -45,7 +44,6 @@ public class UserRestController {
         modelAndView.addObject("user", user);
 
         response.setHeader("Location", String.format("/api/users?userId=%s", user.getUserId()));
-        response.setStatus(HttpServletResponse.SC_OK);
         return modelAndView;
     }
 
@@ -61,7 +59,6 @@ public class UserRestController {
         final ModelAndView modelAndView = new ModelAndView(new JsonView());
         modelAndView.addObject("user", user);
 
-        response.setStatus(HttpServletResponse.SC_OK);
         return modelAndView;
     }
 
