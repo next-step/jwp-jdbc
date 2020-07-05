@@ -1,7 +1,6 @@
 package next.controller;
 
 import next.dto.UserCreatedDto;
-import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +23,7 @@ public class UserAcceptanceTest {
         // 회원가입
         UserCreatedDto expected =
                 new UserCreatedDto("pobi", "password", "포비", "pobi@nextstep.camp");
+
         EntityExchangeResult<byte[]> response = client()
                 .post()
                 .uri("/api/users")
@@ -47,25 +47,25 @@ public class UserAcceptanceTest {
         assertThat(actual.getName()).isEqualTo(expected.getName());
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
 
-        // 수정
-        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
-        client()
-                .put()
-                .uri(location.toString())
-                .body(Mono.just(updateUser), UserUpdatedDto.class)
-                .exchange()
-                .expectStatus().isOk();
-
-
-        actual = client()
-                .get()
-                .uri(location.toString())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(User.class)
-                .returnResult().getResponseBody();
-        assertThat(actual.getName()).isEqualTo(updateUser.getName());
-        assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
+//        // 수정
+//        UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
+//        client()
+//                .put()
+//                .uri(location.toString())
+//                .body(Mono.just(updateUser), UserUpdatedDto.class)
+//                .exchange()
+//                .expectStatus().isOk();
+//
+//
+//        actual = client()
+//                .get()
+//                .uri(location.toString())
+//                .exchange()
+//                .expectStatus().isOk()
+//                .expectBody(User.class)
+//                .returnResult().getResponseBody();
+//        assertThat(actual.getName()).isEqualTo(updateUser.getName());
+//        assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
     }
 
     private WebTestClient client() {
