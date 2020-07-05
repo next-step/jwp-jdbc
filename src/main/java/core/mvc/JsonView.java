@@ -1,5 +1,6 @@
 package core.mvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -21,9 +22,14 @@ public class JsonView implements View {
         if (model.size() == 1) {
             String key = model.keySet().iterator().next();
             Object value = model.get(key);
-            response.getWriter().write(value.toString());
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(value);
+            response.getWriter().write(json);
             response.getWriter().flush();
             response.getWriter().close();
         }
     }
+
+
 }
