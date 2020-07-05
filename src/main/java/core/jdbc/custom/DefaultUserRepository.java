@@ -11,7 +11,7 @@ public class DefaultUserRepository extends AbstractRepository {
         return (User) findById(User.class, id);
     }
 
-    public List<? super Object> findAll() {
+    public List<User> findAll() {
         return findAll(User.class).stream()
                 .map(object -> (User)object)
                 .collect(Collectors.toList());

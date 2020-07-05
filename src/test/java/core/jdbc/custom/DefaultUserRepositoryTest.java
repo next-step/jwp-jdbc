@@ -70,7 +70,7 @@ class DefaultUserRepositoryTest {
     @Test
     void findAll() {
         DefaultUserRepository defaultUserRepository = new DefaultUserRepository();
-        List<Object> users = defaultUserRepository.findAll();
+        List<User> users = defaultUserRepository.findAll();
         assertThat(users).hasSize(1);
     }
 }

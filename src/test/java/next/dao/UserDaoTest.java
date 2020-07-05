@@ -61,7 +61,7 @@ public class UserDaoTest {
     @Test
     void findAllTest() {
         DefaultUserRepository defaultUserRepository = new DefaultUserRepository();
-        List<Object> users = defaultUserRepository.findAll();
+        List<User> users = defaultUserRepository.findAll();
         assertThat(users).hasSize(1);
     }
 }
