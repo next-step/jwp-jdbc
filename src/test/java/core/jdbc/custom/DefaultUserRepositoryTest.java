@@ -9,6 +9,8 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,6 +32,16 @@ class DefaultUserRepositoryTest {
     }
 
     @Test
+    void name() {
+        List<String> mark = new ArrayList<>();
+        final Field[] fields = User.class.getDeclaredFields();
+        for (int i = 1; i < fields.length; i++) {
+            mark.add(String.format("%s = ?", fields[i].getName()));
+        }
+        assertThat(String.join(",", mark)).isEqualTo("password = ?,name = ?,email = ?");
+    }
+
+    @Test
     void fieldGet() throws IllegalAccessException {
         User user = new User("1", "2", "3", "4");
         final Field[] fields = user.getClass()
@@ -40,9 +52,18 @@ class DefaultUserRepositoryTest {
     }
 
     @Test
-    void create() {
+    void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         DefaultUserRepository defaultUserRepository = new DefaultUserRepository();
         defaultUserRepository.save(expected);
+
+        User actual = (User) defaultUserRepository.findById(User.class, "userId");
+        assertThat(actual).isEqualTo(expected);
+
+        expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
+        defaultUserRepository.update(expected);
+
+        actual = (User) defaultUserRepository.findById(User.class, "userId");
+        assertThat(actual).isEqualTo(expected);
     }
 }
