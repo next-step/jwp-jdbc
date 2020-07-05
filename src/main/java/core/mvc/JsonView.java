@@ -1,7 +1,6 @@
 package core.mvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -15,23 +14,31 @@ public class JsonView implements View {
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = StringUtils.EMPTY;
-
+        String contentType = response.getContentType();
+        if (contentType == null) {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
+        }
+        logger.debug("{}", model);
         if (model.size() == 1) {
             String key = model.keySet().iterator().next();
             Object value = model.get(key);
 
-            json = objectMapper.writeValueAsString(value);
-        } else if (model.size() > 1) {
-            json = objectMapper.writeValueAsString(model);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(value);
+            response.getWriter().write(json);
+            response.getWriter().flush();
+            response.getWriter().close();
         }
 
-        response.getWriter().write(json);
-        response.getWriter().flush();
-        response.getWriter().close();
+        if (model.size() > 1) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(model);
+            response.getWriter().write(json);
+            response.getWriter().flush();
+            response.getWriter().close();
+        }
     }
+
+
 }
