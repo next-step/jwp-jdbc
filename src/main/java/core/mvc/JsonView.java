@@ -17,6 +17,13 @@ public class JsonView implements View {
         if (contentType == null) {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         }
-
+        logger.debug("{}", model);
+        if (model.size() == 1) {
+            String key = model.keySet().iterator().next();
+            Object value = model.get(key);
+            response.getWriter().write(value.toString());
+            response.getWriter().flush();
+            response.getWriter().close();
+        }
     }
 }
