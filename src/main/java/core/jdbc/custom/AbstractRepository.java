@@ -57,16 +57,8 @@ public abstract class AbstractRepository implements Repository<Object, String> {
             pstmt.setString(1, s);
 
             ResultSet resultSet = pstmt.executeQuery();
-            Class[] types = new Class[fields.length];
             if (resultSet.next()) {
-                Object[] objects = new Object[fields.length];
-                for (int i = 1; i <= fields.length; i++) {
-                    objects[i - 1] = resultSet.getString(i);
-                    types[i - 1] = fields[i - 1].getType();
-                }
-                Constructor<?> declaredConstructor = clazz.getDeclaredConstructor(types);
-                return declaredConstructor.newInstance(objects);
-
+                return getConstructor(clazz, resultSet);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,6 +93,38 @@ public abstract class AbstractRepository implements Repository<Object, String> {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public List<Object> findAll(final Class clazz) {
+        String tableName = clazz.getSimpleName().toUpperCase();
+        String sql = String.format("SELECT * FROM %sS", tableName);
+        List<Object> objects = new ArrayList<>();
+
+        try (PreparedStatement pstmt = getPreparedStatement(sql)) {
+            ResultSet resultSet = pstmt.executeQuery();
+
+            while (resultSet.next()) {
+                objects.add(getConstructor(clazz, resultSet));
+            }
+            return objects;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Object getConstructor(Class clazz, ResultSet resultSet) throws Exception {
+        final Field[] fields = clazz.getDeclaredFields();
+        Object[] values = new Object[fields.length];
+        Class[] types = new Class[fields.length];
+        for (int i = 1; i <= fields.length; i++) {
+            values[i - 1] = resultSet.getString(i);
+            types[i - 1] = fields[i - 1].getType();
+        }
+        Constructor<?> declaredConstructor = clazz.getDeclaredConstructor(types);
+        return declaredConstructor.newInstance(values);
     }
 
     private String getQuestionMark(int size) {

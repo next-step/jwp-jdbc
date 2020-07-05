@@ -32,7 +32,7 @@ class DefaultUserRepositoryTest {
     }
 
     @Test
-    void name() {
+    void prepareUpdateQueryTest() {
         List<String> mark = new ArrayList<>();
         final Field[] fields = User.class.getDeclaredFields();
         for (int i = 1; i < fields.length; i++) {
@@ -57,13 +57,20 @@ class DefaultUserRepositoryTest {
         DefaultUserRepository defaultUserRepository = new DefaultUserRepository();
         defaultUserRepository.save(expected);
 
-        User actual = (User) defaultUserRepository.findById(User.class, "userId");
+        User actual = defaultUserRepository.findById("userId");
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
         defaultUserRepository.update(expected);
 
-        actual = (User) defaultUserRepository.findById(User.class, "userId");
+        actual = defaultUserRepository.findById("userId");
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void findAll() {
+        DefaultUserRepository defaultUserRepository = new DefaultUserRepository();
+        List<Object> users = defaultUserRepository.findAll();
+        assertThat(users).hasSize(1);
     }
 }
