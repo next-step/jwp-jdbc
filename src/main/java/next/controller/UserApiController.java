@@ -3,6 +3,7 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
+import core.annotation.web.RequestParam;
 import core.db.DataBase;
 import core.mvc.JsonUtils;
 import core.mvc.JsonView;
@@ -38,6 +39,17 @@ public class UserApiController {
         response.setHeader("Location", "/api/users?userId=" + user.getUserId());
         response.setStatus(HttpStatus.CREATED.value());
         return new ModelAndView(new JsonView());
+    }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.GET)
+    public ModelAndView findUserById(@RequestParam String userId) throws Exception {
+        logger.debug("{}, {}", userId);
+
+        User user = DataBase.findUserById(userId);
+
+        ModelAndView modelAndView = new ModelAndView(new JsonView());
+        modelAndView.addObject("user", user);
+        return modelAndView;
     }
 
     private String getBody(HttpServletRequest request) throws IOException {
