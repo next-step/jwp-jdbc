@@ -42,9 +42,9 @@ public class UserDao {
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
         return jdbcTemplate.query(sql,
-                new Object[]{},
                 resultSet -> new User(resultSet.getString("userId"), resultSet.getString("password"),
                         resultSet.getString("name"), resultSet.getString("email"))
         );
     }
+
 }

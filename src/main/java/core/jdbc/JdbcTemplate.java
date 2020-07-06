@@ -13,18 +13,26 @@ import java.util.List;
 public class JdbcTemplate {
 
     private DataSource dataSource;
+    private Connection connection;
 
     public JdbcTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    public JdbcTemplate(Connection connection) {
+        this.connection = connection;
+    }
+
     public void update(String sql, Object[] parameters) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        // TODO: 2020/07/06 con.getAutoCommit() 보고 close 여부 결정하기
+        try {
+            Connection con = (this.connection != null) ? this.connection : dataSource.getConnection();
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
 
             for (int i = 0; i < parameters.length; i++) {
                 preparedStatement.setObject(i + 1, parameters[i]);
             }
+
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new SqlExecuteException(e);
@@ -44,22 +52,27 @@ public class JdbcTemplate {
         return executeSelect(sql, parameters, rowMapper);
     }
 
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
+        return executeSelect(sql, new Object[]{}, rowMapper);
+    }
+
     private <T> List<T> executeSelect(String sql, Object[] parameters, RowMapper<T> rowMapper) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            for (int i = 0; i < parameters.length; i++) {
-                preparedStatement.setObject(i + 1, parameters[i]);
-            }
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                List<T> objects = new ArrayList<>();
-
-                while (resultSet.next()) {
-                    T object = rowMapper.mapRow(resultSet);
-                    objects.add(object);
+        try (Connection con = dataSource.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+                for (int i = 0; i < parameters.length; i++) {
+                    preparedStatement.setObject(i + 1, parameters[i]);
                 }
 
-                return objects;
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    List<T> objects = new ArrayList<>();
+
+                    while (resultSet.next()) {
+                        T object = rowMapper.mapRow(resultSet);
+                        objects.add(object);
+                    }
+
+                    return objects;
+                }
             }
         } catch (SQLException e) {
             throw new SqlExecuteException(e);

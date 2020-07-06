@@ -13,6 +13,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -40,4 +41,5 @@ public class UserDaoTest {
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
+
 }
