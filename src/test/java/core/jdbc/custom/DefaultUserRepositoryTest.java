@@ -61,7 +61,7 @@ class DefaultUserRepositoryTest {
         assertThat(actual).isEqualTo(expected);
 
         expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
-        defaultUserRepository.update(expected);
+        defaultUserRepository.save(expected);
 
         actual = defaultUserRepository.findById("userId");
         assertThat(actual).isEqualTo(expected);

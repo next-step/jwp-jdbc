@@ -13,7 +13,7 @@ public class UserDao {
 
     public void update(User user) {
         DefaultUserRepository defaultUserRepository = new DefaultUserRepository();
-        defaultUserRepository.update(user);
+        defaultUserRepository.save(user);
     }
 
     public List<User> findAll() {
