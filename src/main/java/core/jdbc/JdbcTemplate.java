@@ -18,36 +18,44 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
+    public void update(String sql, Object[] parameters) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatementSetter.setParameter(preparedStatement);
 
+            for (int i = 0; i < parameters.length; i++) {
+                preparedStatement.setObject(i + 1, parameters[i]);
+            }
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new SqlExecuteException(e);
         }
     }
 
-    public <T> T queryForObject(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetReader<T> resultSetReader) {
-        List<T> objects = executeSelect(sql, preparedStatementSetter, resultSetReader);
+    public <T> T queryForObject(String sql, Object[] parameters, RowMapper<T> rowMapper) {
+        List<T> objects = executeSelect(sql, parameters, rowMapper);
+        if (objects.isEmpty()) {
+            return null;
+        }
+
         return objects.get(0);
     }
 
-    public <T> List<T> query(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetReader<T> resultSetReader) {
-        return executeSelect(sql, preparedStatementSetter, resultSetReader);
+    public <T> List<T> query(String sql, Object[] parameters, RowMapper<T> rowMapper) {
+        return executeSelect(sql, parameters, rowMapper);
     }
 
-    private <T> List<T> executeSelect(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetReader<T> resultSetReader) {
+    private <T> List<T> executeSelect(String sql, Object[] parameters, RowMapper<T> rowMapper) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatementSetter.setParameter(preparedStatement);
+            for (int i = 0; i < parameters.length; i++) {
+                preparedStatement.setObject(i + 1, parameters[i]);
+            }
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 List<T> objects = new ArrayList<>();
 
                 while (resultSet.next()) {
-                    T object = resultSetReader.read(resultSet);
+                    T object = rowMapper.mapRow(resultSet);
                     objects.add(object);
                 }
 
