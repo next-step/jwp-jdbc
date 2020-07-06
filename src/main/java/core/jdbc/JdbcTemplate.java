@@ -2,6 +2,7 @@ package core.jdbc;
 
 import core.jdbc.exception.SqlExecuteException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,76 +12,49 @@ import java.util.List;
 
 public class JdbcTemplate {
 
-    public void executeUpdate(String sql, PreparedStatementSetter preparedStatementSetter) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
-            preparedStatementSetter.setParameter(pstmt);
+    private DataSource dataSource;
 
-            pstmt.executeUpdate();
+    public JdbcTemplate(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatementSetter.setParameter(preparedStatement);
+
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new SqlExecuteException(e);
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                throw new SqlExecuteException(e);
-            }
         }
     }
 
-    public <T> T findById(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetReader<T> resultSetReader) {
+    public <T> T queryForObject(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetReader<T> resultSetReader) {
         List<T> objects = executeSelect(sql, preparedStatementSetter, resultSetReader);
         return objects.get(0);
     }
 
-    public <T> List<T> findAll(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetReader<T> resultSetReader) {
+    public <T> List<T> query(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetReader<T> resultSetReader) {
         return executeSelect(sql, preparedStatementSetter, resultSetReader);
     }
 
     private <T> List<T> executeSelect(String sql, PreparedStatementSetter preparedStatementSetter, ResultSetReader<T> resultSetReader) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
-            preparedStatementSetter.setParameter(pstmt);
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatementSetter.setParameter(preparedStatement);
 
-            rs = pstmt.executeQuery();
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                List<T> objects = new ArrayList<>();
 
-            List<T> objects = new ArrayList<>();
+                while (resultSet.next()) {
+                    T object = resultSetReader.read(resultSet);
+                    objects.add(object);
+                }
 
-            while (rs.next()) {
-                T object = resultSetReader.read(rs);
-                objects.add(object);
+                return objects;
             }
-
-            return objects;
         } catch (SQLException e) {
             throw new SqlExecuteException(e);
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                throw new SqlExecuteException(e);
-            }
         }
     }
 
