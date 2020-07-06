@@ -3,7 +3,6 @@ package core.mvc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,6 +37,10 @@ public class JsonView implements View {
     }
 
     private Object getBodyValue(Map<String, ?> model) {
+        if(model.keySet().size() == 0){
+            return "";
+        }
+
         if (model.keySet().size() == 1) {
             return model.keySet().stream()
                     .map(key -> model.get(key))

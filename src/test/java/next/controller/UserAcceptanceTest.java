@@ -28,13 +28,14 @@ public class UserAcceptanceTest {
         EntityExchangeResult<byte[]> response = client()
                 .post()
                 .uri("/api/users")
-                .body(Mono.just(expected), UserCreatedDto.class)
+                .bodyValue(expected)
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody()
                 .returnResult();
+
         URI location = response.getResponseHeaders().getLocation();
-        logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
+        logger.debug("location : {}", location);
 
         // 조회
         User actual = client()
@@ -44,6 +45,7 @@ public class UserAcceptanceTest {
                 .expectStatus().isOk()
                 .expectBody(User.class)
                 .returnResult().getResponseBody();
+
         assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
         assertThat(actual.getName()).isEqualTo(expected.getName());
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
@@ -71,7 +73,7 @@ public class UserAcceptanceTest {
     private WebTestClient client() {
         return WebTestClient
                 .bindToServer()
-                .baseUrl("http://localhost:8080")
+                .baseUrl("http://127.0.0.1:8080")
                 .build();
     }
 }

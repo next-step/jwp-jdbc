@@ -7,58 +7,57 @@ import core.annotation.web.RequestParam;
 import core.db.DataBase;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
+import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
 
+import static core.mvc.tobe.HttpHeader.LOCATION;
+import static core.mvc.tobe.HttpStatus.*;
+
 @Controller
 public class ApiUserController {
+    private static final Logger logger = LoggerFactory.getLogger(ApiUserController.class);
     private static final String BASE_URL_USER_API = "/api/users";
 
     @RequestMapping(value = BASE_URL_USER_API, method = RequestMethod.POST)
-    public ModelAndView create(@RequestBody User user, HttpServletResponse response) {
+    public ModelAndView create(UserCreatedDto userCreatedDto, HttpServletResponse response) {
+        User user = userCreatedDto.toEntity();
         DataBase.addUser(user);
 
-        response.setStatus(HttpStatus.CREATED.value());
-        response.setHeader(HttpHeaders.LOCATION, BASE_URL_USER_API + "?userId=" + user.getUserId());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(CREATED);
+        response.setHeader(LOCATION, BASE_URL_USER_API + "?userId=" + user.getUserId());
+        logger.debug("response : {}", response);
 
-        return new ModelAndView(new JsonView());
+        ModelAndView modelAndView = new ModelAndView(new JsonView());
+        return modelAndView;
     }
 
     @RequestMapping(value = BASE_URL_USER_API, method = RequestMethod.GET)
     public ModelAndView retrieve(@RequestParam String userId, HttpServletResponse response) {
         User userById = DataBase.findUserById(userId);
+        response.setStatus(OK);
 
         ModelAndView modelAndView = new ModelAndView(new JsonView());
         modelAndView.addObject("user", userById);
-
-        response.setStatus(HttpStatus.OK.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
         return modelAndView;
     }
 
     @RequestMapping(value = BASE_URL_USER_API, method = RequestMethod.PUT)
-    public ModelAndView update(@RequestParam String userId,
-                               UserUpdatedDto userUpdatedDto,
-                               HttpServletResponse response) {
+    public ModelAndView update(@RequestParam String userId, @RequestBody UserUpdatedDto userUpdatedDto, HttpServletResponse response) {
         User user = DataBase.findUserById(userId);
         ModelAndView modelAndView = new ModelAndView(new JsonView());
 
         if (user == null) {
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(BAD_REQUEST);
             return modelAndView;
         }
 
-        response.setStatus(HttpStatus.OK.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(OK);
         User updatedUser = user.update(userUpdatedDto);
         modelAndView.addObject("user", updatedUser);
         return modelAndView;
