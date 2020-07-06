@@ -14,20 +14,16 @@ public class JdbcTemplate {
     }
 
     public <T> T queryOne(PrepareStatementQuery query, RowMapper<T> rowMapper) {
-        return prepareQuery(query, pstmt -> {
-            try (ResultSet rs = pstmt.executeQuery()) {
-                T result =null;
-                while (rs.next()) {
-                    result = rowMapper.mapRow(rs);
-                }
+        List<T> list = queryList(query, rowMapper);
+        if(list.size() > 1){
+            throw new DataAccessException("not one");
+        }
 
-                if(rs.next()){
-                    throw new DataAccessException("not one");
-                }
+        if(list.isEmpty()){
+            return null;
+        }
 
-                return result;
-            }
-        });
+        return list.get(0);
     }
 
     public <T> List<T> queryList(PrepareStatementQuery query, RowMapper<T> rowMapper) {
