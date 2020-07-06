@@ -5,6 +5,7 @@ import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
@@ -15,7 +16,9 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(BeforeRunServer.class)
 public class UserAcceptanceTest {
+
     private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceTest.class);
 
     @Test
