@@ -9,7 +9,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,6 +58,11 @@ public class UserDaoTest {
 
         actual = defaultUserRepository.findById("userId");
         assertThat(actual).isEqualTo(expected);
+
+        Map<String, Object> conditionValues = new HashMap<>();
+        conditionValues.put("userId", "userId");
+        final User user = defaultUserRepository.find("SELECT * FROM USERS WHERE userId = ?", conditionValues);
+        assertThat(user).isEqualTo(expected);
     }
 
     @Test

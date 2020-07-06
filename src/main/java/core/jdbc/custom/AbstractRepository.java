@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class AbstractRepository<T, V> implements Repository<T, V> {
@@ -27,6 +28,24 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
     private PreparedStatement getPreparedStatement(String sql) throws Exception {
         ActionablePrepared actionablePrepared = (connection) -> connection.prepareStatement(sql);
         return actionablePrepared.getPreparedStatement(getConnection());
+    }
+
+    @Override
+    public T find(final String query, final Map<String, Object> map) {
+        try (PreparedStatement pstmt = getPreparedStatement(query)) {
+            int index = 1;
+            for (final String s : map.keySet()) {
+                pstmt.setString(index, map.get(s).toString());
+                index++;
+            }
+            ResultSet resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                return (T) getConstructor(t.getClass(), resultSet);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -84,14 +103,14 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
     public List<T> findAll() {
         String tableName = t.getClass().getSimpleName().toUpperCase();
         String sql = String.format("SELECT * FROM %sS", tableName);
-        List<Object> objects = new ArrayList<>();
+        List<T> objects = new ArrayList<>();
 
         try (PreparedStatement pstmt = getPreparedStatement(sql)) {
             ResultSet resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
-                objects.add(getConstructor(t.getClass(), resultSet));
+                objects.add((T) getConstructor(t.getClass(), resultSet));
             }
-            return (List<T>) objects;
+            return objects;
 
         } catch (Exception e) {
             e.printStackTrace();
