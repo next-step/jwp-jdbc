@@ -12,28 +12,24 @@ public class JsonView implements View {
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if (model.size() == 0) {
+        if (model.isEmpty()) {
             RestRequestDispatcher.forward(request, response);
             return;
         }
 
         Set<String> keys = model.keySet();
-        request.setAttribute(DATA, model);
-        if (keys.size() > 1) {
-            List<Object> models = new ArrayList<>();
-            for (String key : keys) {
-                models.add(model.get(key));
-            }
-            request.setAttribute(DATA, JsonUtils.toJsonAsString(models));
-            RestRequestDispatcher.forward(request, response);
-            return;
+        List<Object> models = new ArrayList<>();
+        for (String key : keys) {
+            models.add(model.get(key));
         }
-
-        String firstKey = keys.stream()
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
-
-        request.setAttribute(DATA, JsonUtils.toJsonAsString(model.get(firstKey)));
+        request.setAttribute(DATA, toJsonAsStringByModels(models));
         RestRequestDispatcher.forward(request, response);
+    }
+
+    private String toJsonAsStringByModels(List<Object> objects) {
+        if (objects.size() == 1) {
+            return JsonUtils.toJsonAsString(objects.get(0));
+        }
+        return JsonUtils.toJsonAsString(objects);
     }
 }

@@ -3,6 +3,7 @@ package next.controller;
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
+import core.annotation.web.RequestParam;
 import core.db.DataBase;
 import core.mvc.JsonUtils;
 import core.mvc.JsonView;
@@ -32,7 +33,6 @@ public class UserRestController {
         modelAndView.addObject("user", user);
 
         response.setHeader("Location", String.format("/api/users?userId=%s", user.getUserId()));
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return modelAndView;
     }
 
@@ -45,13 +45,11 @@ public class UserRestController {
         modelAndView.addObject("user", user);
 
         response.setHeader("Location", String.format("/api/users?userId=%s", user.getUserId()));
-        response.setStatus(HttpServletResponse.SC_OK);
         return modelAndView;
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
-    public ModelAndView updateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String userId = request.getParameter("userId");
+    public ModelAndView updateUser(@RequestParam String userId, HttpServletRequest request) throws IOException {
         User user = Optional.ofNullable(DataBase.findUserById(userId))
                 .orElseThrow(() -> new IllegalArgumentException("not found user"));
 
@@ -61,7 +59,6 @@ public class UserRestController {
         final ModelAndView modelAndView = new ModelAndView(new JsonView());
         modelAndView.addObject("user", user);
 
-        response.setStatus(HttpServletResponse.SC_OK);
         return modelAndView;
     }
 
