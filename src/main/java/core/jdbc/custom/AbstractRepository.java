@@ -12,7 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class AbstractRepository implements Repository<Object, String> {
+public class AbstractRepository<T, V> implements Repository<T, V> {
+
+    private T t;
+    AbstractRepository(T t) {
+        this.t = t;
+    }
 
     private Connection getConnection() {
         return ConnectionManager.getConnection();
@@ -28,38 +33,18 @@ public abstract class AbstractRepository implements Repository<Object, String> {
     }
 
     @Override
-    public Object findById(final Class clazz, final String s) {
-        final Field[] fields = clazz.getDeclaredFields();
+    public void save(final T t) {
+        final Field[] fields = t.getClass().getDeclaredFields();
         fields[0].setAccessible(true);
-        String tableName = clazz.getSimpleName().toUpperCase();
-        String sql = String.format("SELECT * FROM %sS WHERE %s = ?", tableName, fields[0].getName());
-
-        try (PreparedStatement pstmt = getPreparedStatement(sql)) {
-            pstmt.setString(1, s);
-
-            ResultSet resultSet = pstmt.executeQuery();
-            if (resultSet.next()) {
-                return getConstructor(clazz, resultSet);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
-    public void save(final Object object) {
-        final Field[] fields = object.getClass().getDeclaredFields();
-        fields[0].setAccessible(true);
-        String tableName = object.getClass().getSimpleName().toUpperCase();
+        String tableName = t.getClass().getSimpleName().toUpperCase();
         String sql = null;
 
         try {
-            final Object obj = findById(object.getClass(), fields[0].get(object).toString());
+            final Object obj = findById((V) fields[0].get(t).toString());
             if (Objects.isNull(obj)) {
                 sql = String.format("INSERT INTO %sS VALUES (%s)", tableName, getQuestionMark(fields.length));
                 try (PreparedStatement pstmt = getPreparedStatement(sql)) {
-                    insert(pstmt, object, fields);
+                    insert(pstmt, t, fields);
                     return;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -68,7 +53,7 @@ public abstract class AbstractRepository implements Repository<Object, String> {
 
             sql = String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(obj.getClass()), fields[0].getName());
             try (PreparedStatement pstmt = getPreparedStatement(sql)) {
-                update(pstmt, object, fields);
+                update(pstmt, t, fields);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -79,18 +64,37 @@ public abstract class AbstractRepository implements Repository<Object, String> {
     }
 
     @Override
-    public List<Object> findAll(final Class clazz) {
-        String tableName = clazz.getSimpleName().toUpperCase();
+    public T findById(final V v) {
+        final Field[] fields = t.getClass().getDeclaredFields();
+        fields[0].setAccessible(true);
+        String tableName = t.getClass().getSimpleName().toUpperCase();
+        String sql = String.format("SELECT * FROM %sS WHERE %s = ?", tableName, fields[0].getName());
+
+        try (PreparedStatement pstmt = getPreparedStatement(sql)) {
+            pstmt.setString(1, (String) v);
+
+            ResultSet resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                return (T) getConstructor(t.getClass(), resultSet);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public List<T> findAll() {
+        String tableName = t.getClass().getSimpleName().toUpperCase();
         String sql = String.format("SELECT * FROM %sS", tableName);
         List<Object> objects = new ArrayList<>();
 
         try (PreparedStatement pstmt = getPreparedStatement(sql)) {
             ResultSet resultSet = pstmt.executeQuery();
-
             while (resultSet.next()) {
-                objects.add(getConstructor(clazz, resultSet));
+                objects.add(getConstructor(t.getClass(), resultSet));
             }
-            return objects;
+            return (List<T>) objects;
 
         } catch (Exception e) {
             e.printStackTrace();

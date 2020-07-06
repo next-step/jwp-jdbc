@@ -5,7 +5,7 @@ import java.util.List;
 public interface Repository<T, V> {
     void save(T t);
 
-    T findById(Class clazz, V v);
+    T findById(V v);
 
-    List<? extends T> findAll(Class clazz);
+    List<T> findAll();
 }
