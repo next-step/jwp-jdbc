@@ -2,6 +2,8 @@ package next.dao;
 
 import core.jdbc.ConnectionManager;
 import next.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
+
     public void insert(User user) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -23,7 +27,8 @@ public class UserDao {
             pstmt.setString(3, user.getName());
             pstmt.setString(4, user.getEmail());
 
-            pstmt.executeUpdate();
+            int result = pstmt.executeUpdate();
+            logger.debug("{}", result);
         } finally {
             if (pstmt != null) {
                 pstmt.close();
@@ -36,7 +41,27 @@ public class UserDao {
     }
 
     public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        try {
+            con = ConnectionManager.getConnection();
+            String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userid=?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, user.getPassword());
+            pstmt.setString(2, user.getName());
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, user.getUserId());
+
+            int result = pstmt.executeUpdate();
+            logger.debug("{}", result);
+        } finally {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
     }
 
     public List<User> findAll() throws SQLException {
