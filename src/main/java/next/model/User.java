@@ -50,6 +50,10 @@ public class User {
         return userId.equals(user.userId);
     }
 
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
