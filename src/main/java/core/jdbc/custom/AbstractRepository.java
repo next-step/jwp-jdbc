@@ -15,6 +15,7 @@ import java.util.Objects;
 public class AbstractRepository<T, V> implements Repository<T, V> {
 
     private T t;
+
     AbstractRepository(T t) {
         this.t = t;
     }
@@ -23,13 +24,9 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
         return ConnectionManager.getConnection();
     }
 
-    private PreparedStatement getPreparedStatement(String sql) {
-        try {
-            return getConnection().prepareStatement(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+    private PreparedStatement getPreparedStatement(String sql) throws Exception {
+        ActionablePrepared actionablePrepared = (connection) -> connection.prepareStatement(sql);
+        return actionablePrepared.getPreparedStatement(getConnection());
     }
 
     @Override
@@ -54,7 +51,7 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
             sql = String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(obj.getClass()), fields[0].getName());
             try (PreparedStatement pstmt = getPreparedStatement(sql)) {
                 update(pstmt, t, fields);
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

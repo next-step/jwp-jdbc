@@ -10,7 +10,6 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,10 +74,4 @@ class DefaultUserRepositoryTest {
         assertThat(users).hasSize(1);
     }
 
-    @Test
-    void name() {
-        String s = "thisIsMyString";
-        String[] r = s.split("(?=\\p{Upper})");
-        System.out.println(Arrays.toString(r));
-    }
 }
