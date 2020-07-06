@@ -11,7 +11,7 @@ public class UserDao {
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        jdbcTemplate.insert(sql, statement -> {
+        jdbcTemplate.executeUpdate(sql, statement -> {
             statement.setString(1, user.getUserId());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getName());
@@ -21,7 +21,7 @@ public class UserDao {
 
     public void update(User user) {
         String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
-        jdbcTemplate.update(sql, statement -> {
+        jdbcTemplate.executeUpdate(sql, statement -> {
             statement.setString(1, user.getPassword());
             statement.setString(2, user.getName());
             statement.setString(3, user.getEmail());
