@@ -45,12 +45,11 @@ public class UserDao {
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userid=?";
+            String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
+            pstmt.setString(1, user.getName());
+            pstmt.setString(2, user.getEmail());
+            pstmt.setString(3, user.getUserId());
 
             int result = pstmt.executeUpdate();
             logger.debug("{}", result);

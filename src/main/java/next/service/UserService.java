@@ -2,6 +2,7 @@ package next.service;
 
 import next.dao.UserDao;
 import next.dto.UserCreatedDto;
+import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +49,8 @@ public class UserService {
         return null;
     }
 
-    public User updateUser(String userId, UserCreatedDto userCreatedDto) {
-        User user = new User(userId, userCreatedDto.getPassword(),
-                userCreatedDto.getName(), userCreatedDto.getEmail());
+    public User updateUser(String userId, UserUpdatedDto userUpdatedDto) {
+        User user = new User(userId, null, userUpdatedDto.getName(), userUpdatedDto.getEmail());
         return updateUser(user);
     }
 }
