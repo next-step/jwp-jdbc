@@ -20,7 +20,7 @@ public class UserApiController {
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView createUser(UserCreatedDto userCreatedDto) {
-        DataBase.addUser(User.userCreateDtoToUser(userCreatedDto));
+        DataBase.addUser(userCreatedDto.userCreateDtoToUser());
 
         return new ModelAndView(new JsonView(HttpStatus.CREATED, "/api/users?userId=" + userCreatedDto.getUserId()));
     }

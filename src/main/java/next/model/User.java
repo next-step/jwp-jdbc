@@ -53,10 +53,6 @@ public class User {
         return userId.equals(user.userId);
     }
 
-    public static User userCreateDtoToUser(UserCreatedDto userCreatedDto) {
-        return new User(userCreatedDto.getUserId(), userCreatedDto.getPassword(), userCreatedDto.getName(), userCreatedDto.getEmail());
-    }
-
     public void updateUser(UserUpdatedDto userUpdatedDto) {
         this.name = userUpdatedDto.getName();
         this.email = userUpdatedDto.getEmail();
