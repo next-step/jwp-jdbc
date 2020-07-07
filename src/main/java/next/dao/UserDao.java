@@ -1,6 +1,6 @@
 package next.dao;
 
-import core.jdbc.*;
+import core.jdbc.JdbcTemplate;
 import next.model.User;
 
 import java.sql.SQLException;

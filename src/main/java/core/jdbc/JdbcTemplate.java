@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created By kjs4395 on 2020-07-06
  */
-public class JdbcTemplate <T>{
+public class JdbcTemplate<T> {
     public void insertOrUpdate(String sql, BindPrepareStatement bindPrepareStatement) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -20,20 +20,20 @@ public class JdbcTemplate <T>{
 
             pstmt.executeUpdate();
         } finally {
-            this.closeConnection(con,pstmt);
+            this.closeConnection(con, pstmt);
         }
     }
 
-    public void insertOrUpdate(String sql, Object...values) throws SQLException {
+    public void insertOrUpdate(String sql, Object... values) throws SQLException {
         BindPrepareStatement bindPrepareStatement = pstmt -> {
-            for(int i=0; i<values.length; i++) {
-                pstmt.setObject(i+1,values[i]);
+            for (int i = 0; i < values.length; i++) {
+                pstmt.setObject(i + 1, values[i]);
             }
         };
         insertOrUpdate(sql, bindPrepareStatement);
     }
 
-    public T findByUserId(String sql,BindPrepareStatement bindPrepareStatement, BindResultSet bindResultSet) throws SQLException {
+    public T findByUserId(String sql, BindPrepareStatement bindPrepareStatement, BindResultSet bindResultSet) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -79,7 +79,7 @@ public class JdbcTemplate <T>{
     }
 
     private void closeResultConnection(ResultSet rs) throws SQLException {
-        if(rs != null) {
+        if (rs != null) {
             rs.close();
         }
     }
