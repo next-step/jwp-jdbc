@@ -26,8 +26,8 @@ public class UserDao {
 
     public List findAll() throws SQLException {
         List<User> users = new ArrayList<>();
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate<User>();
-        return selectJdbcTemplate.findAll("SELECT userId, password, name, email FROM USERS", rs -> {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate<User>();
+        return jdbcTemplate.findAll("SELECT userId, password, name, email FROM USERS", rs -> {
             if (rs.next()) {
                 users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email")));
@@ -37,8 +37,8 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) throws SQLException {
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate<User>();
-        return (User) selectJdbcTemplate.findByUserId("SELECT userId, password, name, email FROM USERS WHERE userid=?", pstmt -> pstmt.setString(1, userId), rs -> {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate<User>();
+        return (User) jdbcTemplate.findByUserId("SELECT userId, password, name, email FROM USERS WHERE userid=?", pstmt -> pstmt.setString(1, userId), rs -> {
             User user = null;
             if (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
