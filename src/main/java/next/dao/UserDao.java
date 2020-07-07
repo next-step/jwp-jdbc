@@ -2,9 +2,6 @@ package next.dao;
 
 import core.jdbc.*;
 import next.model.User;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,8 +26,8 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
         List<User> users = new ArrayList<>();
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate();
-        return selectJdbcTemplate.findAll(new BindResultSet() {
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate<User>();
+        return selectJdbcTemplate.findAll("SELECT userId, password, name, email FROM USERS",new BindResultSet() {
             @Override
             public Object bindResultSet(ResultSet rs) throws SQLException {
                 if (rs.next()) {
@@ -43,8 +40,8 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) throws SQLException {
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate();
-        return selectJdbcTemplate.findByUserId(pstmt -> pstmt.setString(1, userId), rs -> {
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate<User>();
+        return (User) selectJdbcTemplate.findByUserId("SELECT userId, password, name, email FROM USERS WHERE userid=?", pstmt -> pstmt.setString(1, userId), rs -> {
             User user = null;
             if (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),

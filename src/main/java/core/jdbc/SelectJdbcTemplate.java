@@ -1,7 +1,5 @@
 package core.jdbc;
 
-import next.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,8 +9,8 @@ import java.util.List;
 /**
  * Created By kjs4395 on 2020-07-06
  */
-public class SelectJdbcTemplate {
-    public User findByUserId(String sql,BindPrepareStatement bindPrepareStatement, BindResultSet bindResultSet) throws SQLException {
+public class SelectJdbcTemplate <T> {
+    public T findByUserId(String sql,BindPrepareStatement bindPrepareStatement, BindResultSet bindResultSet) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -22,7 +20,7 @@ public class SelectJdbcTemplate {
             bindPrepareStatement.setPrepareStatement(pstmt);
 
             rs = pstmt.executeQuery();
-            return (User) bindResultSet.bindResultSet(rs);
+            return (T) bindResultSet.bindResultSet(rs);
         } finally {
             if (rs != null) {
                 rs.close();
@@ -36,7 +34,7 @@ public class SelectJdbcTemplate {
         }
     }
 
-    public List<User> findAll(String sql, BindResultSet brs) throws SQLException {
+    public List<T> findAll(String sql, BindResultSet brs) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -46,7 +44,7 @@ public class SelectJdbcTemplate {
 
             rs = pstmt.executeQuery();
 
-            return (List<User>) brs.bindResultSet(rs);
+            return (List<T>) brs.bindResultSet(rs);
 
         } finally {
             if (rs != null) {
