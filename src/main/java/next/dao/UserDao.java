@@ -2,7 +2,7 @@ package next.dao;
 
 import core.jdbc.*;
 import next.model.User;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class UserDao {
 
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-        jdbcTemplate.insert(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+        jdbcTemplate.insertOrUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) throws SQLException {
@@ -21,21 +21,18 @@ public class UserDao {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
         String sql = "UPDATE USERS SET password = ? , name = ?, email= ?  WHERE userId = ?";
-        jdbcTemplate.insert(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        jdbcTemplate.insertOrUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
+    public List findAll() throws SQLException {
         List<User> users = new ArrayList<>();
         SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate<User>();
-        return selectJdbcTemplate.findAll("SELECT userId, password, name, email FROM USERS",new BindResultSet() {
-            @Override
-            public Object bindResultSet(ResultSet rs) throws SQLException {
-                if (rs.next()) {
-                    users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                            rs.getString("email")));
-                }
-                return users;
+        return selectJdbcTemplate.findAll("SELECT userId, password, name, email FROM USERS", rs -> {
+            if (rs.next()) {
+                users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                        rs.getString("email")));
             }
+            return users;
         });
     }
 
