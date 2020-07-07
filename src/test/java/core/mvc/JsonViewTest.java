@@ -56,7 +56,10 @@ public class JsonViewTest {
 
         view.render(model, request, response);
 
+        String car = "{\"color\":\"Black\",\"type\":\"Sonata\"}";
+        String json = "{\"car\":" + car + ",\"name\":\"포비\"}";
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
         logger.debug("response body : {}", response.getContentAsString());
+        assertThat(response.getContentAsString()).isEqualTo(json);
     }
 }
