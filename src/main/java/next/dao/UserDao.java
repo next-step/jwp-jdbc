@@ -3,12 +3,11 @@ package next.dao;
 import core.jdbc.JdbcTemplate;
 import next.model.User;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
+    public void insert(User user)  {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
@@ -16,15 +15,14 @@ public class UserDao {
         jdbcTemplate.insertOrUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public void update(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
         String sql = "UPDATE USERS SET password = ? , name = ?, email= ?  WHERE userId = ?";
         jdbcTemplate.insertOrUpdate(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List findAll() throws SQLException {
+    public List findAll() {
         List<User> users = new ArrayList<>();
         JdbcTemplate jdbcTemplate = new JdbcTemplate<User>();
         return jdbcTemplate.findAll("SELECT userId, password, name, email FROM USERS", rs -> {
@@ -36,7 +34,7 @@ public class UserDao {
         });
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId)  {
         JdbcTemplate jdbcTemplate = new JdbcTemplate<User>();
         return (User) jdbcTemplate.findByUserId("SELECT userId, password, name, email FROM USERS WHERE userid=?", pstmt -> pstmt.setString(1, userId), rs -> {
             User user = null;

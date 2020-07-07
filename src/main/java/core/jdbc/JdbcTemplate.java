@@ -1,5 +1,8 @@
 package core.jdbc;
 
+import next.exception.JdbcTemplateCloseException;
+import next.exception.QueryExecuteException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,7 +13,7 @@ import java.util.List;
  * Created By kjs4395 on 2020-07-06
  */
 public class JdbcTemplate<T> {
-    public void insertOrUpdate(String sql, BindPrepareStatement bindPrepareStatement) throws SQLException {
+    public void insertOrUpdate(String sql, BindPrepareStatement bindPrepareStatement) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
@@ -19,12 +22,14 @@ public class JdbcTemplate<T> {
             bindPrepareStatement.setPrepareStatement(pstmt);
 
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new QueryExecuteException("insert Or update Query execute Exception!");
         } finally {
             this.closeConnection(con, pstmt);
         }
     }
 
-    public void insertOrUpdate(String sql, Object... values) throws SQLException {
+    public void insertOrUpdate(String sql, Object... values) {
         BindPrepareStatement bindPrepareStatement = pstmt -> {
             for (int i = 0; i < values.length; i++) {
                 pstmt.setObject(i + 1, values[i]);
@@ -33,7 +38,7 @@ public class JdbcTemplate<T> {
         insertOrUpdate(sql, bindPrepareStatement);
     }
 
-    public T findByUserId(String sql, BindPrepareStatement bindPrepareStatement, BindResultSet bindResultSet) throws SQLException {
+    public T findByUserId(String sql, BindPrepareStatement bindPrepareStatement, BindResultSet bindResultSet)  {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -44,13 +49,15 @@ public class JdbcTemplate<T> {
 
             rs = pstmt.executeQuery();
             return (T) bindResultSet.bindResultSet(rs);
+        } catch (SQLException e) {
+            throw new QueryExecuteException("find Query execute Exception!");
         } finally {
             closeConnection(con, pstmt);
             closeResultConnection(rs);
         }
     }
 
-    public List<T> findAll(String sql, BindResultSet brs) throws SQLException {
+    public List<T> findAll(String sql, BindResultSet brs) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -62,25 +69,35 @@ public class JdbcTemplate<T> {
 
             return (List<T>) brs.bindResultSet(rs);
 
+        } catch (SQLException e) {
+            throw new QueryExecuteException("find all query execute Exception!");
         } finally {
             closeConnection(con, pstmt);
             closeResultConnection(rs);
         }
     }
 
-    private void closeConnection(Connection con, PreparedStatement pstmt) throws SQLException {
-        if (pstmt != null) {
-            pstmt.close();
-        }
+    private void closeConnection(Connection con, PreparedStatement pstmt)  {
+        try {
+            if (pstmt != null) {
+                pstmt.close();
+            }
 
-        if (con != null) {
-            con.close();
+            if (con != null) {
+                con.close();
+            }
+        } catch (SQLException e) {
+            throw new JdbcTemplateCloseException("connection or preparedStatement close Exception");
         }
     }
 
-    private void closeResultConnection(ResultSet rs) throws SQLException {
+    private void closeResultConnection(ResultSet rs) {
         if (rs != null) {
-            rs.close();
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                throw new JdbcTemplateCloseException("result set close Exception");
+            }
         }
     }
 }
