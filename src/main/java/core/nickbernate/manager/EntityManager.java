@@ -1,4 +1,4 @@
-package core.jdbc.entitymanager;
+package core.nickbernate.manager;
 
 import next.model.User;
 
@@ -6,7 +6,7 @@ public interface EntityManager {
 
     void begin();
 
-    void persist(Object entity);
+    <T> T persist(T entity);
 
     <T> User findById(Class<T> entityClass, Object id);
 

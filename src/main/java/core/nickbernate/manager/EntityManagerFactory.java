@@ -1,4 +1,4 @@
-package core.jdbc.entitymanager;
+package core.nickbernate.manager;
 
 public interface EntityManagerFactory {
 

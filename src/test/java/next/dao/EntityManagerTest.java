@@ -2,9 +2,9 @@ package next.dao;
 
 import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
-import core.jdbc.entitymanager.DefaultEntityManagerFactory;
-import core.jdbc.entitymanager.EntityManager;
-import core.jdbc.entitymanager.EntityManagerFactory;
+import core.nickbernate.manager.DefaultEntityManagerFactory;
+import core.nickbernate.manager.EntityManager;
+import core.nickbernate.manager.EntityManagerFactory;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
