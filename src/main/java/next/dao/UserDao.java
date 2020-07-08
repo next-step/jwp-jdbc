@@ -1,15 +1,10 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
-import core.jdbc.QuerySetter;
-import core.jdbc.RowMapper;
+import core.jdbc.JdbcTemplate;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +14,7 @@ public class UserDao {
 
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        int result = executeUpdate(sql, (pstmt) -> {
+        int result = JdbcTemplate.executeUpdate(sql, (pstmt) -> {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
@@ -31,7 +26,7 @@ public class UserDao {
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
-        int result = executeUpdate(sql, (pstmt) -> {
+        int result = JdbcTemplate.executeUpdate(sql, (pstmt) -> {
             pstmt.setString(1, user.getName());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getUserId());
@@ -44,7 +39,7 @@ public class UserDao {
 
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        return executeQuery(sql, (pstmt) -> {
+        return JdbcTemplate.executeQuery(sql, (pstmt) -> {
         }, (rs) -> {
             List<User> userList = new ArrayList<>();
             User user = null;
@@ -60,7 +55,7 @@ public class UserDao {
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        return executeQuery(sql, (pstmt) -> {
+        return JdbcTemplate.executeQuery(sql, (pstmt) -> {
             pstmt.setString(1, userId);
         }, (rs) -> {
             User user = null;
@@ -72,28 +67,6 @@ public class UserDao {
         });
     }
 
-    private int executeUpdate(String sql, QuerySetter sqlExecute) throws SQLException {
-        try (
-                Connection con = ConnectionManager.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(sql);
-        ) {
-            sqlExecute.queryValues(pstmt);
-
-            return pstmt.executeUpdate();
-        }
-    }
-
-    private <T> T executeQuery(String sql, QuerySetter sqlExecute, RowMapper<T> mapper) throws SQLException {
-        try (
-                Connection con = ConnectionManager.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(sql);
-        ) {
-            sqlExecute.queryValues(pstmt);
 
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return mapper.mapping(rs);
-            }
-        }
-    }
 }
