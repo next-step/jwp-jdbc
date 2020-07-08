@@ -3,6 +3,7 @@ package core.nickbernate.manager;
 import core.jdbc.JdbcTemplate;
 import core.nickbernate.exception.NickbernateExecuteException;
 import core.nickbernate.session.Session;
+import core.nickbernate.util.EntityUtil;
 import next.model.User;
 
 import java.sql.Connection;
@@ -39,9 +40,11 @@ public class DefaultEntityManager implements EntityManager {
 
     @Override
     public <T> T persist(T entity) {
+        Object id = EntityUtil.findIdFrom(entity);
         User user = (User) entity;
 
         // TODO: 2020/07/07 queryStore 에 저장 필요
+        this.session.persist(id, entity);
         this.session2.put(user.getUserId(), user);
 
         return entity;
