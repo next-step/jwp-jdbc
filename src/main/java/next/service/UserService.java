@@ -28,7 +28,6 @@ public class UserService {
     public User insertUser(User user) {
         try {
             dao.insert(user);
-            dao.insert(user);
             return user;
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
