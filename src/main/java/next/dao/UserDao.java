@@ -36,7 +36,7 @@ public class UserDao {
 
     public User findByUserId(String userId)  {
         JdbcTemplate jdbcTemplate = new JdbcTemplate<User>();
-        return (User) jdbcTemplate.findByUserId("SELECT userId, password, name, email FROM USERS WHERE userid=?", pstmt -> pstmt.setString(1, userId), rs -> {
+        return (User) jdbcTemplate.findById("SELECT userId, password, name, email FROM USERS WHERE userid=?", pstmt -> pstmt.setString(1, userId), rs -> {
             User user = null;
             if (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),

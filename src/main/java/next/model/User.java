@@ -1,6 +1,5 @@
 package next.model;
 
-import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 
 public class User {
