@@ -13,12 +13,13 @@ import java.util.Map;
 public class JsonView implements View {
     private static final Logger logger = LoggerFactory.getLogger(JsonView.class);
 
+    ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String json = StringUtils.EMPTY;
 
         if (model.size() == 1) {
