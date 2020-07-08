@@ -17,27 +17,25 @@ public class UserDao {
 
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        dbConnection(sql, (pstmt) -> {
+        int result = executeUpdate(sql, (pstmt) -> {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
             pstmt.setString(4, user.getEmail());
-
-            int result = pstmt.executeUpdate();
-            logger.debug("{}", result);
         });
+
+        logger.debug("insert - {}", result);
     }
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
-        dbConnection(sql, (pstmt) -> {
+        int result = executeUpdate(sql, (pstmt) -> {
             pstmt.setString(1, user.getName());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getUserId());
-
-            int result = pstmt.executeUpdate();
-            logger.debug("{}", result);
         });
+
+        logger.debug("update - {}", result);
     }
 
     public List<User> findAll() throws SQLException {
@@ -80,12 +78,14 @@ public class UserDao {
         return user;
     }
 
-    private void dbConnection(String sql, SqlExecute sqlExecute) throws SQLException {
+    private int executeUpdate(String sql, SqlExecuteUpdate sqlExecute) throws SQLException {
         try (
                 Connection con = ConnectionManager.getConnection();
                 PreparedStatement pstmt = con.prepareStatement(sql);
         ) {
-            sqlExecute.execute(pstmt);
+            sqlExecute.setQueryObject(pstmt);
+
+            return pstmt.executeUpdate();
         }
     }
 }
