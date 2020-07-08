@@ -17,10 +17,7 @@ public class UserDao {
 
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        try (
-                Connection con = ConnectionManager.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(sql);
-        ) {
+        dbConnection(sql, (pstmt) -> {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
@@ -28,7 +25,7 @@ public class UserDao {
 
             int result = pstmt.executeUpdate();
             logger.debug("{}", result);
-        }
+        });
     }
 
     public void update(User user) throws SQLException {
@@ -53,13 +50,15 @@ public class UserDao {
         try (
                 Connection con = ConnectionManager.getConnection();
                 PreparedStatement pstmt = con.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery();
+
         ) {
-            User user = null;
-            while (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-                userList.add(user);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                User user = null;
+                while (rs.next()) {
+                    user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                            rs.getString("email"));
+                    userList.add(user);
+                }
             }
         }
         return userList;
@@ -71,21 +70,25 @@ public class UserDao {
         User user = null;
         try (
                 Connection con = ConnectionManager.getConnection();
-                PreparedStatement pstmt = createPreparedStatement(con, sql, userId);
-                ResultSet rs = pstmt.executeQuery();
-
+                PreparedStatement pstmt = con.prepareStatement(sql);
         ) {
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+            pstmt.setString(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                            rs.getString("email"));
+                }
             }
         }
         return user;
     }
 
-    private PreparedStatement createPreparedStatement(Connection con, String sql, String userId) throws SQLException {
-        PreparedStatement ps = con.prepareStatement(sql);
-        ps.setString(1, userId);
-        return ps;
+    private void dbConnection(String sql, SqlExecute sqlExecute) throws SQLException {
+        try (
+                Connection con = ConnectionManager.getConnection();
+                PreparedStatement pstmt = con.prepareStatement(sql);
+        ) {
+            sqlExecute.execute(pstmt);
+        }
     }
 }
