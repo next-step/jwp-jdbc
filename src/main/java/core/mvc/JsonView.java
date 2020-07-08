@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 public class JsonView implements View {
-    private final String contentType = MediaType.APPLICATION_JSON_VALUE;
     private ObjectMapper objectMapper = new ObjectMapper();
     private HttpStatus status = HttpStatus.OK;
     private String location;
@@ -26,7 +25,7 @@ public class JsonView implements View {
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType(contentType);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         String jsonValue = StringUtils.EMPTY;
 

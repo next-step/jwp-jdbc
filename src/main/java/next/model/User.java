@@ -1,6 +1,5 @@
 package next.model;
 
-import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 
 public class User {
@@ -51,10 +50,6 @@ public class User {
 
     public boolean isSameUser(User user) {
         return userId.equals(user.userId);
-    }
-
-    public static User userCreateDtoToUser(UserCreatedDto userCreatedDto) {
-        return new User(userCreatedDto.getUserId(), userCreatedDto.getPassword(), userCreatedDto.getName(), userCreatedDto.getEmail());
     }
 
     public void updateUser(UserUpdatedDto userUpdatedDto) {
