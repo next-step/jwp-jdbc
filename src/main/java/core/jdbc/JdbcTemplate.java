@@ -38,6 +38,15 @@ public class JdbcTemplate<T> {
         insertOrUpdate(sql, bindPrepareStatement);
     }
 
+    public T findById(String sql, BindResultSet bindResultSet, Object...values) {
+        BindPrepareStatement bindPrepareStatement = pstmt -> {
+            for(int i=0; i<values.length; i++) {
+                pstmt.setObject(i+1, values[i]);
+            }
+        };
+        return findById(sql, bindPrepareStatement,bindResultSet);
+    }
+
 
     public T findById(String sql, BindPrepareStatement bindPrepareStatement, BindResultSet bindResultSet)  {
         Connection con = null;
