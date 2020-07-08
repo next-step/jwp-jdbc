@@ -1,6 +1,7 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.QuerySetter;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,12 +79,12 @@ public class UserDao {
         return user;
     }
 
-    private int executeUpdate(String sql, SqlExecuteUpdate sqlExecute) throws SQLException {
+    private int executeUpdate(String sql, QuerySetter sqlExecute) throws SQLException {
         try (
                 Connection con = ConnectionManager.getConnection();
                 PreparedStatement pstmt = con.prepareStatement(sql);
         ) {
-            sqlExecute.setQueryObject(pstmt);
+            sqlExecute.queryValues(pstmt);
 
             return pstmt.executeUpdate();
         }
