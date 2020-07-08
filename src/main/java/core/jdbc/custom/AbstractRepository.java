@@ -8,10 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class AbstractRepository<T, V> implements Repository<T, V> {
 
@@ -50,31 +47,26 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
 
     @Override
     public void save(final T t) {
-        final Field[] fields = t.getClass().getDeclaredFields();
-        fields[0].setAccessible(true);
-        String tableName = t.getClass().getSimpleName().toUpperCase();
-        String sql = null;
+    }
 
-        try {
+    private void insert(T t) {
+        try (PreparedStatement pstmt = getPreparedStatement(createQueryForInsert())) {
+            setValuesForInsert(pstmt, t);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void update(T t) {
+        try (PreparedStatement pstmt = getPreparedStatement(createQueryForUpdate())) {
+            final Field[] fields = t.getClass().getDeclaredFields();
             final Object obj = findById((V) fields[0].get(t).toString());
-            if (Objects.isNull(obj)) {
-                sql = String.format("INSERT INTO %sS VALUES (%s)", tableName, getQuestionMark(fields.length));
-                try (PreparedStatement pstmt = getPreparedStatement(sql)) {
-                    insert(pstmt, t, fields);
-                    return;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if (Objects.nonNull(obj)) {
+                setValuesForInsert(pstmt, obj);
+                pstmt.executeUpdate();
             }
-
-            sql = String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(obj.getClass()), fields[0].getName());
-            try (PreparedStatement pstmt = getPreparedStatement(sql)) {
-                update(pstmt, t, fields);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -118,22 +110,40 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
         return null;
     }
 
-    private void insert(PreparedStatement preparedStatement, Object object, Field[] fields) throws IllegalAccessException, SQLException {
+    private String createQueryForInsert() {
+        String tableName = t.getClass().getSimpleName().toUpperCase();
+        return String.format("INSERT INTO %sS VALUES (%s)", tableName, getQuestionMark(t.getClass().getFields().length));
+    }
+
+    private String createQueryForUpdate() {
+        String tableName = t.getClass().getSimpleName().toUpperCase();
+        String id = Arrays.stream(t.getClass().getFields())
+                .findFirst()
+                .get()
+                .toString();
+        return String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(t.getClass()), id);
+    }
+
+    private PreparedStatement setValuesForInsert(PreparedStatement preparedStatement, Object object) throws IllegalAccessException, SQLException {
+        final Field[] fields = object.getClass().getDeclaredFields();
         for (int i = 1; i <= fields.length; i++) {
             fields[i - 1].setAccessible(true);
             preparedStatement.setString(i, fields[i - 1].get(object).toString());
         }
-        preparedStatement.executeUpdate();
+        return preparedStatement;
     }
 
-    private void update(PreparedStatement preparedStatement, Object object, Field[] fields) throws IllegalAccessException, SQLException {
+    private PreparedStatement setValuesForUpdate(PreparedStatement preparedStatement, Object object) throws IllegalAccessException, SQLException {
+        final Field[] fields = object.getClass().getDeclaredFields();
+        fields[0].setAccessible(true);
+
         for (int i = 1; i < fields.length; i++) {
             fields[i].setAccessible(true);
             preparedStatement.setString(i, fields[i].get(object).toString());
         }
         fields[0].setAccessible(true);
         preparedStatement.setString(fields.length, fields[0].get(object).toString());
-        preparedStatement.executeUpdate();
+        return preparedStatement;
     }
 
     private Object getConstructor(Class clazz, ResultSet resultSet) throws Exception {
