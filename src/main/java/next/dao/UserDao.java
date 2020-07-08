@@ -30,17 +30,14 @@ public class UserDao {
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
-        try (
-                Connection con = ConnectionManager.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(sql);
-        ) {
+        dbConnection(sql, (pstmt) -> {
             pstmt.setString(1, user.getName());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getUserId());
 
             int result = pstmt.executeUpdate();
             logger.debug("{}", result);
-        }
+        });
     }
 
     public List<User> findAll() throws SQLException {
