@@ -34,5 +34,4 @@ public class JsonView implements View {
         response.getWriter().flush();
         response.getWriter().close();
     }
-
 }
