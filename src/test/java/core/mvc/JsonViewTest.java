@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class JsonViewTest {
     private static final Logger logger = LoggerFactory.getLogger( JsonViewTest.class );
@@ -61,5 +62,12 @@ public class JsonViewTest {
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
         logger.debug("response body : {}", response.getContentAsString());
         assertThat(response.getContentAsString()).isEqualTo(json);
+    }
+
+    @Test
+    void render_model_null() {
+        assertThatThrownBy(() -> {
+            view.render(null, request, response);
+        }).isInstanceOf(IllegalArgumentException.class);
     }
 }
