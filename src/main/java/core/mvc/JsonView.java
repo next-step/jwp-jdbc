@@ -23,9 +23,7 @@ public class JsonView implements View {
         String json = StringUtils.EMPTY;
 
         if (model.size() == 1) {
-            String key = model.keySet().iterator().next();
-            Object value = model.get(key);
-
+            Object value = model.values().iterator().next();
             json = objectMapper.writeValueAsString(value);
         } else if (model.size() > 1) {
             json = objectMapper.writeValueAsString(model);
