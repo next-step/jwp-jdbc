@@ -17,6 +17,10 @@ public class JsonView implements View {
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        if (model == null) {
+            throw new IllegalArgumentException("model is null");
+        }
+
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
