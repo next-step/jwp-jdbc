@@ -2,6 +2,7 @@ package next.dao;
 
 import core.jdbc.ConnectionManager;
 import core.jdbc.QuerySetter;
+import core.jdbc.RowMapper;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,43 +41,35 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        List<User> userList = new ArrayList<>();
+
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        try (
-                Connection con = ConnectionManager.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(sql);
-
-        ) {
-            try (ResultSet rs = pstmt.executeQuery()) {
-                User user = null;
-                while (rs.next()) {
-                    user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                            rs.getString("email"));
-                    userList.add(user);
-                }
+        return executeQuery(sql, (pstmt) -> {
+        }, (rs) -> {
+            List<User> userList = new ArrayList<>();
+            User user = null;
+            while (rs.next()) {
+                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                        rs.getString("email"));
+                userList.add(user);
             }
-        }
-        return userList;
+            return userList;
+        });
     }
 
     public User findByUserId(String userId) throws SQLException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        User user = null;
-        try (
-                Connection con = ConnectionManager.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(sql);
-        ) {
+        return executeQuery(sql, (pstmt) -> {
             pstmt.setString(1, userId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                            rs.getString("email"));
-                }
+        }, (rs) -> {
+            User user = null;
+            if (rs.next()) {
+                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                        rs.getString("email"));
             }
-        }
-        return user;
+            return user;
+        });
     }
 
     private int executeUpdate(String sql, QuerySetter sqlExecute) throws SQLException {
@@ -87,6 +80,20 @@ public class UserDao {
             sqlExecute.queryValues(pstmt);
 
             return pstmt.executeUpdate();
+        }
+    }
+
+    private <T> T executeQuery(String sql, QuerySetter sqlExecute, RowMapper<T> mapper) throws SQLException {
+        try (
+                Connection con = ConnectionManager.getConnection();
+                PreparedStatement pstmt = con.prepareStatement(sql);
+        ) {
+            sqlExecute.queryValues(pstmt);
+
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return mapper.mapping(rs);
+            }
         }
     }
 }
