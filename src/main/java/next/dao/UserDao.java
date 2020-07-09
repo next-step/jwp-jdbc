@@ -15,13 +15,7 @@ public class UserDao {
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-        List<Object> objects = new ArrayList<>();
-        objects.add(user.getUserId());
-        objects.add(user.getPassword());
-        objects.add(user.getName());
-        objects.add(user.getEmail());
-
-        int result = JdbcTemplate.executeUpdate(sql, objects.toArray());
+        int result = JdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
 
         logger.debug("insert - {}", result);
     }
@@ -29,12 +23,7 @@ public class UserDao {
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET name=?, email=? WHERE userid=?";
 
-        List<Object> objects = new ArrayList<>();
-        objects.add(user.getName());
-        objects.add(user.getEmail());
-        objects.add(user.getUserId());
-
-        int result = JdbcTemplate.executeUpdate(sql, objects.toArray());
+        int result = JdbcTemplate.executeUpdate(sql, user.getName(), user.getEmail(), user.getUserId());
 
         logger.debug("update - {}", result);
     }
@@ -43,7 +32,7 @@ public class UserDao {
 
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        return JdbcTemplate.executeQuery(sql, null, (rs) -> {
+        return JdbcTemplate.executeQuery(sql, (rs) -> {
             List<User> userList = new ArrayList<>();
             User user = null;
             while (rs.next()) {
@@ -62,7 +51,7 @@ public class UserDao {
         List<Object> objects = new ArrayList<>();
         objects.add(userId);
 
-        return JdbcTemplate.executeQuery(sql, objects.toArray(), (rs) -> {
+        return JdbcTemplate.executeQuery(sql, objects, (rs) -> {
             User user = null;
             if (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
