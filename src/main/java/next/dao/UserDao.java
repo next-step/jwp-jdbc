@@ -3,7 +3,6 @@ package next.dao;
 import core.jdbc.JdbcTemplate;
 import next.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -23,7 +22,6 @@ public class UserDao {
     }
 
     public List findAll() {
-        List<User> users = new ArrayList<>();
         JdbcTemplate jdbcTemplate = new JdbcTemplate<User>();
         return jdbcTemplate.findAll("SELECT userId, password, name, email FROM USERS",
                 rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
