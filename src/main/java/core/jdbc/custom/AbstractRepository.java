@@ -50,25 +50,74 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
     }
 
     private void insert(T t) {
-        try (PreparedStatement pstmt = getPreparedStatement(createQueryForInsert())) {
-            setValuesForInsert(pstmt, t);
-            pstmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        InsertJdbcTemplate<T> insertJdbcTemplate = new InsertJdbcTemplate<T>() {
+            @Override
+            public String createQueryForInsert() {
+                String tableName = t.getClass().getSimpleName().toUpperCase();
+                return String.format("INSERT INTO %sS VALUES (%s)", tableName, getQuestionMark(t.getClass().getFields().length));
+            }
+
+            @Override
+            public PreparedStatement setValuesForInsert(final PreparedStatement preparedStatement, final Object object) throws IllegalAccessException, SQLException {
+                final Field[] fields = object.getClass().getDeclaredFields();
+                for (int i = 1; i <= fields.length; i++) {
+                    fields[i - 1].setAccessible(true);
+                    preparedStatement.setString(i, fields[i - 1].get(object).toString());
+                }
+                return preparedStatement;
+            }
+
+            private String getQuestionMark(int size) {
+                StringBuilder questionMarks = new StringBuilder();
+                for (int i = 0; i < size - 1; i++) {
+                    questionMarks.append("?, ");
+                }
+                questionMarks.append("?");
+                return questionMarks.toString();
+            }
+        };
+
+        insertJdbcTemplate.insert(t);
     }
 
     private void update(T t) {
-        try (PreparedStatement pstmt = getPreparedStatement(createQueryForUpdate())) {
-            final Field[] fields = t.getClass().getDeclaredFields();
-            final Object obj = findById((V) fields[0].get(t).toString());
-            if (Objects.nonNull(obj)) {
-                setValuesForInsert(pstmt, obj);
-                pstmt.executeUpdate();
+        UpdateJdbcTemplate<T> updateJdbcTemplate = new UpdateJdbcTemplate<T>() {
+            @Override
+            public String createQueryForUpdate() {
+                String tableName = t.getClass().getSimpleName().toUpperCase();
+                String id = Arrays.stream(t.getClass().getFields())
+                        .findFirst()
+                        .get()
+                        .toString();
+                return String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(t.getClass()), id);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+            @Override
+            public PreparedStatement setValuesForUpdate(final PreparedStatement preparedStatement, final Object object) throws IllegalAccessException, SQLException {
+                final Field[] fields = object.getClass().getDeclaredFields();
+                fields[0].setAccessible(true);
+
+                for (int i = 1; i < fields.length; i++) {
+                    fields[i].setAccessible(true);
+                    preparedStatement.setString(i, fields[i].get(object).toString());
+                }
+                fields[0].setAccessible(true);
+                preparedStatement.setString(fields.length, fields[0].get(object).toString());
+                return preparedStatement;
+            }
+
+            private String getUpdateSetQuestionMark(Class clazz) {
+                List<String> mark = new ArrayList<>();
+                final Field[] fields = clazz.getDeclaredFields();
+                for (int i = 1; i < fields.length; i++) {
+                    mark.add(String.format("%s = ?", fields[i].getName()));
+                }
+                return String.join(",", mark);
+            }
+
+
+        };
+        updateJdbcTemplate.update(t);
     }
 
     @Override
@@ -110,42 +159,6 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
         return null;
     }
 
-    private String createQueryForInsert() {
-        String tableName = t.getClass().getSimpleName().toUpperCase();
-        return String.format("INSERT INTO %sS VALUES (%s)", tableName, getQuestionMark(t.getClass().getFields().length));
-    }
-
-    private String createQueryForUpdate() {
-        String tableName = t.getClass().getSimpleName().toUpperCase();
-        String id = Arrays.stream(t.getClass().getFields())
-                .findFirst()
-                .get()
-                .toString();
-        return String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(t.getClass()), id);
-    }
-
-    private PreparedStatement setValuesForInsert(PreparedStatement preparedStatement, Object object) throws IllegalAccessException, SQLException {
-        final Field[] fields = object.getClass().getDeclaredFields();
-        for (int i = 1; i <= fields.length; i++) {
-            fields[i - 1].setAccessible(true);
-            preparedStatement.setString(i, fields[i - 1].get(object).toString());
-        }
-        return preparedStatement;
-    }
-
-    private PreparedStatement setValuesForUpdate(PreparedStatement preparedStatement, Object object) throws IllegalAccessException, SQLException {
-        final Field[] fields = object.getClass().getDeclaredFields();
-        fields[0].setAccessible(true);
-
-        for (int i = 1; i < fields.length; i++) {
-            fields[i].setAccessible(true);
-            preparedStatement.setString(i, fields[i].get(object).toString());
-        }
-        fields[0].setAccessible(true);
-        preparedStatement.setString(fields.length, fields[0].get(object).toString());
-        return preparedStatement;
-    }
-
     private Object getConstructor(Class clazz, ResultSet resultSet) throws Exception {
         final Field[] fields = clazz.getDeclaredFields();
         Object[] values = new Object[fields.length];
@@ -156,23 +169,5 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
         }
         Constructor<?> declaredConstructor = clazz.getDeclaredConstructor(types);
         return declaredConstructor.newInstance(values);
-    }
-
-    private String getQuestionMark(int size) {
-        StringBuilder questionMarks = new StringBuilder();
-        for (int i = 0; i < size - 1; i++) {
-            questionMarks.append("?, ");
-        }
-        questionMarks.append("?");
-        return questionMarks.toString();
-    }
-
-    private String getUpdateSetQuestionMark(Class clazz) {
-        List<String> mark = new ArrayList<>();
-        final Field[] fields = clazz.getDeclaredFields();
-        for (int i = 1; i < fields.length; i++) {
-            mark.add(String.format("%s = ?", fields[i].getName()));
-        }
-        return String.join(",", mark);
     }
 }
