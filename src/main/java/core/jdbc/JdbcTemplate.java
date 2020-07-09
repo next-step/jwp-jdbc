@@ -48,7 +48,7 @@ public class JdbcTemplate<T> {
     }
 
 
-    public T findById(String sql, BindPrepareStatement bindPrepareStatement, BindResultSet bindResultSet)  {
+    public T findById(String sql, BindPrepareStatement bindPrepareStatement, BindResultSet brs)  {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -58,7 +58,11 @@ public class JdbcTemplate<T> {
             bindPrepareStatement.setPrepareStatement(pstmt);
 
             rs = pstmt.executeQuery();
-            return (T) bindResultSet.bindResultSet(rs);
+            T result = null;
+            if(rs.next()) {
+                result =  (T) brs.bindResultSet(rs);
+            }
+            return result;
         } catch (SQLException e) {
             throw new QueryExecuteException("find Query execute Exception!");
         } finally {
