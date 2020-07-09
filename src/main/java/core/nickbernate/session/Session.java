@@ -1,7 +1,8 @@
 package core.nickbernate.session;
 
-public interface Session {
+import core.nickbernate.manager.EntityManager;
 
-    <T> void persist(Object id, T entity);
+import java.io.Closeable;
 
+public interface Session extends EntityManager, Closeable {
 }

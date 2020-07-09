@@ -1,6 +1,7 @@
 package core.jdbc;
 
-import core.jdbc.exception.SqlExecuteException;
+import core.jdbc.exception.JdbcTemplateException;
+import lombok.NoArgsConstructor;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -10,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
 public class JdbcTemplate {
 
     private DataSource dataSource;
@@ -19,8 +21,24 @@ public class JdbcTemplate {
         this.dataSource = dataSource;
     }
 
-    public JdbcTemplate(Connection connection) {
-        this.connection = connection;
+    public void initConnection() {
+        try {
+            this.connection = dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new JdbcTemplateException("Data source connection initialization failed.", e);
+        }
+    }
+
+    public void setConnectionAutoCommit(boolean autoCommit) {
+        try {
+            if (this.connection == null) {
+                initConnection();
+            }
+
+            this.connection.setAutoCommit(autoCommit);
+        } catch (SQLException e) {
+            throw new JdbcTemplateException("connection setting auto commit failed.", e);
+        }
     }
 
     public void update(String sql, Object[] parameters) {
@@ -35,7 +53,7 @@ public class JdbcTemplate {
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new SqlExecuteException(e);
+            throw new JdbcTemplateException(e);
         }
     }
 
@@ -75,8 +93,17 @@ public class JdbcTemplate {
                 }
             }
         } catch (SQLException e) {
-            throw new SqlExecuteException(e);
+            throw new JdbcTemplateException(e);
         }
     }
 
+    public void closeConnection() {
+        try {
+            if (this.connection != null) {
+                this.connection.close();
+            }
+        } catch (SQLException e) {
+            throw new JdbcTemplateException("connection close failed.", e);
+        }
+    }
 }

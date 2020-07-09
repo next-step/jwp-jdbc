@@ -1,11 +1,11 @@
 package core.nickbernate.session;
 
-import java.sql.Connection;
+import javax.sql.DataSource;
 
 public class SessionFactory {
 
-    public Session createNickbernateSession(Connection connection) {
-        return new NickbernateSession(connection);
+    public Session openSession(DataSource dataSource) {
+        return new NickbernateSession(dataSource);
     }
 
 }

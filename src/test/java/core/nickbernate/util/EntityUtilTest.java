@@ -2,6 +2,7 @@ package core.nickbernate.util;
 
 import core.nickbernate.annotation.Entity;
 import core.nickbernate.annotation.Id;
+import core.nickbernate.session.EntityKey;
 import lombok.Getter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,15 +16,15 @@ class EntityUtilTest {
     @Test
     void findId() {
         /* given */
-        String expected = "testId";
-        TestEntity testEntity = new TestEntity(expected, "testName");
+        String testId = "testId";
+        TestEntity testEntity = new TestEntity(testId, "testName");
 
         /* when */
-        Object actual = EntityUtil.findIdFrom(testEntity);
+        EntityKey actual = EntityUtil.findEntityKeyFrom(testEntity);
 
         /* then */
         assertThat(actual).isNotNull();
-        assertThat(actual).isEqualTo(expected);
+        assertThat(actual).isEqualTo(new EntityKey(testEntity.getClass(), testId));
     }
 
     @DisplayName("Entity annotation이 존재하지 않으면 Exception")
@@ -34,7 +35,7 @@ class EntityUtilTest {
         TestClass testClass = new TestClass(expected, "testName");
 
         /* when */ /* then */
-        assertThrows(IllegalArgumentException.class, () -> EntityUtil.findIdFrom(testClass));
+        assertThrows(IllegalArgumentException.class, () -> EntityUtil.findEntityKeyFrom(testClass));
     }
 
     @DisplayName("Id annotation이 존재하지 않으면 Exception")
@@ -45,7 +46,7 @@ class EntityUtilTest {
         TestClass2 testClass2 = new TestClass2(expected, "testName");
 
         /* when */ /* then */
-        assertThrows(IllegalArgumentException.class, () -> EntityUtil.findIdFrom(testClass2));
+        assertThrows(IllegalArgumentException.class, () -> EntityUtil.findEntityKeyFrom(testClass2));
     }
 
     @DisplayName("Id annotation이 여러 개 존재하면 Exception")
@@ -56,7 +57,7 @@ class EntityUtilTest {
         TestClass3 testClass3 = new TestClass3(expected, "testName");
 
         /* when */ /* then */
-        assertThrows(IllegalArgumentException.class, () -> EntityUtil.findIdFrom(testClass3));
+        assertThrows(IllegalArgumentException.class, () -> EntityUtil.findEntityKeyFrom(testClass3));
     }
 
     @Getter

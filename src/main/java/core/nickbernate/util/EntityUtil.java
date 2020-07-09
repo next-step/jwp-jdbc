@@ -2,6 +2,7 @@ package core.nickbernate.util;
 
 import core.nickbernate.annotation.Entity;
 import core.nickbernate.annotation.Id;
+import core.nickbernate.session.EntityKey;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -11,12 +12,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class EntityUtil {
+public abstract class EntityUtil {
 
     private static final Class<Entity> ENTITY_ANNOTATION = Entity.class;
     private static final Class<Id> ENTITY_ID_ANNOTATION = Id.class;
 
-    public static <T> Object findIdFrom(T entity) {
+    public static <T> EntityKey findEntityKeyFrom(T entity) {
         Class<?> entityClass = entity.getClass();
         if (entityClass.isAnnotationPresent(ENTITY_ANNOTATION)) {
             return findEntityId(entity);
@@ -25,7 +26,7 @@ public class EntityUtil {
         throw new IllegalArgumentException("Entity annotation does not exist.");
     }
 
-    private static <T> Object findEntityId(T entity) {
+    private static <T> EntityKey findEntityId(T entity) {
         try {
             List<Field> fields = getIdFields(entity);
 
@@ -33,7 +34,7 @@ public class EntityUtil {
                 Field field = fields.get(0);
                 field.setAccessible(true);
 
-                return field.get(entity);
+                return new EntityKey(entity.getClass(), field.get(entity));
             }
 
             throw new IllegalArgumentException("Entity Id annotation must be unique.");
