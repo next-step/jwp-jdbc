@@ -2,8 +2,6 @@ package core.jdbc;
 
 import next.exception.QueryExecuteException;
 import next.model.User;
-import org.checkerframework.checker.nullness.qual.AssertNonNullIfNonNull;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +35,14 @@ public class JdbcTemplateTest {
     @Test
     @DisplayName("insert 테스트")
     void insertTest() {
+        List beforeResults = jdbcTemplate.findAll(selectAllSql, rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                        rs.getString("email")));
         jdbcTemplate.insertOrUpdate(insertSql, "kjs4395","1234","지서니","kjs4395@gamil.com");
+
+        List afterResults = jdbcTemplate.findAll(selectAllSql, rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                rs.getString("email")));
+
+        assertEquals(beforeResults.size()+1, afterResults.size());
     }
 
     @Test
@@ -58,10 +63,11 @@ public class JdbcTemplateTest {
 
     @Test
     void selectAllTest() {
-        List<User> userList = jdbcTemplate.findAll(selectAllSql, rs -> new User(rs.getString("userId"), rs.getString("password"),
+        jdbcTemplate.insertOrUpdate(insertSql, "kjs4395","1234","지서니","kjs4395@gamil.com");
+        List userList = jdbcTemplate.findAll(selectAllSql, rs -> new User(rs.getString("userId"), rs.getString("password"),
                 rs.getString("name"), rs.getString("email")));
 
-        assertEquals(1, userList.size());
+        assertTrue(!userList.isEmpty());
 
     }
 }

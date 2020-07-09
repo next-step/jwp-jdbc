@@ -66,7 +66,7 @@ public class JdbcTemplate<T> {
 
             List<T> results = new ArrayList<>();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 results.add((T) brs.bindResultSet(rs));
             }
 
