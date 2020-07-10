@@ -13,18 +13,21 @@ import java.util.Map;
 public class JsonView implements View {
     private static final Logger logger = LoggerFactory.getLogger(JsonView.class);
 
+    ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        if (model == null) {
+            throw new IllegalArgumentException("model is null");
+        }
+
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String json = StringUtils.EMPTY;
 
         if (model.size() == 1) {
-            String key = model.keySet().iterator().next();
-            Object value = model.get(key);
-
+            Object value = model.values().iterator().next();
             json = objectMapper.writeValueAsString(value);
         } else if (model.size() > 1) {
             json = objectMapper.writeValueAsString(model);

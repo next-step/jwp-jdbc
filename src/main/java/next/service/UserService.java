@@ -3,6 +3,8 @@ package next.service;
 import next.dao.UserDao;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
+import next.exception.DuplicateUserIdException;
+import next.exception.SqlErrorCode;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +20,9 @@ public class UserService {
         try {
             return dao.findByUserId(userId);
         } catch (SQLException ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex.getMessage(), ex);
+            return null;
         }
-        return null;
     }
 
     public User insertUser(User user) {
@@ -28,9 +30,12 @@ public class UserService {
             dao.insert(user);
             return user;
         } catch (SQLException ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex.getMessage(), ex);
+            if (ex.getErrorCode() == SqlErrorCode.ERR_DUP_ENTRY.getCode()) {
+                throw new DuplicateUserIdException(ex);
+            }
+            throw new RuntimeException("user insert fail");
         }
-        return null;
     }
 
     public User insertUser(UserCreatedDto userCreatedDto) {
@@ -44,9 +49,9 @@ public class UserService {
             dao.update(updateUser);
             return dao.findByUserId(updateUser.getUserId());
         } catch (SQLException ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex.getMessage(), ex);
+            throw new RuntimeException("user update fail");
         }
-        return null;
     }
 
     public User updateUser(String userId, UserUpdatedDto userUpdatedDto) {
