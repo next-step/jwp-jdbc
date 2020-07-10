@@ -21,15 +21,15 @@ class StatefulPersistenceContextTest {
         /* given */
         PersistenceContext persistenceContext = new StatefulPersistenceContext(new NickbernateSession(ConnectionManager.getDataSource()));
 
-        TestEntity testEntity = new TestEntity("testId", "testName");
+        TestEntity testEntity = new TestEntity("testId", "testPassword", "testName");
         EntityKey entityKey = EntityUtil.createEntityKeyFrom(testEntity);
         persistenceContext.addEntity(entityKey, testEntity);
 
-        TestEntity testEntity2 = new TestEntity("testId2", "testName");
+        TestEntity testEntity2 = new TestEntity("testId2", "testPassword", "testName");
         EntityKey entityKey2 = EntityUtil.createEntityKeyFrom(testEntity2);
         persistenceContext.addEntity(entityKey2, testEntity2);
 
-        testEntity.updateName("updatedName");
+        testEntity.update("updatedPassword", "updatedName");
 
         /* when */
         List<EntityAction> actions = persistenceContext.generateActionsWithdirtyChecking();

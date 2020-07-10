@@ -14,15 +14,22 @@ public class TestEntity {
     @Id
     private String id;
 
+    private String password;
     private String name;
 
-    public TestEntity(String id, String name) {
+    public TestEntity(String id, String password, String name) {
         this.id = id;
+        this.password = password;
         this.name = name;
     }
 
-    public void updateName(String updatedName) {
-        this.name = updatedName;
+    public void update(String password, String name) {
+        this.password = password;
+        this.name = name;
+    }
+
+    public boolean isSameTestEntity(TestEntity testEntity) {
+        return this.id.equals(testEntity.id);
     }
 
     public static String getTableName() {

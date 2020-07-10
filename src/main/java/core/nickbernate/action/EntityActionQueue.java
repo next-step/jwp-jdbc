@@ -4,6 +4,7 @@ import core.nickbernate.session.Session;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class EntityActionQueue {
 
@@ -20,6 +21,12 @@ public class EntityActionQueue {
 
     public void addAll(List<EntityAction> entityActions) {
         this.actions.addAll(entityActions);
+    }
+
+    public List<String> getAllQueries() {
+        return actions.stream()
+                .map(EntityAction::getQuery)
+                .collect(Collectors.toList());
     }
 
 }

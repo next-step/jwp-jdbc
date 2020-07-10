@@ -17,7 +17,7 @@ class EntityUtilTest {
     void findId() {
         /* given */
         String testId = "testId";
-        TestEntity testEntity = new TestEntity(testId, "testName");
+        TestEntity testEntity = new TestEntity(testId, "testPassword", "testName");
 
         /* when */
         EntityKey actual = EntityUtil.createEntityKeyFrom(testEntity);
@@ -64,8 +64,8 @@ class EntityUtilTest {
     @Test
     void isAllSameEntityFieldValues() {
         /* given */
-        TestEntity testEntity = new TestEntity("testId", "testName");
-        TestEntity snapShot = new TestEntity("testId", "testName");
+        TestEntity testEntity = new TestEntity("testId", "testPassword", "testName");
+        TestEntity snapShot = new TestEntity("testId", "testPassword", "testName");
 
         /* when */
         boolean result = EntityUtil.isAllSameEntityFieldValues(testEntity, snapShot);
@@ -78,8 +78,8 @@ class EntityUtilTest {
     @Test
     void isAllSameEntityFieldValues2() {
         /* given */
-        TestEntity testEntity = new TestEntity("testId", "testName");
-        TestEntity snapShot = new TestEntity("testId", "updatedName");
+        TestEntity testEntity = new TestEntity("testId", "testPassword", "testName");
+        TestEntity snapShot = new TestEntity("testId", "testPassword", "updatedName");
 
         /* when */
         boolean result = EntityUtil.isAllSameEntityFieldValues(testEntity, snapShot);

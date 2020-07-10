@@ -12,14 +12,14 @@ class EntityUpdateActionTest {
     @Test
     void createSelectQuery() {
         /* given */
-        TestEntity testEntity = new TestEntity("testId", "testName");
+        TestEntity testEntity = new TestEntity("testId", "testPassword", "testName");
 
         /* when */
         EntityUpdateAction entityUpdateAction = new EntityUpdateAction(testEntity);
 
         /* then */
         assertThat(entityUpdateAction.getQuery()).isEqualTo(
-                String.format("UPDATE %s SET name='testName' WHERE id='testId'", TestEntity.getTableName())
+                String.format("UPDATE %s SET password='testPassword', name='testName' WHERE id='testId'", TestEntity.getTableName())
         );
     }
 

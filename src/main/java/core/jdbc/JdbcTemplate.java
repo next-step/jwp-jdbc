@@ -2,6 +2,7 @@ package core.jdbc;
 
 import core.jdbc.exception.JdbcTemplateException;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @NoArgsConstructor
 public class JdbcTemplate {
 
@@ -44,11 +46,37 @@ public class JdbcTemplate {
     public void update(String sql, Object[] parameters) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+            log.info("execute update query = {}", sql);
+
             for (int i = 0; i < parameters.length; i++) {
                 preparedStatement.setObject(i + 1, parameters[i]);
             }
 
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
+
+    public void update(String sql) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+            log.info("execute update query = {}", sql);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
+
+    public void bulkUpdate(List<String> sqls) {
+        try {
+            for (String sql : sqls) {
+                log.info("execute update query = {}", sql);
+
+                PreparedStatement preparedStatement = this.connection.prepareStatement(sql);
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
@@ -97,6 +125,8 @@ public class JdbcTemplate {
                 preparedStatement.setObject(i + 1, parameters[i]);
             }
 
+            log.info("execute select query = {}", sql);
+
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 List<T> objects = new ArrayList<>();
 
@@ -116,8 +146,9 @@ public class JdbcTemplate {
         try (Connection con = dataSource.getConnection();
              PreparedStatement preparedStatement = con.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
-            List<T> objects = new ArrayList<>();
+            log.info("execute select query = {}", sql);
 
+            List<T> objects = new ArrayList<>();
             while (resultSet.next()) {
                 T object = rowMapper.mapRow(resultSet);
                 objects.add(object);

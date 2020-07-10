@@ -20,7 +20,7 @@ class EntitySelectActionTest {
 
         /* then */
         assertThat(selectAction.getQuery()).isEqualTo(
-                String.format("SELECT id, name FROM %s WHERE id='testId'", TestEntity.getTableName())
+                String.format("SELECT id, password, name FROM %s WHERE id='testId'", TestEntity.getTableName())
         );
     }
 

@@ -12,14 +12,14 @@ class EntityInsertActionTest {
     @Test
     void createSelectQuery() {
         /* given */
-        TestEntity testEntity = new TestEntity("testId", "testName");
+        TestEntity testEntity = new TestEntity("testId", "testPassword", "testName");
 
         /* when */
         EntityInsertAction entityInsertAction = new EntityInsertAction(testEntity);
 
         /* then */
         assertThat(entityInsertAction.getQuery()).isEqualTo(
-                String.format("INSERT INTO %s VALUES ('testId', 'testName')", TestEntity.getTableName())
+                String.format("INSERT INTO %s VALUES ('testId', 'testPassword', 'testName')", TestEntity.getTableName())
         );
     }
 

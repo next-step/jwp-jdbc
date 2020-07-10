@@ -9,26 +9,18 @@ import core.nickbernate.exception.NickbernateExecuteException;
 import core.nickbernate.persistence.PersistenceContext;
 import core.nickbernate.persistence.StatefulPersistenceContext;
 import core.nickbernate.util.EntityUtil;
-import next.model.User;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class NickbernateSession implements Session {
 
-    private DataSource dataSource;
     private EntityActionQueue actionQueue;
     private PersistenceContext persistenceContext;
     private JdbcTemplate jdbcTemplate;
 
-    @Deprecated
-    private Map<Object, Object> session2 = new HashMap<>();
-
     public NickbernateSession(DataSource dataSource) {
-        this.dataSource = dataSource;
         this.actionQueue = new EntityActionQueue(this);
         this.persistenceContext = new StatefulPersistenceContext(this);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -69,18 +61,9 @@ public class NickbernateSession implements Session {
     public void flush() {
         List<EntityAction> updateActions = this.persistenceContext.generateActionsWithdirtyChecking();
         actionQueue.addAll(updateActions);
-        // TODO: 2020/07/09 1. context 에서 snapshot 비교과정을 통해 List<Action> 반환 (update)
-        // TODO: 2020/07/09 2. queue에 전달
-        // TODO: 2020/07/09 3. queue에서는 insert, update 문을 session -> jdbcTemplate 통해서 query
 
-        User user = (User) session2.get("userId");
-        String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        jdbcTemplate.update(sql, new Object[]{
-                user.getUserId(),
-                user.getPassword(),
-                user.getName(),
-                user.getEmail()
-        });
+        List<String> queries = actionQueue.getAllQueries();
+        executeUpdateQuery(queries);
     }
 
     @Override
@@ -88,6 +71,8 @@ public class NickbernateSession implements Session {
         flush();
 
         jdbcTemplate.setConnectionAutoCommit(true);
+
+        close();
     }
 
     @Override
@@ -111,6 +96,10 @@ public class NickbernateSession implements Session {
 
             return instance;
         });
+    }
+
+    private void executeUpdateQuery(List<String> queries) {
+        jdbcTemplate.bulkUpdate(queries);
     }
 
 }
