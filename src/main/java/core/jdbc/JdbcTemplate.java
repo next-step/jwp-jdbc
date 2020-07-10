@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,17 +39,21 @@ public class JdbcTemplate<T> {
         insertOrUpdate(sql, bindPrepareStatement);
     }
 
-    public T findById(String sql, BindResultSet bindResultSet, Object...values) {
-        BindPrepareStatement bindPrepareStatement = pstmt -> {
-            for(int i=0; i<values.length; i++) {
-                pstmt.setObject(i+1, values[i]);
-            }
-        };
-        return findById(sql, bindPrepareStatement,bindResultSet);
+    public T findById(String sql, BindResultSet bindResultSet, Object... values) {
+        List<T> results = this.find(sql, selectQueryBindStatement(values), bindResultSet);
+
+        if(results.isEmpty()) {
+            throw new QueryExecuteException("result is null");
+        }
+
+        return results.get(0);
     }
 
+    public List<T> findAll(String sql, BindResultSet brs, Object... values) {
+        return find(sql, selectQueryBindStatement(values), brs);
+    }
 
-    public T findById(String sql, BindPrepareStatement bindPrepareStatement, BindResultSet bindResultSet)  {
+    private List<T> find(String sql, BindPrepareStatement bindPrepareStatement, BindResultSet brs) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -58,36 +63,32 @@ public class JdbcTemplate<T> {
             bindPrepareStatement.setPrepareStatement(pstmt);
 
             rs = pstmt.executeQuery();
-            return (T) bindResultSet.bindResultSet(rs);
+
+            List<T> results = new ArrayList<>();
+
+            while (rs.next()) {
+                results.add((T) brs.bindResultSet(rs));
+            }
+
+            return results;
+
         } catch (SQLException e) {
-            throw new QueryExecuteException("find Query execute Exception!");
+            throw new QueryExecuteException("find query execute Exception!");
         } finally {
             closeConnection(con, pstmt);
             closeResultConnection(rs);
         }
     }
 
-    public List<T> findAll(String sql, BindResultSet brs) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
-
-            rs = pstmt.executeQuery();
-
-            return (List<T>) brs.bindResultSet(rs);
-
-        } catch (SQLException e) {
-            throw new QueryExecuteException("find all query execute Exception!");
-        } finally {
-            closeConnection(con, pstmt);
-            closeResultConnection(rs);
-        }
+    private BindPrepareStatement selectQueryBindStatement(Object... values) {
+        return pstmt -> {
+            for (int i = 0; i < values.length; i++) {
+                pstmt.setObject(i + 1, values[i]);
+            }
+        };
     }
 
-    private void closeConnection(Connection con, PreparedStatement pstmt)  {
+    private void closeConnection(Connection con, PreparedStatement pstmt) {
         try {
             if (pstmt != null) {
                 pstmt.close();
