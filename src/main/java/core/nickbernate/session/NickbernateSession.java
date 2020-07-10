@@ -1,6 +1,7 @@
 package core.nickbernate.session;
 
 import core.jdbc.JdbcTemplate;
+import core.nickbernate.action.EntityAction;
 import core.nickbernate.action.EntityActionQueue;
 import core.nickbernate.action.EntityInsertAction;
 import core.nickbernate.action.EntitySelectAction;
@@ -66,6 +67,8 @@ public class NickbernateSession implements Session {
 
     @Override
     public void flush() {
+        List<EntityAction> updateActions = this.persistenceContext.generateActionsWithdirtyChecking();
+        actionQueue.addAll(updateActions);
         // TODO: 2020/07/09 1. context 에서 snapshot 비교과정을 통해 List<Action> 반환 (update)
         // TODO: 2020/07/09 2. queue에 전달
         // TODO: 2020/07/09 3. queue에서는 insert, update 문을 session -> jdbcTemplate 통해서 query

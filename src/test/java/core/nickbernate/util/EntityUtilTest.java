@@ -4,6 +4,7 @@ import core.nickbernate.annotation.Entity;
 import core.nickbernate.annotation.Id;
 import core.nickbernate.session.EntityKey;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -60,7 +61,36 @@ class EntityUtilTest {
         assertThrows(IllegalArgumentException.class, () -> EntityUtil.createEntityKeyFrom(testClass3));
     }
 
+    @DisplayName("entity와 snapshot의 모든 field가 같으면 true")
+    @Test
+    void isAllSameEntityFieldValues() {
+        /* given */
+        TestEntity testEntity = new TestEntity("testId", "testName");
+        TestEntity snapShot = new TestEntity("testId", "testName");
+
+        /* when */
+        boolean result = EntityUtil.isAllSameEntityFieldValues(testEntity, snapShot);
+
+        /* then */
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("entity와 snapshot field가 하나라도 값이 다르면 false")
+    @Test
+    void isAllSameEntityFieldValues2() {
+        /* given */
+        TestEntity testEntity = new TestEntity("testId", "testName");
+        TestEntity snapShot = new TestEntity("testId", "updatedName");
+
+        /* when */
+        boolean result = EntityUtil.isAllSameEntityFieldValues(testEntity, snapShot);
+
+        /* then */
+        assertThat(result).isFalse();
+    }
+
     @Getter
+    @NoArgsConstructor
     @Entity
     static class TestEntity {
 

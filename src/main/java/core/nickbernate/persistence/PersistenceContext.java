@@ -1,6 +1,9 @@
 package core.nickbernate.persistence;
 
+import core.nickbernate.action.EntityAction;
 import core.nickbernate.session.EntityKey;
+
+import java.util.List;
 
 public interface PersistenceContext {
 
@@ -9,4 +12,7 @@ public interface PersistenceContext {
     boolean containsKey(EntityKey entityKey);
 
     Object getEntity(EntityKey entityKey);
+
+    List<EntityAction> generateActionsWithdirtyChecking();
+
 }

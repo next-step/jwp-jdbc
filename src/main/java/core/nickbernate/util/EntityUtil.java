@@ -51,6 +51,29 @@ public abstract class EntityUtil {
                 .collect(Collectors.toList());
     }
 
+    public static boolean isAllSameEntityFieldValues(Object entity, Object snapShot) {
+        try {
+            Field[] snapShotFields = snapShot.getClass().getDeclaredFields();
+            for (Field snapShotField : snapShotFields) {
+                Field entityField = entity.getClass().getDeclaredField(snapShotField.getName());
+
+                snapShotField.setAccessible(true);
+                entityField.setAccessible(true);
+
+                Object snapShotFieldValue = snapShotField.get(snapShot);
+                Object entityFieldValue = entityField.get(entity);
+
+                if (!snapShotFieldValue.equals(entityFieldValue)) {
+                    return false;
+                }
+            }
+
+            return true;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Entity Field Comparing Failed.", e);
+        }
+    }
+
     private static <T> EntityKey findEntityKey(T entity) {
         try {
             Field field = findEntityIdField(entity.getClass());

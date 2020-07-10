@@ -17,4 +17,9 @@ public class EntityActionQueue {
     public void add(EntityAction entityAction) {
         this.actions.add(entityAction);
     }
+
+    public void addAll(List<EntityAction> entityActions) {
+        this.actions.addAll(entityActions);
+    }
+
 }
