@@ -6,20 +6,20 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EntityInsertActionTest {
+class EntityUpdateActionTest {
 
-    @DisplayName("Insert Query 생성하기")
+    @DisplayName("Update Query 생성하기")
     @Test
     void createSelectQuery() {
         /* given */
         TestEntity testEntity = new TestEntity("testId", "testName");
 
         /* when */
-        EntityInsertAction entityInsertAction = new EntityInsertAction(testEntity);
+        EntityUpdateAction entityUpdateAction = new EntityUpdateAction(testEntity);
 
         /* then */
-        assertThat(entityInsertAction.getQuery()).isEqualTo(
-                String.format("INSERT INTO %s VALUES ('testId', 'testName')", TestEntity.getTableName())
+        assertThat(entityUpdateAction.getQuery()).isEqualTo(
+                String.format("UPDATE %s SET name='testName' WHERE id='testId'", TestEntity.getTableName())
         );
     }
 

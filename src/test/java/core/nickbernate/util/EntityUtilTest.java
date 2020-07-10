@@ -1,10 +1,9 @@
 package core.nickbernate.util;
 
+import core.nickbernate.TestEntity;
 import core.nickbernate.annotation.Entity;
 import core.nickbernate.annotation.Id;
 import core.nickbernate.session.EntityKey;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -87,22 +86,6 @@ class EntityUtilTest {
 
         /* then */
         assertThat(result).isFalse();
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @Entity
-    static class TestEntity {
-
-        @Id
-        private String id;
-
-        private String name;
-
-        public TestEntity(String id, String name) {
-            this.id = id;
-            this.name = name;
-        }
     }
 
     static class TestClass {

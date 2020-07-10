@@ -1,6 +1,9 @@
 package core.nickbernate.action;
 
 import core.nickbernate.util.EntityQueryCreationUtil;
+import core.nickbernate.util.EntityUtil;
+
+import java.lang.reflect.Field;
 
 public class EntityUpdateAction extends EntityAction {
 
@@ -10,13 +13,15 @@ public class EntityUpdateAction extends EntityAction {
     }
 
     private <T> String createUpdateQuery(T entity) {
-        // TODO: 2020/07/10
         Class<?> entityClass = entity.getClass();
 
         String tableName = getTableName(entityClass);
-        String insertFieldValuesQuery = EntityQueryCreationUtil.createFieldValuesQuery(entity);
+        String updateFieldsQuery = EntityQueryCreationUtil.createUpdateFieldsQuery(entity);
 
-        return String.format("INSERT INTO %s VALUES (%s)", tableName, insertFieldValuesQuery);
+        Field idField = EntityUtil.findEntityIdField(entityClass);
+        Object idFieldValue = EntityUtil.getIdFieldValue(entity);
+
+        return String.format("UPDATE %s SET %s WHERE %s='%s'", tableName, updateFieldsQuery, idField.getName(), idFieldValue);
     }
 
 }

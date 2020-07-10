@@ -37,6 +37,17 @@ public abstract class EntityUtil {
         throw new IllegalArgumentException("Entity Id annotation must be unique.");
     }
 
+    public static Object getIdFieldValue(Object entity) {
+        try {
+            Field entityIdField = findEntityIdField(entity.getClass());
+            entityIdField.setAccessible(true);
+
+            return entityIdField.get(entity);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Getting Entity Id field is failed.", e);
+        }
+    }
+
     public static <T> T createNewInstance(Class<T> entityClass) {
         try {
             return entityClass.getDeclaredConstructor().newInstance();
