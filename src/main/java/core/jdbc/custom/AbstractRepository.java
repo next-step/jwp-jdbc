@@ -47,11 +47,10 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
 
     @Override
     public void save(final T t) {
-        JdbcTemplate<T> jdbcTemplate = new JdbcTemplate<T>() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             final Field[] fields = t.getClass().getDeclaredFields();
-
             @Override
-            public PreparedStatement setValues(final T t, final PreparedStatement preparedStatement) {
+            public void setValues(final PreparedStatement preparedStatement) {
                 fields[0].setAccessible(true);
                 try {
                     final Object obj = findById((V) fields[0].get(t).toString());
@@ -60,7 +59,7 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
                             fields[i - 1].setAccessible(true);
                             preparedStatement.setString(i, fields[i - 1].get(obj).toString());
                         }
-                        return preparedStatement;
+                        return;
                     }
 
                     for (int i = 1; i < fields.length; i++) {
@@ -69,56 +68,59 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
                     }
                     fields[0].setAccessible(true);
                     preparedStatement.setString(fields.length, fields[0].get(obj).toString());
-                    return preparedStatement;
 
                 } catch (IllegalAccessException | SQLException e) {
                     e.printStackTrace();
                 }
-                return null;
             }
 
             @Override
-            public String createQuery() {
-                fields[0].setAccessible(true);
-                String tableName = t.getClass().getSimpleName().toUpperCase();
-                final Object obj;
-                try {
-                    obj = findById((V) fields[0].get(t).toString());
-                    if (Objects.isNull(obj)) {
-                        return String.format("INSERT INTO %sS VALUES (%s)", tableName, getQuestionMark(t.getClass().getFields().length));
-                    }
-
-                    String id = Arrays.stream(t.getClass().getFields())
-                            .findFirst()
-                            .get()
-                            .toString();
-                    return String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(t.getClass()), id);
-
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+            public Object mapRow(final ResultSet resultSet) {
                 return null;
             }
-
-            private String getQuestionMark(int size) {
-                StringBuilder questionMarks = new StringBuilder();
-                for (int i = 0; i < size - 1; i++) {
-                    questionMarks.append("?, ");
-                }
-                questionMarks.append("?");
-                return questionMarks.toString();
-            }
-
-            private String getUpdateSetQuestionMark(Class clazz) {
-                List<String> mark = new ArrayList<>();
-                final Field[] fields = clazz.getDeclaredFields();
-                for (int i = 1; i < fields.length; i++) {
-                    mark.add(String.format("%s = ?", fields[i].getName()));
-                }
-                return String.join(",", mark);
-            }
         };
-        jdbcTemplate.save(t);
+        jdbcTemplate.save(createQuery());
+    }
+
+    public String createQuery() {
+        final Field[] fields = t.getClass().getDeclaredFields();
+        fields[0].setAccessible(true);
+        String tableName = t.getClass().getSimpleName().toUpperCase();
+        final Object obj;
+        try {
+            obj = findById((V) fields[0].get(t).toString());
+            if (Objects.isNull(obj)) {
+                return String.format("INSERT INTO %sS VALUES (%s)", tableName, getQuestionMark(t.getClass().getFields().length));
+            }
+
+            String id = Arrays.stream(t.getClass().getFields())
+                    .findFirst()
+                    .get()
+                    .toString();
+            return String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(t.getClass()), id);
+
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String getQuestionMark(int size) {
+        StringBuilder questionMarks = new StringBuilder();
+        for (int i = 0; i < size - 1; i++) {
+            questionMarks.append("?, ");
+        }
+        questionMarks.append("?");
+        return questionMarks.toString();
+    }
+
+    private String getUpdateSetQuestionMark(Class clazz) {
+        List<String> mark = new ArrayList<>();
+        final Field[] fields = clazz.getDeclaredFields();
+        for (int i = 1; i < fields.length; i++) {
+            mark.add(String.format("%s = ?", fields[i].getName()));
+        }
+        return String.join(",", mark);
     }
 
     @Override

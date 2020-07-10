@@ -4,8 +4,11 @@ import core.jdbc.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.List;
+import java.util.Objects;
 
-public abstract class JdbcTemplate<T> {
+public abstract class JdbcTemplate {
 
     private Connection getConnection() {
         return ConnectionManager.getConnection();
@@ -16,16 +19,25 @@ public abstract class JdbcTemplate<T> {
         return actionablePrepared.getPreparedStatement(getConnection());
     }
 
-    void save(T t) {
-        try (PreparedStatement pstmt = getPreparedStatement(createQuery())) {
-            setValues(t, pstmt);
+    void save(String query) {
+        try (PreparedStatement pstmt = getPreparedStatement(query)) {
+            setValues(pstmt);
             pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public abstract PreparedStatement setValues(T t, PreparedStatement preparedStatement);
+    public List<Object> query(String query) {
+        return null;
+    }
 
-    public abstract String createQuery();
+    public Object queryForObject(String query) {
+        return null;
+    }
+
+
+    public abstract void setValues(PreparedStatement preparedStatement);
+
+    public abstract Object mapRow(ResultSet resultSet);
 }
