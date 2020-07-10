@@ -14,4 +14,7 @@ public class EntityActionQueue {
         this.session = session;
     }
 
+    public void add(EntityAction entityAction) {
+        this.actions.add(entityAction);
+    }
 }

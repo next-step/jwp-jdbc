@@ -5,6 +5,11 @@ import core.nickbernate.util.EntityUtil;
 
 public class EntitySelectAction extends EntityAction {
 
+    public <T> EntitySelectAction(Class<T> entityClass) {
+        super(entityClass);
+        super.query = createSelectQuery(entityClass);
+    }
+
     public <T> EntitySelectAction(Class<T> entityClass, Object id) {
         super(entityClass);
         super.query = createSelectQuery(entityClass, id);
@@ -16,9 +21,9 @@ public class EntitySelectAction extends EntityAction {
 
     private String createSelectQuery(Class<?> entityClass) {
         String tableName = getTableName(entityClass);
-        String selectTargets = EntityQueryCreationUtil.createFieldTargetQuery(entityClass);
+        String selectTargetsQuery = EntityQueryCreationUtil.createFieldTargetsQuery(entityClass);
 
-        return String.format("SELECT %s FROM %s", selectTargets, tableName);
+        return String.format("SELECT %s FROM %s", selectTargetsQuery, tableName);
     }
 
     private String createWhereIdQuery(Class<?> entityClass, Object id) {

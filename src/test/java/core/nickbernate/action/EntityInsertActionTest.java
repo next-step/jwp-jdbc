@@ -8,20 +8,19 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EntitySelectActionTest {
+class EntityInsertActionTest {
 
-    @DisplayName("Select Query 생성하기")
+    @DisplayName("Insert Query 생성하기")
     @Test
     void createSelectQuery() {
         /* given */
-        Class<User> entityClass = User.class;
-        String entityId = "testId";
+        User user = new User("testId", "password", "name", "javajigi@email.com");
 
         /* when */
-        EntitySelectAction selectAction = new EntitySelectAction(entityClass, entityId);
+        EntityInsertAction entityInsertAction = new EntityInsertAction(user);
 
         /* then */
-        assertThat(selectAction.getQuery()).isEqualTo(String.format("SELECT userId, password, name, email FROM %s WHERE userId='testId'", getEntityTableName(User.class)));
+        assertThat(entityInsertAction.getQuery()).isEqualTo(String.format("INSERT INTO %s VALUES ('testId', 'password', 'name', 'javajigi@email.com')", getEntityTableName(User.class)));
 
     }
 

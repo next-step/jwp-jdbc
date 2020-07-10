@@ -2,6 +2,7 @@ package core.nickbernate.session;
 
 import core.jdbc.JdbcTemplate;
 import core.nickbernate.action.EntityActionQueue;
+import core.nickbernate.action.EntityInsertAction;
 import core.nickbernate.action.EntitySelectAction;
 import core.nickbernate.exception.NickbernateExecuteException;
 import core.nickbernate.persistence.PersistenceContext;
@@ -41,7 +42,9 @@ public class NickbernateSession implements Session {
     public <T> T persist(T entity) {
         EntityKey entityKey = EntityUtil.createEntityKeyFrom(entity);
 
-        // TODO: 2020/07/07 actionQueue 에 저장 필요
+        EntityInsertAction entityInsertAction = new EntityInsertAction(entity);
+        this.actionQueue.add(entityInsertAction);
+
         this.persistenceContext.addEntity(entityKey, entity);
 
         return entity;
@@ -59,24 +62,6 @@ public class NickbernateSession implements Session {
         this.persistenceContext.addEntity(entityKey, entity);
 
         return entity;
-    }
-
-    public <T> T executeSelectQuery(Class<T> entityClass, EntitySelectAction entitySelectAction) {
-        return jdbcTemplate.queryForObject(entitySelectAction.getQuery(), resultSet -> {
-            T instance = EntityUtil.createNewInstance(entityClass);
-            List<Field> fields = EntityUtil.scanEntityFields(entityClass);
-
-            try {
-                for (Field field : fields) {
-                    field.setAccessible(true);
-                    field.set(instance, resultSet.getObject(field.getName()));
-                }
-            } catch (IllegalAccessException e) {
-                throw new NickbernateExecuteException("Entity creation binding failed.", e);
-            }
-
-            return instance;
-        });
     }
 
     @Override
@@ -105,6 +90,24 @@ public class NickbernateSession implements Session {
     @Override
     public void close() {
         jdbcTemplate.closeConnection();
+    }
+
+    public <T> T executeSelectQuery(Class<T> entityClass, EntitySelectAction entitySelectAction) {
+        return jdbcTemplate.queryForObject(entitySelectAction.getQuery(), resultSet -> {
+            T instance = EntityUtil.createNewInstance(entityClass);
+            List<Field> fields = EntityUtil.scanEntityFields(entityClass);
+
+            try {
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    field.set(instance, resultSet.getObject(field.getName()));
+                }
+            } catch (IllegalAccessException e) {
+                throw new NickbernateExecuteException("Entity creation binding failed.", e);
+            }
+
+            return instance;
+        });
     }
 
 }
