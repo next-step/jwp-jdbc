@@ -20,7 +20,7 @@ class EntityUtilTest {
         TestEntity testEntity = new TestEntity(testId, "testName");
 
         /* when */
-        EntityKey actual = EntityUtil.findEntityKeyFrom(testEntity);
+        EntityKey actual = EntityUtil.createEntityKeyFrom(testEntity);
 
         /* then */
         assertThat(actual).isNotNull();
@@ -35,7 +35,7 @@ class EntityUtilTest {
         TestClass testClass = new TestClass(expected, "testName");
 
         /* when */ /* then */
-        assertThrows(IllegalArgumentException.class, () -> EntityUtil.findEntityKeyFrom(testClass));
+        assertThrows(IllegalArgumentException.class, () -> EntityUtil.createEntityKeyFrom(testClass));
     }
 
     @DisplayName("Id annotation이 존재하지 않으면 Exception")
@@ -46,7 +46,7 @@ class EntityUtilTest {
         TestClass2 testClass2 = new TestClass2(expected, "testName");
 
         /* when */ /* then */
-        assertThrows(IllegalArgumentException.class, () -> EntityUtil.findEntityKeyFrom(testClass2));
+        assertThrows(IllegalArgumentException.class, () -> EntityUtil.createEntityKeyFrom(testClass2));
     }
 
     @DisplayName("Id annotation이 여러 개 존재하면 Exception")
@@ -57,7 +57,7 @@ class EntityUtilTest {
         TestClass3 testClass3 = new TestClass3(expected, "testName");
 
         /* when */ /* then */
-        assertThrows(IllegalArgumentException.class, () -> EntityUtil.findEntityKeyFrom(testClass3));
+        assertThrows(IllegalArgumentException.class, () -> EntityUtil.createEntityKeyFrom(testClass3));
     }
 
     @Getter

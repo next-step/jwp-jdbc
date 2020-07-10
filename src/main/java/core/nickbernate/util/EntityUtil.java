@@ -11,40 +11,60 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.lang.reflect.Modifier.isStatic;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public abstract class EntityUtil {
 
     private static final Class<Entity> ENTITY_ANNOTATION = Entity.class;
     private static final Class<Id> ENTITY_ID_ANNOTATION = Id.class;
 
-    public static <T> EntityKey findEntityKeyFrom(T entity) {
+    public static <T> EntityKey createEntityKeyFrom(T entity) {
         Class<?> entityClass = entity.getClass();
         if (entityClass.isAnnotationPresent(ENTITY_ANNOTATION)) {
-            return findEntityId(entity);
+            return findEntityKey(entity);
         }
 
         throw new IllegalArgumentException("Entity annotation does not exist.");
     }
 
-    private static <T> EntityKey findEntityId(T entity) {
+    public static Field findEntityIdField(Class<?> entityClass) {
+        List<Field> fields = getIdFields(entityClass);
+        if (isIdFieldUnique(fields)) {
+            return fields.get(0);
+        }
+
+        throw new IllegalArgumentException("Entity Id annotation must be unique.");
+    }
+
+    public static <T> T createNewInstance(Class<T> entityClass) {
         try {
-            List<Field> fields = getIdFields(entity);
+            return entityClass.getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Entity instance creation failed.", e);
+        }
+    }
 
-            if (isIdFieldUnique(fields)) {
-                Field field = fields.get(0);
-                field.setAccessible(true);
+    public static <T> List<Field> scanEntityFields(Class<T> entityClass) {
+        return Arrays.stream(entityClass.getDeclaredFields())
+                .filter(field -> !isStatic(field.getModifiers()))
+                .collect(Collectors.toList());
+    }
 
-                return new EntityKey(entity.getClass(), field.get(entity));
-            }
+    private static <T> EntityKey findEntityKey(T entity) {
+        try {
+            Field field = findEntityIdField(entity.getClass());
+            field.setAccessible(true);
 
-            throw new IllegalArgumentException("Entity Id annotation must be unique.");
+            return new EntityKey(entity.getClass(), field.get(entity));
+
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Getting Entity Id is failed.", e);
         }
     }
 
-    private static <T> List<Field> getIdFields(T entity) {
-        return Arrays.stream(entity.getClass().getDeclaredFields())
+    private static <T> List<Field> getIdFields(Class<?> entityClass) {
+        return Arrays.stream(entityClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(ENTITY_ID_ANNOTATION))
                 .collect(Collectors.toList());
     }

@@ -2,13 +2,17 @@ package core.nickbernate.session;
 
 import core.jdbc.JdbcTemplate;
 import core.nickbernate.action.EntityActionQueue;
+import core.nickbernate.action.EntitySelectAction;
+import core.nickbernate.exception.NickbernateExecuteException;
 import core.nickbernate.persistence.PersistenceContext;
 import core.nickbernate.persistence.StatefulPersistenceContext;
 import core.nickbernate.util.EntityUtil;
 import next.model.User;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class NickbernateSession implements Session {
@@ -35,7 +39,7 @@ public class NickbernateSession implements Session {
 
     @Override
     public <T> T persist(T entity) {
-        EntityKey entityKey = EntityUtil.findEntityKeyFrom(entity);
+        EntityKey entityKey = EntityUtil.createEntityKeyFrom(entity);
 
         // TODO: 2020/07/07 actionQueue 에 저장 필요
         this.persistenceContext.addEntity(entityKey, entity);
@@ -44,19 +48,35 @@ public class NickbernateSession implements Session {
     }
 
     @Override
-    public <T> User findById(Class<T> entityClass, Object id) {
-        // TODO: 2020/07/09 get from context
-        if (session2.containsKey(id)) {
-            return (User) session2.get(id);
+    public <T> T findById(Class<T> entityClass, Object id) {
+        EntityKey entityKey = new EntityKey(entityClass, id);
+        if (persistenceContext.containsKey(entityKey)) {
+            return (T) persistenceContext.getEntity(entityKey);
         }
 
-        // TODO: 2020/07/09 jdbcTemplate 이용한 entity reflection select method
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.queryForObject(sql,
-                new Object[]{id},
-                resultSet -> new User(resultSet.getString("userId"), resultSet.getString("password"),
-                        resultSet.getString("name"), resultSet.getString("email"))
-        );
+        EntitySelectAction entitySelectAction = new EntitySelectAction(entityClass, id);
+        T entity = executeSelectQuery(entityClass, entitySelectAction);
+        this.persistenceContext.addEntity(entityKey, entity);
+
+        return entity;
+    }
+
+    public <T> T executeSelectQuery(Class<T> entityClass, EntitySelectAction entitySelectAction) {
+        return jdbcTemplate.queryForObject(entitySelectAction.getQuery(), resultSet -> {
+            T instance = EntityUtil.createNewInstance(entityClass);
+            List<Field> fields = EntityUtil.scanEntityFields(entityClass);
+
+            try {
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    field.set(instance, resultSet.getObject(field.getName()));
+                }
+            } catch (IllegalAccessException e) {
+                throw new NickbernateExecuteException("Entity creation binding failed.", e);
+            }
+
+            return instance;
+        });
     }
 
     @Override
@@ -86,4 +106,5 @@ public class NickbernateSession implements Session {
     public void close() {
         jdbcTemplate.closeConnection();
     }
+
 }

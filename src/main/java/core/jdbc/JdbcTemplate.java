@@ -42,11 +42,8 @@ public class JdbcTemplate {
     }
 
     public void update(String sql, Object[] parameters) {
-        // TODO: 2020/07/06 con.getAutoCommit() 보고 close 여부 결정하기
-        try {
-            Connection con = (this.connection != null) ? this.connection : dataSource.getConnection();
-            PreparedStatement preparedStatement = con.prepareStatement(sql);
-
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement preparedStatement = con.prepareStatement(sql)) {
             for (int i = 0; i < parameters.length; i++) {
                 preparedStatement.setObject(i + 1, parameters[i]);
             }
@@ -55,6 +52,15 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
+    }
+
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper) {
+        List<T> objects = executeSelect(sql, rowMapper);
+        if (objects.isEmpty()) {
+            return null;
+        }
+
+        return objects.get(0);
     }
 
     public <T> T queryForObject(String sql, Object[] parameters, RowMapper<T> rowMapper) {
@@ -74,29 +80,6 @@ public class JdbcTemplate {
         return executeSelect(sql, new Object[]{}, rowMapper);
     }
 
-    private <T> List<T> executeSelect(String sql, Object[] parameters, RowMapper<T> rowMapper) {
-        try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
-                for (int i = 0; i < parameters.length; i++) {
-                    preparedStatement.setObject(i + 1, parameters[i]);
-                }
-
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    List<T> objects = new ArrayList<>();
-
-                    while (resultSet.next()) {
-                        T object = rowMapper.mapRow(resultSet);
-                        objects.add(object);
-                    }
-
-                    return objects;
-                }
-            }
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        }
-    }
-
     public void closeConnection() {
         try {
             if (this.connection != null) {
@@ -106,4 +89,44 @@ public class JdbcTemplate {
             throw new JdbcTemplateException("connection close failed.", e);
         }
     }
+
+    private <T> List<T> executeSelect(String sql, Object[] parameters, RowMapper<T> rowMapper) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+            for (int i = 0; i < parameters.length; i++) {
+                preparedStatement.setObject(i + 1, parameters[i]);
+            }
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                List<T> objects = new ArrayList<>();
+
+                while (resultSet.next()) {
+                    T object = rowMapper.mapRow(resultSet);
+                    objects.add(object);
+                }
+
+                return objects;
+            }
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
+
+    private <T> List<T> executeSelect(String sql, RowMapper<T> rowMapper) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement preparedStatement = con.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            List<T> objects = new ArrayList<>();
+
+            while (resultSet.next()) {
+                T object = rowMapper.mapRow(resultSet);
+                objects.add(object);
+            }
+
+            return objects;
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
+
 }

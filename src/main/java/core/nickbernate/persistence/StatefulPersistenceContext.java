@@ -28,6 +28,16 @@ public class StatefulPersistenceContext implements PersistenceContext {
         this.entitySnapshots.put(entityKey, snapshot);
     }
 
+    @Override
+    public boolean containsKey(EntityKey entityKey) {
+        return entities.containsKey(entityKey);
+    }
+
+    @Override
+    public Object getEntity(EntityKey entityKey) {
+        return entities.get(entityKey);
+    }
+
     private Object copyFromEntity(Object entity) {
         try {
             Object dest = entity.getClass().getDeclaredConstructor().newInstance();

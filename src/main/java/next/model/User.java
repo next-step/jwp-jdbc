@@ -9,7 +9,7 @@ import next.dto.UserUpdatedDto;
 
 @NoArgsConstructor
 @Getter
-@Entity
+@Entity(table = "users")
 public class User {
 
     @Id
