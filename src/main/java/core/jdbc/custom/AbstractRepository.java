@@ -47,24 +47,57 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
 
     @Override
     public void save(final T t) {
-    }
+        JdbcTemplate<T> jdbcTemplate = new JdbcTemplate<T>() {
+            final Field[] fields = t.getClass().getDeclaredFields();
 
-    private void insert(T t) {
-        InsertJdbcTemplate<T> insertJdbcTemplate = new InsertJdbcTemplate<T>() {
             @Override
-            public String createQueryForInsert() {
-                String tableName = t.getClass().getSimpleName().toUpperCase();
-                return String.format("INSERT INTO %sS VALUES (%s)", tableName, getQuestionMark(t.getClass().getFields().length));
+            public PreparedStatement setValues(final T t, final PreparedStatement preparedStatement) {
+                fields[0].setAccessible(true);
+                try {
+                    final Object obj = findById((V) fields[0].get(t).toString());
+                    if (Objects.isNull(obj)) {
+                        for (int i = 1; i <= fields.length; i++) {
+                            fields[i - 1].setAccessible(true);
+                            preparedStatement.setString(i, fields[i - 1].get(obj).toString());
+                        }
+                        return preparedStatement;
+                    }
+
+                    for (int i = 1; i < fields.length; i++) {
+                        fields[i].setAccessible(true);
+                        preparedStatement.setString(i, fields[i].get(obj).toString());
+                    }
+                    fields[0].setAccessible(true);
+                    preparedStatement.setString(fields.length, fields[0].get(obj).toString());
+                    return preparedStatement;
+
+                } catch (IllegalAccessException | SQLException e) {
+                    e.printStackTrace();
+                }
+                return null;
             }
 
             @Override
-            public PreparedStatement setValuesForInsert(final PreparedStatement preparedStatement, final Object object) throws IllegalAccessException, SQLException {
-                final Field[] fields = object.getClass().getDeclaredFields();
-                for (int i = 1; i <= fields.length; i++) {
-                    fields[i - 1].setAccessible(true);
-                    preparedStatement.setString(i, fields[i - 1].get(object).toString());
+            public String createQuery() {
+                fields[0].setAccessible(true);
+                String tableName = t.getClass().getSimpleName().toUpperCase();
+                final Object obj;
+                try {
+                    obj = findById((V) fields[0].get(t).toString());
+                    if (Objects.isNull(obj)) {
+                        return String.format("INSERT INTO %sS VALUES (%s)", tableName, getQuestionMark(t.getClass().getFields().length));
+                    }
+
+                    String id = Arrays.stream(t.getClass().getFields())
+                            .findFirst()
+                            .get()
+                            .toString();
+                    return String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(t.getClass()), id);
+
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
                 }
-                return preparedStatement;
+                return null;
             }
 
             private String getQuestionMark(int size) {
@@ -75,36 +108,6 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
                 questionMarks.append("?");
                 return questionMarks.toString();
             }
-        };
-
-        insertJdbcTemplate.insert(t);
-    }
-
-    private void update(T t) {
-        UpdateJdbcTemplate<T> updateJdbcTemplate = new UpdateJdbcTemplate<T>() {
-            @Override
-            public String createQueryForUpdate() {
-                String tableName = t.getClass().getSimpleName().toUpperCase();
-                String id = Arrays.stream(t.getClass().getFields())
-                        .findFirst()
-                        .get()
-                        .toString();
-                return String.format("UPDATE %sS SET %s WHERE %s = ?", tableName, getUpdateSetQuestionMark(t.getClass()), id);
-            }
-
-            @Override
-            public PreparedStatement setValuesForUpdate(final PreparedStatement preparedStatement, final Object object) throws IllegalAccessException, SQLException {
-                final Field[] fields = object.getClass().getDeclaredFields();
-                fields[0].setAccessible(true);
-
-                for (int i = 1; i < fields.length; i++) {
-                    fields[i].setAccessible(true);
-                    preparedStatement.setString(i, fields[i].get(object).toString());
-                }
-                fields[0].setAccessible(true);
-                preparedStatement.setString(fields.length, fields[0].get(object).toString());
-                return preparedStatement;
-            }
 
             private String getUpdateSetQuestionMark(Class clazz) {
                 List<String> mark = new ArrayList<>();
@@ -114,10 +117,8 @@ public class AbstractRepository<T, V> implements Repository<T, V> {
                 }
                 return String.join(",", mark);
             }
-
-
         };
-        updateJdbcTemplate.update(t);
+        jdbcTemplate.save(t);
     }
 
     @Override
