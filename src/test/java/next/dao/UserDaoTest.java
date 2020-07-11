@@ -3,7 +3,6 @@ package next.dao;
 import core.jdbc.ConnectionManager;
 import core.jdbc.exception.JdbcRuntimeException;
 import next.model.User;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class UserDaoTest {
     private UserDao userDao;
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -66,5 +66,23 @@ public class UserDaoTest {
         userDao.deleteAll();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(0);
+    }
+
+    @DisplayName("userId로 데이터를 찾는다.")
+    @Test
+    void findByUserId() {
+        User user = new User("userId", "password", "name", "javajigi@email.com");
+        userDao.insert(user);
+        User result = userDao.findByUserId("userId");
+
+        assertThat(result).isEqualTo(user);
+    }
+
+    @DisplayName("userId로 조회 시 데이터가 0건이다.")
+    @Test
+    void findByUserId2() {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
+            User result = userDao.findByUserId("userId");
+        });
     }
 }

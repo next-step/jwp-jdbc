@@ -1,13 +1,18 @@
 package next.dao;
 
 import core.jdbc.JdbcTemplate;
+import core.jdbc.RowMapper;
 import next.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao {
 
     private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<User> userRowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"),
+            rs.getString("name"), rs.getString("email"));
+
 
     public UserDao() {
         jdbcTemplate = new JdbcTemplate();
@@ -24,15 +29,14 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return jdbcTemplate.queryForList("SELECT userId, password, name, email FROM USERS",
-                rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email")));
+        return jdbcTemplate.queryForList("SELECT userId, password, name, email FROM USERS", userRowMapper);
 
     }
 
     public User findByUserId(String userId) {
-        return jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?",
-                rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email")),
-                userId);
+        Optional<User> user = jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?",
+                userRowMapper, userId);
+        return user.orElseThrow(IllegalArgumentException::new);
     }
 
     public void deleteAll() {

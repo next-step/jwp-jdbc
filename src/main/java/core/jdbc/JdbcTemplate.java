@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTemplate {
 
@@ -21,15 +22,15 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) throws JdbcRuntimeException {
+    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Object... args) throws JdbcRuntimeException {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql);) {
             setArguments(pstmt, args);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                return rowMapper.mapRow(rs);
+                return Optional.of(rowMapper.mapRow(rs));
             }
-            return null;
+            return Optional.empty();
         } catch (SQLException e) {
             throw new JdbcRuntimeException(e);
         }
@@ -52,11 +53,7 @@ public class JdbcTemplate {
 
     private void setArguments(PreparedStatement pstmt, Object[] args) throws SQLException {
         for (int i = 0; i < args.length; i++) {
-            if (args[i] instanceof Integer) {
-                pstmt.setInt(i + 1, (int) args[i]);
-            } else if (args[i] instanceof String) {
-                pstmt.setString(i + 1, (String) args[i]);
-            }
+            pstmt.setObject(i + 1, args[i]);
         }
     }
 
