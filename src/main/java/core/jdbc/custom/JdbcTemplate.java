@@ -20,7 +20,7 @@ public class JdbcTemplate<T> {
         return actionablePrepared.getPreparedStatement(getConnection());
     }
 
-    void save(QueryGenerator query, PreparedStatementSetter preparedStatementSetter) {
+    public void save(QueryGenerator query, PreparedStatementSetter preparedStatementSetter) {
         try (PreparedStatement pstmt = getPreparedStatement(query.make())) {
             preparedStatementSetter.setValues(pstmt);
             pstmt.executeUpdate();
@@ -28,6 +28,18 @@ public class JdbcTemplate<T> {
             e.printStackTrace();
         }
     }
+
+     public void save(QueryGenerator query, T... t) {
+         try (PreparedStatement pstmt = getPreparedStatement(query.make())) {
+             for (int i = 1; i <= t.length; i++) {
+                 pstmt.setObject(i, t[i-1]);
+             }
+
+             pstmt.executeUpdate();
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+     }
 
     public List<T> query(QueryGenerator query, RowMapper<T> rowMapper) {
         List<T> objects = new ArrayList<>();
@@ -47,6 +59,22 @@ public class JdbcTemplate<T> {
     public T queryForObject(QueryGenerator query, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
         try (PreparedStatement pstmt = getPreparedStatement(query.make())) {
             preparedStatementSetter.setValues(pstmt);
+            ResultSet resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                return rowMapper.mapRow(resultSet);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public T queryForObject(QueryGenerator query, RowMapper<T> rowMapper, T... t) {
+        try (PreparedStatement pstmt = getPreparedStatement(query.make())) {
+            for (int i = 1; i <= t.length; i++) {
+                pstmt.setObject(i, t[i-1]);
+            }
             ResultSet resultSet = pstmt.executeQuery();
             if (resultSet.next()) {
                 return rowMapper.mapRow(resultSet);
