@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class JdbcTemplate {
+public class JdbcTemplate<T> {
 
     private Connection getConnection() {
         return ConnectionManager.getConnection();
@@ -20,21 +20,21 @@ public abstract class JdbcTemplate {
         return actionablePrepared.getPreparedStatement(getConnection());
     }
 
-    void save(String query) {
-        try (PreparedStatement pstmt = getPreparedStatement(query)) {
-            setValues(pstmt);
+    void save(QueryGenerator query, PreparedStatementSetter preparedStatementSetter) {
+        try (PreparedStatement pstmt = getPreparedStatement(query.make())) {
+            preparedStatementSetter.setValues(pstmt);
             pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public List<Object> query(String query) {
-        List<Object> objects = new ArrayList<>();
-        try (PreparedStatement pstmt = getPreparedStatement(query)) {
+    public List<T> query(QueryGenerator query, RowMapper<T> rowMapper) {
+        List<T> objects = new ArrayList<>();
+        try (PreparedStatement pstmt = getPreparedStatement(query.make())) {
             ResultSet resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
-                objects.add(mapRow(resultSet));
+                objects.add(rowMapper.mapRow(resultSet));
             }
             return objects;
 
@@ -44,12 +44,12 @@ public abstract class JdbcTemplate {
         return null;
     }
 
-    public Object queryForObject(String query) {
-        try (PreparedStatement pstmt = getPreparedStatement(query)) {
-            setValues(pstmt);
+    public T queryForObject(QueryGenerator query, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
+        try (PreparedStatement pstmt = getPreparedStatement(query.make())) {
+            preparedStatementSetter.setValues(pstmt);
             ResultSet resultSet = pstmt.executeQuery();
             if (resultSet.next()) {
-                return mapRow(resultSet);
+                return rowMapper.mapRow(resultSet);
             }
 
         } catch (Exception e) {
@@ -57,9 +57,4 @@ public abstract class JdbcTemplate {
         }
         return null;
     }
-
-
-    public abstract void setValues(PreparedStatement preparedStatement);
-
-    public abstract Object mapRow(ResultSet resultSet);
 }
