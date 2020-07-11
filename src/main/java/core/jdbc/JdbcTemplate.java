@@ -42,6 +42,10 @@ public class JdbcTemplate {
         return Optional.of(result.get(0));
     }
 
+    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, Object... args) throws JdbcRuntimeException {
+        return queryForList(sql, rowMapper, createPreparedStatementSetter(args));
+    }
+
     public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) throws JdbcRuntimeException {
         List<T> rows = new ArrayList<>();
         try (Connection con = ConnectionManager.getConnection();
@@ -55,9 +59,6 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             throw new JdbcRuntimeException(e);
         }
-    }
-    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, Object... args) throws JdbcRuntimeException {
-        return queryForList(sql, rowMapper, createPreparedStatementSetter(args));
     }
 
     private PreparedStatementSetter createPreparedStatementSetter(Object[] args) {
