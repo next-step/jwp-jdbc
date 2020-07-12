@@ -1,6 +1,7 @@
 package core.jdbc.custom;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.custom.query.QueryGenerator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,11 +1,7 @@
 package core.jdbc.custom;
 
-import core.jdbc.ConnectionManager;
-
 import java.lang.reflect.Field;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 public class CreatePreparedStatementSetter<T> implements PreparedStatementSetter {
     T t;
@@ -14,28 +10,13 @@ public class CreatePreparedStatementSetter<T> implements PreparedStatementSetter
         this.t = t;
     }
 
-    private Connection getConnection() {
-        return ConnectionManager.getConnection();
-    }
-
-    private PreparedStatement getPreparedStatement(String sql) throws Exception {
-        ActionablePrepared actionablePrepared = (connection) -> connection.prepareStatement(sql);
-        return actionablePrepared.getPreparedStatement(getConnection());
-    }
-
     @Override
     public void setValues(final PreparedStatement preparedStatement) {
 
         final Field[] fields = t.getClass().getDeclaredFields();
         fields[0].setAccessible(true);
         try {
-
-            String sql = String.format("SELECT * FROM %sS WHERE %s = ?", t.getClass().getSimpleName().toUpperCase(), fields[0].get(t));
-            final PreparedStatement statement = getPreparedStatement(sql);
-            statement.setString(1, fields[0].get(t).toString());
-            final ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
+            if (preparedStatement.toString().contains("UPDATE")) {
                 for (int i = 1; i < fields.length; i++) {
                     fields[i].setAccessible(true);
                     preparedStatement.setString(i, fields[i].get(t).toString());
