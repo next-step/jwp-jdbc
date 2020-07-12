@@ -16,15 +16,19 @@ public class LoggerProcessingTimeInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        start = Instant.now();
+        start = getNow();
         return super.preHandle(request, response, handler);
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        Instant end =  Instant.now();
+        Instant end = getNow();
         Duration duration = Duration.between(start, end);
         logger.debug("Controller: {}, processing time: {}ms", handler.getClass().getSimpleName(), duration.toMillis());
         super.postHandle(request, response, handler, modelAndView);
+    }
+
+    private Instant getNow() {
+        return Instant.now();
     }
 }
