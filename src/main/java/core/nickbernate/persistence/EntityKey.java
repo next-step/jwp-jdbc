@@ -1,4 +1,4 @@
-package core.nickbernate.session;
+package core.nickbernate.persistence;
 
 import lombok.EqualsAndHashCode;
 
@@ -12,4 +12,5 @@ public class EntityKey {
         this.entityClass = entityClass;
         this.id = id;
     }
+
 }

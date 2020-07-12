@@ -6,6 +6,7 @@ import core.nickbernate.action.EntityActionQueue;
 import core.nickbernate.action.EntityInsertAction;
 import core.nickbernate.action.EntitySelectAction;
 import core.nickbernate.exception.NickbernateExecuteException;
+import core.nickbernate.persistence.EntityKey;
 import core.nickbernate.persistence.PersistenceContext;
 import core.nickbernate.persistence.StatefulPersistenceContext;
 import core.nickbernate.util.EntityUtil;

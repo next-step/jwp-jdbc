@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.nickbernate.annotation.Entity;
 import core.nickbernate.annotation.Id;
-import core.nickbernate.exception.NickbernateExecuteException;
-import core.nickbernate.session.EntityKey;
+import core.nickbernate.persistence.EntityKey;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

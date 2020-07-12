@@ -3,7 +3,7 @@ package core.nickbernate.util;
 import core.nickbernate.TestEntity;
 import core.nickbernate.annotation.Entity;
 import core.nickbernate.annotation.Id;
-import core.nickbernate.session.EntityKey;
+import core.nickbernate.persistence.EntityKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
