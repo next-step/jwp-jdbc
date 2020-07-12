@@ -1,9 +1,8 @@
 package core.jdbc.custom;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
-@FunctionalInterface
 public interface RowMapper<T> {
-    T mapRow(ResultSet resultSet) throws SQLException;
+
+    T mapRowForObject(ResultSet resultSet) throws Exception;
 }

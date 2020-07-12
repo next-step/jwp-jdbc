@@ -2,10 +2,8 @@ package core.jdbc.custom;
 
 import next.model.User;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,9 +13,11 @@ import java.util.Objects;
 public class DefaultUserRepository {
 
     private JdbcTemplate<User> jdbcTemplate;
+    private DefaultRowMapper<User> defaultRowMapper;
 
     public DefaultUserRepository() {
         this.jdbcTemplate = new JdbcTemplate<>();
+        this.defaultRowMapper = new DefaultRowMapper<>(User.class);
     }
 
     public void save(final User user) {
@@ -32,29 +32,11 @@ public class DefaultUserRepository {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }, this::createRow);
+        }, defaultRowMapper);
     }
 
     public List<User> findAll() {
-        return this.jdbcTemplate.query(() -> String.format("SELECT * FROM %s", "USERS"), this::createRow);
-    }
-
-
-    private User createRow(final ResultSet resultSet) {
-        try {
-            final Field[] fields = User.class.getDeclaredFields();
-            Object[] values = new Object[fields.length];
-            Class[] types = new Class[fields.length];
-            for (int i = 1; i <= fields.length; i++) {
-                values[i - 1] = resultSet.getString(i);
-                types[i - 1] = fields[i - 1].getType();
-            }
-            Constructor<?> declaredConstructor = User.class.getDeclaredConstructor(types);
-            return (User) declaredConstructor.newInstance(values);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return this.jdbcTemplate.query(() -> String.format("SELECT * FROM %s", "USERS"), defaultRowMapper);
     }
 
     private void setValueBySave(User user, PreparedStatement preparedStatement) {
@@ -81,7 +63,6 @@ public class DefaultUserRepository {
             e.printStackTrace();
         }
     }
-
 
 
     private String createQuery(User user) {
