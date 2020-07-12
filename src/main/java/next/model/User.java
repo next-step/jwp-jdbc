@@ -1,5 +1,7 @@
 package next.model;
 
+import core.nickbernate.annotation.Entity;
+import core.nickbernate.annotation.Id;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,9 +9,12 @@ import next.dto.UserUpdatedDto;
 
 @NoArgsConstructor
 @Getter
+@Entity(table = "users")
 public class User {
 
+    @Id
     private String userId;
+
     private String password;
     private String name;
     private String email;
