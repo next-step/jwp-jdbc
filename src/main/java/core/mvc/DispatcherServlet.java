@@ -4,6 +4,8 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.web.interceptor.InterceptorRegistry;
+import core.web.interceptor.LoggerProcessingTimeInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,8 +24,8 @@ public class DispatcherServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
     private HandlerMappingRegistry handlerMappingRegistry;
-
     private HandlerAdapterRegistry handlerAdapterRegistry;
+    private InterceptorRegistry interceptorRegistry;
 
     private HandlerExecutor handlerExecutor;
 
@@ -36,6 +38,9 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry = new HandlerAdapterRegistry();
         handlerAdapterRegistry.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
+
+        interceptorRegistry = new InterceptorRegistry();
+        interceptorRegistry.addInterceptor(new LoggerProcessingTimeInterceptor());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
     }
@@ -51,8 +56,12 @@ public class DispatcherServlet extends HttpServlet {
                 resp.setStatus(HttpStatus.NOT_FOUND.value());
                 return;
             }
-
-            ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+            Object handler = maybeHandler.get();
+            if (!interceptorRegistry.applyPreHandle(req, resp, handler)) {
+                return;
+            }
+            ModelAndView mav = handlerExecutor.handle(req, resp, handler);
+            interceptorRegistry.applyPostHandle(req, resp, handler, mav);
             render(mav, req, resp);
         } catch (Throwable e) {
             logger.error("Exception : ", e);
