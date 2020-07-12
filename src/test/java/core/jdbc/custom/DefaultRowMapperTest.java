@@ -39,6 +39,7 @@ class DefaultRowMapperTest {
         final ResultSet resultSet = preparedStatement.executeQuery();
 
         DefaultRowMapper<User> userDefaultRowMapper = new DefaultRowMapper<>(User.class);
+        resultSet.next();
         final User user = userDefaultRowMapper.mapRowForObject(resultSet);
 
         assertThat(expected).isEqualTo(user);

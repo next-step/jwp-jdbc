@@ -17,27 +17,24 @@ public class DefaultRowMapper<T> implements RowMapper<T> {
 
     @Override
     public T mapRowForObject(final ResultSet resultSet) throws Exception {
-        if (resultSet.next()) {
-            final ResultSetMetaData metaData = resultSet.getMetaData();
-            final int columnCount = metaData.getColumnCount();
+        final ResultSetMetaData metaData = resultSet.getMetaData();
+        final int columnCount = metaData.getColumnCount();
 
-            final Map<String, String> columns = new HashMap<>();
-            for (int i = 1; i <= columnCount; i++) {
-                final String columnName = metaData.getColumnName(i);
-                final String columnValue = resultSet.getString(i);
+        final Map<String, String> columns = new HashMap<>();
+        for (int i = 1; i <= columnCount; i++) {
+            final String columnName = metaData.getColumnName(i);
+            final String columnValue = resultSet.getString(i);
 
-                columns.put(columnName, columnValue);
-            }
-            final Class[] types = Arrays.stream(clazz.getDeclaredFields())
-                    .map(Field::getType)
-                    .toArray(Class[]::new);
-            final Object[] objects = Arrays.stream(clazz.getDeclaredFields())
-                    .map(field -> columns.get(field.getName().toUpperCase()))
-                    .toArray();
-
-            final Constructor constructor = clazz.getDeclaredConstructor(types);
-            return (T) constructor.newInstance(objects);
+            columns.put(columnName, columnValue);
         }
-        return null;
+        final Class[] types = Arrays.stream(clazz.getDeclaredFields())
+                .map(Field::getType)
+                .toArray(Class[]::new);
+        final Object[] objects = Arrays.stream(clazz.getDeclaredFields())
+                .map(field -> columns.get(field.getName().toUpperCase()))
+                .toArray();
+
+        final Constructor constructor = clazz.getDeclaredConstructor(types);
+        return (T) constructor.newInstance(objects);
     }
 }

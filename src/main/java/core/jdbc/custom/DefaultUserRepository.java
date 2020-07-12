@@ -3,7 +3,6 @@ package core.jdbc.custom;
 import next.model.User;
 
 import java.lang.reflect.Field;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +12,7 @@ import java.util.Objects;
 public class DefaultUserRepository {
 
     private JdbcTemplate<User> jdbcTemplate;
-    private DefaultRowMapper<User> defaultRowMapper;
+    private RowMapper<User> defaultRowMapper;
 
     public DefaultUserRepository() {
         this.jdbcTemplate = new JdbcTemplate<>();
@@ -21,7 +20,7 @@ public class DefaultUserRepository {
     }
 
     public void save(final User user) {
-        jdbcTemplate.save(() -> createQuery(user), preparedStatement -> this.setValueBySave(user, preparedStatement));
+        jdbcTemplate.save(() -> createQuery(user), new CreatePreparedStatementSetter<>(user));
     }
 
 
@@ -37,31 +36,6 @@ public class DefaultUserRepository {
 
     public List<User> findAll() {
         return this.jdbcTemplate.query(() -> String.format("SELECT * FROM %s", "USERS"), defaultRowMapper);
-    }
-
-    private void setValueBySave(User user, PreparedStatement preparedStatement) {
-        final Field[] fields = user.getClass().getDeclaredFields();
-        fields[0].setAccessible(true);
-        try {
-            final Object obj = findById(fields[0].get(user).toString());
-            if (Objects.isNull(obj)) {
-                for (int i = 1; i <= fields.length; i++) {
-                    fields[i - 1].setAccessible(true);
-                    preparedStatement.setString(i, fields[i - 1].get(user).toString());
-                }
-                return;
-            }
-
-            for (int i = 1; i < fields.length; i++) {
-                fields[i].setAccessible(true);
-                preparedStatement.setString(i, fields[i].get(user).toString());
-            }
-            fields[0].setAccessible(true);
-            preparedStatement.setString(fields.length, fields[0].get(user).toString());
-
-        } catch (IllegalAccessException | SQLException e) {
-            e.printStackTrace();
-        }
     }
 
 
