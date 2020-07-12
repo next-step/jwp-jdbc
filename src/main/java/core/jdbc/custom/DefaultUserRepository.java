@@ -1,32 +1,38 @@
 package core.jdbc.custom;
 
+import core.jdbc.custom.query.FindAllQueryGenerator;
+import core.jdbc.custom.query.SaveQueryGenerator;
 import next.model.User;
 
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
-public class DefaultUserRepository extends AbstractRepository<User, String> {
+public class DefaultUserRepository {
+
+    private JdbcTemplate<User> jdbcTemplate;
+    private RowMapper<User> defaultRowMapper;
+
     public DefaultUserRepository() {
-        super(new User());
+        this.jdbcTemplate = new JdbcTemplate<>();
+        this.defaultRowMapper = new DefaultRowMapper<>(User.class);
     }
 
-    @Override
-    public User find(final String query, final Map<String, Object> map) {
-        return super.find(query, map);
-    }
-
-    @Override
     public void save(final User user) {
-        super.save(user);
+        jdbcTemplate.save(new SaveQueryGenerator<>(user), new CreatePreparedStatementSetter<>(user));
     }
 
-    @Override
-    public User findById(final String s) {
-        return super.findById(s);
+
+    public User findById(final String id) {
+        return this.jdbcTemplate.queryForObject(() -> String.format("SELECT * FROM %s WHERE %s = ?", "USERS", id), preparedStatement -> {
+            try {
+                preparedStatement.setString(1, id);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }, defaultRowMapper);
     }
 
-    @Override
     public List<User> findAll() {
-        return super.findAll();
+        return this.jdbcTemplate.query(new FindAllQueryGenerator(User.class), defaultRowMapper);
     }
 }

@@ -58,11 +58,6 @@ public class UserDaoTest {
 
         actual = defaultUserRepository.findById("userId");
         assertThat(actual).isEqualTo(expected);
-
-        Map<String, Object> conditionValues = new HashMap<>();
-        conditionValues.put("userId", "userId");
-        final User user = defaultUserRepository.find("SELECT * FROM USERS WHERE userId = ?", conditionValues);
-        assertThat(user).isEqualTo(expected);
     }
 
     @Test
