@@ -12,19 +12,20 @@ import java.time.Instant;
 public class LoggerProcessingTimeInterceptor extends HandlerInterceptorAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggerProcessingTimeInterceptor.class);
-    private Instant start;
+    public static ThreadLocal<Instant> start = new ThreadLocal<>();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        start = getNow();
+        start.set(getNow());
         return super.preHandle(request, response, handler);
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         Instant end = getNow();
-        Duration duration = Duration.between(start, end);
+        Duration duration = Duration.between(start.get(), end);
         logger.debug("Controller: {}, processing time: {}ms", handler.getClass().getSimpleName(), duration.toMillis());
+        start.remove();
         super.postHandle(request, response, handler, modelAndView);
     }
 
