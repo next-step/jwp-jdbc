@@ -1,8 +1,10 @@
 package core.nickbernate.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.nickbernate.annotation.Entity;
 import core.nickbernate.annotation.Id;
-import core.nickbernate.session.EntityKey;
+import core.nickbernate.persistence.EntityKey;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -18,6 +20,7 @@ public abstract class EntityUtil {
 
     private static final Class<Entity> ENTITY_ANNOTATION = Entity.class;
     private static final Class<Id> ENTITY_ID_ANNOTATION = Id.class;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static <T> EntityKey createEntityKeyFrom(T entity) {
         Class<?> entityClass = entity.getClass();
@@ -82,6 +85,14 @@ public abstract class EntityUtil {
             return true;
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Entity Field Comparing Failed.", e);
+        }
+    }
+
+    public static Object copyFromEntity(Object entity) {
+        try {
+            return OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(entity), entity.getClass());
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Entity copy failed.", e);
         }
     }
 

@@ -43,6 +43,10 @@ public class JdbcTemplate {
         }
     }
 
+    public void update(String sql) {
+        update(sql, new Object[]{});
+    }
+
     public void update(String sql, Object[] parameters) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement preparedStatement = con.prepareStatement(sql)) {
@@ -51,17 +55,6 @@ public class JdbcTemplate {
             for (int i = 0; i < parameters.length; i++) {
                 preparedStatement.setObject(i + 1, parameters[i]);
             }
-
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        }
-    }
-
-    public void update(String sql) {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(sql)) {
-            log.info("execute update query = {}", sql);
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -83,12 +76,7 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper) {
-        List<T> objects = executeSelect(sql, rowMapper);
-        if (objects.isEmpty()) {
-            return null;
-        }
-
-        return objects.get(0);
+        return queryForObject(sql, new Object[]{}, rowMapper);
     }
 
     public <T> T queryForObject(String sql, Object[] parameters, RowMapper<T> rowMapper) {
@@ -137,24 +125,6 @@ public class JdbcTemplate {
 
                 return objects;
             }
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        }
-    }
-
-    private <T> List<T> executeSelect(String sql, RowMapper<T> rowMapper) {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(sql);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            log.info("execute select query = {}", sql);
-
-            List<T> objects = new ArrayList<>();
-            while (resultSet.next()) {
-                T object = rowMapper.mapRow(resultSet);
-                objects.add(object);
-            }
-
-            return objects;
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
