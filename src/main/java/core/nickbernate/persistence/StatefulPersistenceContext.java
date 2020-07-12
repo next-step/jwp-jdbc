@@ -1,10 +1,7 @@
 package core.nickbernate.persistence;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import core.nickbernate.action.EntityAction;
 import core.nickbernate.action.EntityUpdateAction;
-import core.nickbernate.exception.NickbernateExecuteException;
 import core.nickbernate.session.EntityKey;
 import core.nickbernate.session.Session;
 import core.nickbernate.util.EntityUtil;
@@ -17,7 +14,6 @@ import java.util.Map;
 public class StatefulPersistenceContext implements PersistenceContext {
 
     private Session session;
-    private ObjectMapper objectMapper = new ObjectMapper();
     private Map<EntityKey, Object> entities;
     private Map<EntityKey, Object> entitySnapshots;
 
@@ -31,7 +27,7 @@ public class StatefulPersistenceContext implements PersistenceContext {
     public void addEntity(EntityKey entityKey, Object entity) {
         this.entities.put(entityKey, entity);
 
-        Object snapshot = copyFromEntity(entity);
+        Object snapshot = EntityUtil.copyFromEntity(entity);
         this.entitySnapshots.put(entityKey, snapshot);
     }
 
@@ -64,14 +60,6 @@ public class StatefulPersistenceContext implements PersistenceContext {
 
     private boolean existsDirtyField(Object entity, Object snapShot) {
         return !EntityUtil.isAllSameEntityFieldValues(entity, snapShot);
-    }
-
-    private Object copyFromEntity(Object entity) {
-        try {
-            return objectMapper.readValue(objectMapper.writeValueAsString(entity), entity.getClass());
-        } catch (JsonProcessingException e) {
-            throw new NickbernateExecuteException("Entity snapshot creation failed.", e);
-        }
     }
 
 }
