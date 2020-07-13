@@ -1,10 +1,12 @@
 package core.mvc;
 
+import jdk.nashorn.internal.objects.annotations.Getter;
 import next.interceptor.Interceptor;
 import org.reflections.Reflections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,7 +15,7 @@ import java.util.stream.Collectors;
  * Created By kjs4395 on 7/13/20
  */
 public class InterceptorRegistry {
-    private List<Interceptor> interceptors;
+    private List<Interceptor> interceptors = new ArrayList<>();
 
     public void register() {
         Reflections reflections = new Reflections("next");

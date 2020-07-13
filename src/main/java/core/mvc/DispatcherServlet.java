@@ -41,6 +41,7 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+        interceptorRegistry = new InterceptorRegistry();
         interceptorRegistry.register();
     }
 
