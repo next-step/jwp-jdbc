@@ -1,21 +1,19 @@
 package core.mvc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import core.mvc.tobe.support.JsonMessageConverter;
 import org.springframework.http.MediaType;
 
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 
 public class JsonView implements View {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMessageConverter jsonMessageConverter = new JsonMessageConverter();
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -24,26 +22,13 @@ public class JsonView implements View {
         ServletOutputStream outputStream = response.getOutputStream();
 
         if (model.size() > 1) {
-            String body = toJson(model);
-            write(outputStream, body);
+            jsonMessageConverter.write(outputStream, model);
             return;
         }
 
         Optional<String> key = model.keySet().stream().findFirst();
-        String body = key.map(e -> toJson(model.get(e))).orElseGet(() -> "");
-        write(outputStream, body);
-    }
-
-    private void write(ServletOutputStream outputStream, String body) throws IOException {
-        outputStream.write(body.getBytes());
-        outputStream.flush();
-    }
-
-    private String toJson(Object object) throws ObjectMapperException {
-        try {
-            return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            throw new ObjectMapperException(e);
+        if (key.isPresent()) {
+            jsonMessageConverter.write(outputStream, model.get(key.get()));
         }
     }
 }
