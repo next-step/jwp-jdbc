@@ -2,6 +2,10 @@ package core.mvc;
 
 import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
+import core.mvc.interceptor.BasicInterceptor;
+import core.mvc.interceptor.Interceptor;
+import core.mvc.interceptor.InterceptorExecutor;
+import core.mvc.interceptor.InterceptorRegistry;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
 import org.slf4j.Logger;
@@ -27,6 +31,10 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerExecutor handlerExecutor;
 
+    private InterceptorRegistry interceptorRegistry;
+
+    private InterceptorExecutor interceptorExecutor;
+
     @Override
     public void init() {
         handlerMappingRegistry = new HandlerMappingRegistry();
@@ -38,6 +46,11 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        interceptorRegistry = new InterceptorRegistry();
+        interceptorRegistry.addInterceptor(new BasicInterceptor());
+
+        interceptorExecutor = new InterceptorExecutor(interceptorRegistry);
     }
 
     @Override
@@ -51,9 +64,10 @@ public class DispatcherServlet extends HttpServlet {
                 resp.setStatus(HttpStatus.NOT_FOUND.value());
                 return;
             }
-
-
+            interceptorExecutor.pre(req, resp, maybeHandler.get());
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+            interceptorExecutor.post(req, resp, maybeHandler.get(), mav);
+
             render(mav, req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
