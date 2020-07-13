@@ -2,17 +2,24 @@ package core.mvc.tobe;
 
 import core.mvc.ModelAndView;
 import core.mvc.tobe.support.ArgumentResolver;
+import org.slf4j.Logger;
 import org.springframework.core.ParameterNameDiscoverer;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class HandlerExecution {
+
+    private static final Logger logger = getLogger(HandlerExecution.class);
 
     private static final Map<Method, MethodParameter[]> methodParameterCache = new ConcurrentHashMap<>();
     private List<ArgumentResolver> argumentResolver;
@@ -57,7 +64,7 @@ public class HandlerExecution {
         return methodParameters;
     }
 
-    private Object getArguments(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
+    private Object getArguments(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) throws IOException {
         for (ArgumentResolver resolver : argumentResolver) {
             if (resolver.supports(methodParameter)) {
                 return resolver.resolveArgument(methodParameter, request, response);
