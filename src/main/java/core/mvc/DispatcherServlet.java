@@ -2,10 +2,10 @@ package core.mvc;
 
 import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
-import core.mvc.interceptor.BasicInterceptor;
-import core.mvc.interceptor.Interceptor;
+import core.mvc.interceptor.InterceptorAdapter;
 import core.mvc.interceptor.InterceptorExecutor;
 import core.mvc.interceptor.InterceptorRegistry;
+import core.mvc.interceptor.MethodExecutionTimeInterceptor;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public class DispatcherServlet extends HttpServlet {
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
 
         interceptorRegistry = new InterceptorRegistry();
-        interceptorRegistry.addInterceptor(new BasicInterceptor());
+        interceptorRegistry.addInterceptor(new MethodExecutionTimeInterceptor());
 
         interceptorExecutor = new InterceptorExecutor(interceptorRegistry);
     }

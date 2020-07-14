@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class BasicInterceptor implements Interceptor{
-    private static final Logger logger = LoggerFactory.getLogger(BasicInterceptor.class);
+public class MethodExecutionTimeInterceptor extends InterceptorAdapter {
+    private static final Logger logger = LoggerFactory.getLogger(MethodExecutionTimeInterceptor.class);
 
     @Override
     public boolean pre(final HttpServletRequest request, final HttpServletResponse response, final Object object) {
