@@ -3,6 +3,8 @@ package next.service;
 import next.dao.UserDao;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
+import next.exception.DataAccessException;
+import next.exception.DuplicateUserIdException;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +19,15 @@ public class UserService {
     }
 
     public User insertUser(User user) {
-        dao.insert(user);
-        return user;
+        try {
+            dao.insert(user);
+            return user;
+        } catch (DataAccessException ex) {
+            if (ex.isDuplicated()) {
+                throw new DuplicateUserIdException(ex);
+            }
+            return null;
+        }
     }
 
     public User insertUser(UserCreatedDto userCreatedDto) {

@@ -16,7 +16,6 @@ public class UserDao {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
         int result = JdbcTemplate.executeUpdate(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
-
         logger.debug("insert - {}", result);
     }
 

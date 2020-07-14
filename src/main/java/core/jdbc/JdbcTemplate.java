@@ -1,6 +1,7 @@
 package core.jdbc;
 
 import next.exception.DataAccessException;
+import next.exception.SqlErrorCode;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -20,6 +21,9 @@ public class JdbcTemplate {
 
             return pstmt.executeUpdate();
         } catch (SQLException ex) {
+            if (ex.getErrorCode() == SqlErrorCode.ERR_DUP_ENTRY.getCode()) {
+                throw new DataAccessException(DataAccessException.Error.DUPLICATED, ex);
+            }
             throw new DataAccessException(ex);
         }
     }
