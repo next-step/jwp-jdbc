@@ -43,4 +43,37 @@ public class UserDao {
 
         return JdbcTemplate.executeQuery(sql, objects, User.class).get(0);
     }
+
+    public List<User> findAllWithResultSet() throws DataAccessException {
+
+        String sql = "SELECT userId, password, name, email FROM USERS";
+
+        return JdbcTemplate.executeQuery(sql, (rs) -> {
+            List<User> userList = new ArrayList<>();
+            User user = null;
+            while (rs.next()) {
+
+                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                        rs.getString("email"));
+                userList.add(user);
+            }
+            return userList;
+        });
+    }
+
+    public User findByUserIdWithResultSet(String userId) throws DataAccessException {
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+
+        List<Object> objects = new ArrayList<>();
+        objects.add(userId);
+
+        return JdbcTemplate.executeQuery(sql, objects, (rs) -> {
+            User user = null;
+            if (rs.next()) {
+                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                        rs.getString("email"));
+            }
+            return user;
+        });
+    }
 }

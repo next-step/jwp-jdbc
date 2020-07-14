@@ -1,7 +1,6 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
-import core.jdbc.JdbcTemplate;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +35,20 @@ public class UserDaoTest {
     }
 
     @Test
+    public void crud2() throws Exception {
+        User expected = new User("userId", "password", "name", "javajigi@email.com");
+        UserDao userDao = new UserDao();
+        userDao.insert(expected);
+        User actual = userDao.findByUserIdWithResultSet(expected.getUserId());
+        assertThat(actual).isEqualTo(expected);
+
+        expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
+        userDao.update(expected);
+        actual = userDao.findByUserIdWithResultSet(expected.getUserId());
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
     public void findAll() throws Exception {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
@@ -44,8 +57,8 @@ public class UserDaoTest {
 
     @Test
     public void findAll2() throws Exception {
-        String sql = "SELECT userId, password, name, email FROM USERS";
-
-        JdbcTemplate.executeQuery(sql, User.class);
+        UserDao userDao = new UserDao();
+        List<User> users = userDao.findAllWithResultSet();
+        assertThat(users).hasSize(1);
     }
 }
