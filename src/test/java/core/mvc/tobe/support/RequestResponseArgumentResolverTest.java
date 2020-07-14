@@ -7,8 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
@@ -32,7 +34,7 @@ class RequestResponseArgumentResolverTest {
 
     @DisplayName("Request Type Argument Resolver Test")
     @Test
-    void requestResolveArguments() {
+    void requestResolveArguments() throws IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -44,7 +46,7 @@ class RequestResponseArgumentResolverTest {
 
     @DisplayName("Response Type Argument Resolver Test")
     @Test
-    void responseResolveArguments() {
+    void responseResolveArguments() throws IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -54,7 +56,7 @@ class RequestResponseArgumentResolverTest {
         assertThat(result).isEqualTo(response);
     }
 
-    private Object resolveArgument(MethodParameter mp, HttpServletRequest request, HttpServletResponse response) {
+    private Object resolveArgument(MethodParameter mp, HttpServletRequest request, HttpServletResponse response) throws IOException {
         for (ArgumentResolver argumentResolver : argumentResolvers) {
             if (argumentResolver.supports(mp)) {
                 return argumentResolver.resolveArgument(mp, request, response);
