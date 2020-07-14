@@ -36,7 +36,7 @@ public class JdbcTemplate {
             setObjects(pstmt, objects);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-                return mapper.mapping(rs);
+                return mapper.mapRow(rs);
             } catch (SQLException ex) {
                 throw new DataAccessException(ex);
             }
