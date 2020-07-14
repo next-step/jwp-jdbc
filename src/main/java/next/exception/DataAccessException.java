@@ -1,5 +1,6 @@
 package next.exception;
 
+import core.jdbc.error.JdbcErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +9,7 @@ public class DataAccessException extends RuntimeException {
     private static final Logger logger = LoggerFactory.getLogger(DataAccessException.class);
 
     private String message;
-    private Error errorType;
+    private JdbcErrorType errorType;
     private Throwable cause;
 
     public DataAccessException(String message, Throwable cause) {
@@ -27,21 +28,17 @@ public class DataAccessException extends RuntimeException {
         this.cause = cause;
     }
 
-    public DataAccessException(Error errorType, Throwable cause) {
+    public DataAccessException(JdbcErrorType errorType, Throwable cause) {
         super(errorType.toString(), cause);
         this.errorType = errorType;
         this.cause = cause;
     }
 
-    public Error getErrorType() {
+    public JdbcErrorType getErrorType() {
         return errorType;
     }
 
     public boolean isDuplicated() {
-        return Error.DUPLICATED == errorType;
-    }
-
-    public enum Error {
-        DUPLICATED
+        return JdbcErrorType.DUPLICATE_KEY == errorType;
     }
 }

@@ -1,7 +1,9 @@
 package core.jdbc;
 
+import core.jdbc.error.JdbcErrorType;
+import core.jdbc.error.code.AbstractErrorCode;
+import core.jdbc.error.code.H2ErrorCode;
 import next.exception.DataAccessException;
-import next.exception.SqlErrorCode;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -21,8 +23,18 @@ public class JdbcTemplate {
 
             return pstmt.executeUpdate();
         } catch (SQLException ex) {
-            if (ex.getErrorCode() == SqlErrorCode.ERR_DUP_ENTRY.getCode()) {
-                throw new DataAccessException(DataAccessException.Error.DUPLICATED, ex);
+            AbstractErrorCode error = new H2ErrorCode();
+            if (error.isDuplicate(ex.getErrorCode())) {
+                throw new DataAccessException(JdbcErrorType.DUPLICATE_KEY, ex);
+            }
+            if (error.isBadSqlGrammar(ex.getErrorCode())) {
+                throw new DataAccessException(JdbcErrorType.BAD_SQL_GRAMMAR, ex);
+            }
+            if (error.isDataAccessResourceFailure(ex.getErrorCode())) {
+                throw new DataAccessException(JdbcErrorType.DATA_ACCESS_RESOURCE_FAILURE, ex);
+            }
+            if (error.isDeadlockLoser(ex.getErrorCode())) {
+                throw new DataAccessException(JdbcErrorType.DEADLOCK_LOSER, ex);
             }
             throw new DataAccessException(ex);
         }
@@ -109,4 +121,5 @@ public class JdbcTemplate {
         field.setAccessible(true);
         field.set(obj, value);
     }
+
 }
