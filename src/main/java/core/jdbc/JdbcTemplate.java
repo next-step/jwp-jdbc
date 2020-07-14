@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class JdbcTemplate {
+
     public static int executeUpdate(String sql, Object... objects) throws DataAccessException {
         try (
                 Connection con = ConnectionManager.getConnection();
