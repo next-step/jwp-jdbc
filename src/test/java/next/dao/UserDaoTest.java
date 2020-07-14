@@ -35,9 +35,30 @@ public class UserDaoTest {
     }
 
     @Test
+    public void crud2() throws Exception {
+        User expected = new User("userId", "password", "name", "javajigi@email.com");
+        UserDao userDao = new UserDao();
+        userDao.insert(expected);
+        User actual = userDao.findByUserIdWithResultSet(expected.getUserId());
+        assertThat(actual).isEqualTo(expected);
+
+        expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
+        userDao.update(expected);
+        actual = userDao.findByUserIdWithResultSet(expected.getUserId());
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
     public void findAll() throws Exception {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
+        assertThat(users).hasSize(1);
+    }
+
+    @Test
+    public void findAll2() throws Exception {
+        UserDao userDao = new UserDao();
+        List<User> users = userDao.findAllWithResultSet();
         assertThat(users).hasSize(1);
     }
 }

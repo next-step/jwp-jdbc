@@ -21,6 +21,10 @@ public class ConnectionManager {
         return ds;
     }
 
+    public static String getDbDriver() {
+        return DB_DRIVER;
+    }
+
     public static Connection getConnection() {
         try {
             return getDataSource().getConnection();
