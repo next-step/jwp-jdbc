@@ -8,10 +8,11 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface HandlerInterceptor {
 
-    boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler);
+    default boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        return true;
+    }
 
-    void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable ModelAndView modelAndView);
-
-    void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception exception);
+    default void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable ModelAndView modelAndView) {
+    }
 
 }

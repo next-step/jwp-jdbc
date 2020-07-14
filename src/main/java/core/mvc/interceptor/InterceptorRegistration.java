@@ -1,25 +1,22 @@
 package core.mvc.interceptor;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.util.PathMatcher;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
 public class InterceptorRegistration {
 
-    private final HandlerInterceptor handlerInterceptor;
-    private PathMatcher pathMatcher;
-    private List<String> includePattern = new ArrayList<>();
-    private List<String> excludePattern = new ArrayList<>();
+    private HandlerInterceptor handlerInterceptor;
+    private InterceptorUriPatterns includePatterns;
+    private InterceptorUriPatterns excludePatterns;
 
-    public InterceptorRegistration(HandlerInterceptor handlerInterceptor, PathMatcher pathMatcher) {
+    public InterceptorRegistration(HandlerInterceptor handlerInterceptor) {
         this.handlerInterceptor = handlerInterceptor;
-        this.pathMatcher = pathMatcher;
+        this.includePatterns = new InterceptorUriPatterns();
+        this.excludePatterns = new InterceptorUriPatterns();
     }
 
     public InterceptorRegistration addPathPatterns(String... patterns) {
@@ -27,7 +24,7 @@ public class InterceptorRegistration {
     }
 
     public InterceptorRegistration addPathPatterns(List<String> patterns) {
-        this.includePattern.addAll(patterns);
+        this.includePatterns.addAll(patterns);
         return this;
     }
 
@@ -36,13 +33,18 @@ public class InterceptorRegistration {
     }
 
     public InterceptorRegistration excludePathPatterns(List<String> patterns) {
-        this.excludePattern.addAll(patterns);
+        this.excludePatterns.addAll(patterns);
         return this;
     }
 
     public InterceptorRegistration pathMatcher(PathMatcher pathMatcher) {
-        this.pathMatcher = pathMatcher;
+        this.includePatterns.updatePathMatcher(pathMatcher);
+        this.excludePatterns.updatePathMatcher(pathMatcher);
         return this;
+    }
+
+    public boolean supportsPattern(String uri) {
+        return includePatterns.matches(uri) && !excludePatterns.matches(uri);
     }
 
 }
