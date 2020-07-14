@@ -10,26 +10,34 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class HandlerInterceptorRegistry {
 
-    private static final Stack<Interceptor> preInterceptors = new Stack<>();
-    private static final Stack<Interceptor> postInterceptors = new Stack<>();
+    private static final ThreadLocal<Stack<Interceptor>> preInterceptors = new ThreadLocal<>();
+    private static final ThreadLocal<Stack<Interceptor>> postInterceptors = new ThreadLocal<>();
+
+    public void initialize() {
+        preInterceptors.remove();
+        postInterceptors.remove();
+
+        preInterceptors.set(new Stack<>());
+        postInterceptors.set(new Stack<>());
+    }
 
     public void addInterceptor(Interceptor interceptor) {
-        preInterceptors.push(interceptor);
+        preInterceptors.get().push(interceptor);
     }
 
     public void preHandle(HttpServletRequest req, HttpServletResponse resp) {
-        for (int i = 0; i < preInterceptors.size(); i++) {
-            Interceptor interceptor = preInterceptors.pop();
+        for (int i = 0; i < preInterceptors.get().size(); i++) {
+            Interceptor interceptor = preInterceptors.get().pop();
             interceptor.preHandle(req, resp);
-            postInterceptors.push(interceptor);
+            postInterceptors.get().push(interceptor);
         }
     }
 
     public void postHandle(HttpServletRequest req, HttpServletResponse resp) {
-        for (int i = 0; i < postInterceptors.size(); i++) {
-            Interceptor interceptor = postInterceptors.pop();
+        for (int i = 0; i < postInterceptors.get().size(); i++) {
+            Interceptor interceptor = postInterceptors.get().pop();
             interceptor.postHandle(req, resp);
-            preInterceptors.push(interceptor);
+            preInterceptors.get().push(interceptor);
         }
     }
 }
