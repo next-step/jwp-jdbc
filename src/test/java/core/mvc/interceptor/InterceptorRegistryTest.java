@@ -1,5 +1,6 @@
 package core.mvc.interceptor;
 
+import core.mvc.JspView;
 import core.mvc.ModelAndView;
 import core.mvc.asis.Controller;
 import next.controller.HomeController;
@@ -11,7 +12,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InterceptorRegistryTest {
@@ -47,6 +48,41 @@ class InterceptorRegistryTest {
 
         assertAll("interceptor registry test", () -> {
             assertThat(actualId).isEqualTo("test");
+            assertThat(actualResponse).isEqualTo(200);
+        });
+    }
+
+    @Test
+    void postHandlerTest() {
+        InterceptorRegistry interceptorRegistry = new InterceptorRegistry();
+        interceptorRegistry.addInterceptor(new Interceptor() {
+            @Override
+            public boolean pre(final HttpServletRequest request, final HttpServletResponse response, final Object object) {
+                return true;
+            }
+
+            @Override
+            public void post(final HttpServletRequest request, final HttpServletResponse response, final Object object, final ModelAndView modelAndView) {
+                if (pre(request, response, object)) {
+                    request.setAttribute("name", modelAndView.getModel().get("name"));
+                    request.setAttribute("view", modelAndView.getView());
+                    response.setStatus(HttpServletResponse.SC_OK);
+                }
+            }
+        });
+
+        ModelAndView modelAndView = new ModelAndView(new JspView("test"));
+        modelAndView.addObject("name", "seongju");
+
+        interceptorRegistry.post(request, response, new HomeController(), modelAndView);
+
+        final String modelObjectName = (String) request.getAttribute("name");
+        final boolean sameView = request.getAttribute("view") instanceof JspView;
+        final int actualResponse = response.getStatus();
+
+        assertAll("interceptor post test", () -> {
+            assertThat(modelObjectName).isEqualTo("seongju");
+            assertThat(sameView).isTrue();
             assertThat(actualResponse).isEqualTo(200);
         });
     }
