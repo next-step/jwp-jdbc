@@ -1,6 +1,7 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,5 +40,12 @@ public class UserDaoTest {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
+    }
+
+    @Test
+    public void findAll2() throws Exception {
+        String sql = "SELECT userId, password, name, email FROM USERS";
+
+        JdbcTemplate.executeQuery(sql, User.class);
     }
 }
