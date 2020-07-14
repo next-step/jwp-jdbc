@@ -6,6 +6,7 @@ import core.mvc.interceptor.HandlerInterceptorRegistry;
 import core.mvc.interceptor.HandlerInterceptors;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.util.BasePackageScanner;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletException;
@@ -28,15 +29,18 @@ public class DispatcherServlet extends HttpServlet {
 
     @Override
     public void init() {
+        BasePackageScanner basePackageScanner = new BasePackageScanner();
+        Object[] basePackage = basePackageScanner.findBasePackage();
+
         handlerMappingRegistry = new HandlerMappingRegistry();
         handlerMappingRegistry.addHandlerMpping(new RequestMapping());
-        handlerMappingRegistry.addHandlerMpping(new AnnotationHandlerMapping("next.controller"));
+        handlerMappingRegistry.addHandlerMpping(new AnnotationHandlerMapping(basePackage));
 
         handlerAdapterRegistry = new HandlerAdapterRegistry();
         handlerAdapterRegistry.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
-        handlerInterceptorRegistry = new HandlerInterceptorRegistry();
+        handlerInterceptorRegistry = new HandlerInterceptorRegistry(basePackage);
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
     }
