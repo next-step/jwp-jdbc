@@ -1,8 +1,8 @@
 package core.jdbc;
 
 import core.jdbc.error.JdbcErrorType;
-import core.jdbc.error.code.AbstractErrorCode;
-import core.jdbc.error.code.H2ErrorCode;
+import core.jdbc.error.code.ErrorCode;
+import core.jdbc.error.code.JdbcErrorCodeFactory;
 import next.exception.DataAccessException;
 
 import java.lang.reflect.Field;
@@ -23,7 +23,7 @@ public class JdbcTemplate {
 
             return pstmt.executeUpdate();
         } catch (SQLException ex) {
-            AbstractErrorCode error = new H2ErrorCode();
+            ErrorCode error = JdbcErrorCodeFactory.create(ConnectionManager.getDbDriver());
             if (error.isDuplicate(ex.getErrorCode())) {
                 throw new DataAccessException(JdbcErrorType.DUPLICATE_KEY, ex);
             }

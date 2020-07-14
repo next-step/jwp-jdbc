@@ -1,6 +1,6 @@
 package core.jdbc.error.code;
 
-public class H2ErrorCode extends AbstractErrorCode {
+public class H2ErrorCode extends ErrorCode {
 
     public H2ErrorCode() {
         badSqlGrammarCodes = new int[]{42000, 42001, 42101, 42102, 42111, 42112, 42121, 42122, 42132};

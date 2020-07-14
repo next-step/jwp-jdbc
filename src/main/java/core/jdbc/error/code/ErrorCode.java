@@ -2,7 +2,7 @@ package core.jdbc.error.code;
 
 import java.util.Arrays;
 
-public abstract class AbstractErrorCode {
+public class ErrorCode {
     protected int[] badSqlGrammarCodes;
     protected int[] duplicateKeyCodes;
     protected int[] dataIntegrityViolationCodes;
@@ -13,7 +13,7 @@ public abstract class AbstractErrorCode {
     protected boolean useSqlStateForTranslation;
     protected int[] cannotAcquireLockCodes;
 
-    public AbstractErrorCode() {
+    public ErrorCode() {
         badSqlGrammarCodes = new int[0];
         duplicateKeyCodes = new int[0];
         dataIntegrityViolationCodes = new int[0];
