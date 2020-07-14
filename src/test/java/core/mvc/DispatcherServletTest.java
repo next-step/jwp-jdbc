@@ -27,6 +27,7 @@ class DispatcherServletTest {
     void annotation_user_list() throws Exception {
         request.setRequestURI("/users");
         request.setMethod("GET");
+        request.setContentType("text/html");
 
         dispatcher.service(request, response);
 
@@ -43,6 +44,7 @@ class DispatcherServletTest {
     private void createUser(User user) throws Exception {
         request.setRequestURI("/users");
         request.setMethod("POST");
+        request.setContentType("text/html");
         request.setParameter("userId", user.getUserId());
         request.setParameter("password", user.getPassword());
         request.setParameter("name", user.getName());
