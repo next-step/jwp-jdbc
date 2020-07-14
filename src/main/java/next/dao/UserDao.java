@@ -38,10 +38,7 @@ public class UserDao {
     public User findByUserId(String userId) throws DataAccessException {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        List<Object> objects = new ArrayList<>();
-        objects.add(userId);
-
-        return JdbcTemplate.executeQuery(sql, objects, User.class).get(0);
+        return JdbcTemplate.executeQuery(sql, User.class, userId).get(0);
     }
 
     public List<User> findAllWithResultSet() throws DataAccessException {
@@ -67,13 +64,13 @@ public class UserDao {
         List<Object> objects = new ArrayList<>();
         objects.add(userId);
 
-        return JdbcTemplate.executeQuery(sql, objects, (rs) -> {
+        return JdbcTemplate.executeQuery(sql, (rs) -> {
             User user = null;
             if (rs.next()) {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email"));
             }
             return user;
-        });
+        }, userId);
     }
 }

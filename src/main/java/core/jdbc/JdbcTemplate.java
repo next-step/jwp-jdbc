@@ -28,7 +28,7 @@ public class JdbcTemplate {
         return executeUpdate(sql, list.toArray());
     }
 
-    public static <T> T executeQuery(String sql, Object[] objects, RowMapper<T> mapper) throws DataAccessException {
+    public static <T> T executeQuery(String sql, RowMapper<T> mapper, Object... objects) throws DataAccessException {
         try (
                 Connection con = ConnectionManager.getConnection();
                 PreparedStatement pstmt = con.prepareStatement(sql);
@@ -46,21 +46,19 @@ public class JdbcTemplate {
     }
 
     public static <T> T executeQuery(String sql, List<Object> list, RowMapper<T> mapper) throws DataAccessException {
-        return executeQuery(sql, list.toArray(), mapper);
+        return executeQuery(sql, mapper, list.toArray());
     }
 
     public static <T> T executeQuery(String sql, RowMapper<T> mapper) throws DataAccessException {
-        return executeQuery(sql, new Object[0], mapper);
+        return executeQuery(sql, mapper, new Object[0]);
     }
 
     public static <T> List<T> executeQuery(String sql, Class<T> type) throws DataAccessException {
-
-
-        return executeQuery(sql, new Object[0], (rs) -> setResultListObjects(type, rs));
+        return executeQuery(sql, (rs) -> setResultListObjects(type, rs), new Object[0]);
     }
 
-    public static <T> List<T> executeQuery(String sql, List<Object> list, Class<T> type) throws DataAccessException {
-        return executeQuery(sql, list.toArray(), (rs) -> setResultListObjects(type, rs));
+    public static <T> List<T> executeQuery(String sql, Class<T> type, Object... objects) throws DataAccessException {
+        return executeQuery(sql, (rs) -> setResultListObjects(type, rs), objects);
     }
 
     private static void setObjects(PreparedStatement pstmt, Object[] objects) throws DataAccessException {
