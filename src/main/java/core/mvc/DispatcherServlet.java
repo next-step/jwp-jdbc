@@ -1,5 +1,6 @@
 package core.mvc;
 
+import core.interceptor.TimeCheckInterceptor;
 import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
@@ -27,6 +28,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerExecutor handlerExecutor;
 
+    private HandlerInterceptorRegistry interceptorRegistry;
+
     @Override
     public void init() {
         handlerMappingRegistry = new HandlerMappingRegistry();
@@ -38,6 +41,9 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        interceptorRegistry = new HandlerInterceptorRegistry();
+        interceptorRegistry.addHandlerInterceptor(new TimeCheckInterceptor());
     }
 
     @Override
@@ -52,9 +58,12 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
-
-            ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
-            render(mav, req, resp);
+            //인터셉터 시작
+            if (interceptorRegistry.preHandle(req, resp)) {
+                ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+                interceptorRegistry.postHandle(req, resp, mav);
+                render(mav, req, resp);
+            }
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
             throw new ServletException(e.getMessage());
