@@ -16,10 +16,16 @@ public class InterceptorRegistry {
     }
 
     public void pre(HttpServletRequest request, HttpServletResponse response, Object object) {
+        if (interceptors.isEmpty()) {
+            throw new IllegalArgumentException("등록된 인터셉터가 없습니다.");
+        }
         interceptors.forEach(interceptor -> interceptor.pre(request, response, object));
     }
 
     public void post(HttpServletRequest request, HttpServletResponse response, Object object, ModelAndView modelAndView) {
+        if (interceptors.isEmpty()) {
+            throw new IllegalArgumentException("등록된 인터셉터가 없습니다.");
+        }
         interceptors.forEach(interceptor -> interceptor.post(request, response, object, modelAndView));
     }
 }
