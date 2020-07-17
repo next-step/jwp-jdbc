@@ -21,14 +21,16 @@ public class JsonView implements View {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         ServletOutputStream outputStream = response.getOutputStream();
 
+        if(model.size() == 0) {
+            return;
+        }
+
         if (model.size() > 1) {
             jsonMessageConverter.write(outputStream, model);
             return;
         }
 
-        Optional<String> key = model.keySet().stream().findFirst();
-        if (key.isPresent()) {
-            jsonMessageConverter.write(outputStream, model.get(key.get()));
-        }
+        String key = model.keySet().stream().findFirst().get();
+        jsonMessageConverter.write(outputStream, model.get(key));
     }
 }
