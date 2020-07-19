@@ -26,14 +26,14 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T queryForObject(String sql, QueryCallback<T> queryCallback, Object... sqlArgs) {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... sqlArgs) {
         PreparedStatementCreator psc = bindArgsToSql(sql, sqlArgs);
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = psc.createPreparedStatement(con);
              ResultSet rs = pstmt.executeQuery()) {
             T object = null;
             if (rs.next()) {
-                object = queryCallback.mapping(rs);
+                object = rowMapper.mapping(rs);
             }
             return object;
         } catch (SQLException e) {
@@ -41,14 +41,14 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> List<T> queryForList(String sql, QueryCallback<T> queryCallback) {
+    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper) {
         PreparedStatementCreator psc = bindArgsToSql(sql);
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = psc.createPreparedStatement(con);
              ResultSet rs = pstmt.executeQuery()) {
             List<T> objects = new ArrayList<>();
             while (rs.next()) {
-                objects.add(queryCallback.mapping(rs));
+                objects.add(rowMapper.mapping(rs));
             }
             return objects;
         } catch (SQLException e) {

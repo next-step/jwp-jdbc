@@ -1,7 +1,8 @@
 package next.dao;
 
 import core.jdbc.JdbcTemplate;
-import core.jdbc.QueryCallback;
+import core.jdbc.RowMapper;
+import next.dao.mapper.UserMapper;
 import next.model.User;
 
 
@@ -12,19 +13,6 @@ import java.util.List;
 public class UserDao {
 
     private final JdbcTemplate jdbcTemplate;
-    private final QueryCallback<User> queryCallback = new QueryCallback<User>() {
-        @Override
-        public User mapping(ResultSet rs) throws SQLException {
-            User user = null;
-            if(rs != null) {
-                user = new User(rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email"));
-            }
-            return user;
-        }
-    };
 
     public UserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -42,11 +30,11 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
-        return this.jdbcTemplate.queryForList(sql, queryCallback);
+        return this.jdbcTemplate.queryForList(sql, new UserMapper());
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return this.jdbcTemplate.queryForObject(sql, queryCallback, userId);
+        return this.jdbcTemplate.queryForObject(sql, new UserMapper(), userId);
     }
 }
