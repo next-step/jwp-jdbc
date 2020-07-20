@@ -1,7 +1,7 @@
 package next.dao;
 
 import core.jdbc.JdbcTemplate;
-import next.dao.mapper.UserMapper;
+import core.jdbc.RowMapper;
 import next.model.User;
 
 
@@ -28,10 +28,23 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return this.jdbcTemplate.queryForList(USER_FIND_ALL_SQL, new UserMapper());
+        return this.jdbcTemplate.queryForList(USER_FIND_ALL_SQL, getUserMapper());
     }
 
     public User findByUserId(String userId) {
-        return this.jdbcTemplate.queryForObject(USER_FIND_BY_ID_SQL, new UserMapper(), userId);
+        return this.jdbcTemplate.queryForObject(USER_FIND_BY_ID_SQL, getUserMapper(), userId);
+    }
+
+    private RowMapper<User> getUserMapper() {
+        return rs -> {
+            User user = null;
+            if (rs != null) {
+                user = new User(rs.getString("userId"),
+                        rs.getString("password"),
+                        rs.getString("name"),
+                        rs.getString("email"));
+            }
+            return user;
+        };
     }
 }
