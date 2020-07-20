@@ -22,50 +22,40 @@ public class JdbcTemplate {
              PreparedStatement pstmt = psc.createPreparedStatement(con)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
         }
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... sqlArgs) {
-        PreparedStatementCreator psc = bindArgsToSql(sql, sqlArgs);
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = psc.createPreparedStatement(con);
-             ResultSet rs = pstmt.executeQuery()) {
-            T object = null;
-            if (rs.next()) {
-                object = rowMapper.mapping(rs);
-            }
-            return object;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        List<T> objects = queryForList(sql, rowMapper, sqlArgs);
+        if(objects.isEmpty()) {
+            return null;
         }
+        return objects.get(0);
     }
 
-    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper) {
-        PreparedStatementCreator psc = bindArgsToSql(sql);
+    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, Object... sqlArgs) {
+        PreparedStatementCreator psc = bindArgsToSql(sql, sqlArgs);
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = psc.createPreparedStatement(con);
              ResultSet rs = pstmt.executeQuery()) {
             List<T> objects = new ArrayList<>();
             while (rs.next()) {
-                objects.add(rowMapper.mapping(rs));
+                objects.add(rowMapper.map(rs));
             }
             return objects;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
         }
     }
 
     private PreparedStatementCreator bindArgsToSql(String sql, Object... sqlArgs) {
-        return new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement pstmt = con.prepareStatement(sql);
-                for (int i = 0; i < sqlArgs.length; i++) {
-                    pstmt.setString(i + 1, (String) sqlArgs[i]);
-                }
-                return pstmt;
+        return con -> {
+            PreparedStatement pstmt = con.prepareStatement(sql);
+            for (int i = 0; i < sqlArgs.length; i++) {
+                pstmt.setObject(i + 1, sqlArgs[i]);
             }
+            return pstmt;
         };
     }
 }
