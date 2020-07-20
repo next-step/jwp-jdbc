@@ -22,7 +22,7 @@ public class JdbcTemplate {
              PreparedStatement pstmt = psc.createPreparedStatement(con)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
         }
     }
 
@@ -45,7 +45,7 @@ public class JdbcTemplate {
             }
             return objects;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
         }
     }
 
