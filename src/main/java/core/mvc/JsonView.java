@@ -30,7 +30,6 @@ public class JsonView implements View {
             return;
         }
 
-        String key = model.keySet().stream().findFirst().get();
-        jsonMessageConverter.write(outputStream, model.get(key));
+        jsonMessageConverter.write(outputStream, model.values().iterator().next());
     }
 }
