@@ -57,15 +57,12 @@ public class JdbcTemplate {
     }
 
     private PreparedStatementCreator bindArgsToSql(String sql, Object... sqlArgs) {
-        return new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement pstmt = con.prepareStatement(sql);
-                for (int i = 0; i < sqlArgs.length; i++) {
-                    pstmt.setString(i + 1, (String) sqlArgs[i]);
-                }
-                return pstmt;
+        return con -> {
+            PreparedStatement pstmt = con.prepareStatement(sql);
+            for (int i = 0; i < sqlArgs.length; i++) {
+                pstmt.setObject(i + 1, sqlArgs[i]);
             }
+            return pstmt;
         };
     }
 }
