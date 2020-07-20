@@ -27,22 +27,15 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... sqlArgs) {
-        PreparedStatementCreator psc = bindArgsToSql(sql, sqlArgs);
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = psc.createPreparedStatement(con);
-             ResultSet rs = pstmt.executeQuery()) {
-            T object = null;
-            if (rs.next()) {
-                object = rowMapper.map(rs);
-            }
-            return object;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        List<T> objects = queryForList(sql, rowMapper, sqlArgs);
+        if(objects.isEmpty()) {
+            return null;
         }
+        return objects.get(0);
     }
 
-    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper) {
-        PreparedStatementCreator psc = bindArgsToSql(sql);
+    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, Object... sqlArgs) {
+        PreparedStatementCreator psc = bindArgsToSql(sql, sqlArgs);
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = psc.createPreparedStatement(con);
              ResultSet rs = pstmt.executeQuery()) {
