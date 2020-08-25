@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -25,6 +26,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerAdapterRegistry handlerAdapterRegistry;
 
+    private HandlerInterceptorExecutor handlerInterceptorExecutor;
+
     private HandlerExecutor handlerExecutor;
 
     @Override
@@ -36,6 +39,9 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry = new HandlerAdapterRegistry();
         handlerAdapterRegistry.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
+
+        handlerInterceptorExecutor = new HandlerInterceptorExecutor();
+        handlerInterceptorExecutor.addInterceptor(new LogInterceptor());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
     }
@@ -52,8 +58,14 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
+            if (!handlerInterceptorExecutor.applyPreHandle(req, resp, maybeHandler.get())) {
+                return;
+            }
 
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+
+            handlerInterceptorExecutor.applyPostHandle(req, resp, maybeHandler.get(), mav);
+
             render(mav, req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
