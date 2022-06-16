@@ -9,34 +9,30 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
+    private final QueryTemplate queryTemplate = new QueryTemplate();
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+    public void insert(User user) {
+        String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        Map<Integer, String> params = Map.of(
+                1, user.getUserId(),
+                2, user.getPassword(),
+                3, user.getName(),
+                4, user.getEmail()
+        );
+        queryTemplate.execute(sql, params);
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public void update(User user) {
+        String sql = "UPDATE USERS SET name= ?, email= ? WHERE userId= ?";
+        Map<Integer, String> params = Map.of(
+                1, user.getName(),
+                2, user.getEmail(),
+                3, user.getUserId()
+        );
+        queryTemplate.execute(sql, params);
     }
 
     public List<User> findAll() throws SQLException {
