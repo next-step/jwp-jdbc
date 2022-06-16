@@ -47,6 +47,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'org.assertj:assertj-core:3.22.0'
     testImplementation 'io.projectreactor.netty:reactor-netty-http:1.0.19'
+    testImplementation 'io.netty:netty-resolver-dns-native-macos:4.1.77.Final:osx-aarch_64' // M1전용 dns 리졸버
     testImplementation "org.springframework:spring-test:${springVersion}"
     testImplementation "org.springframework:spring-webflux:${springVersion}"
 }
