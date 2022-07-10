@@ -15,7 +15,6 @@ public class JsonView implements View {
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
         if (model.isEmpty()) {
             return;
@@ -26,7 +25,7 @@ public class JsonView implements View {
             return;
         }
 
-        response.getWriter().write(objectMapper.writeValueAsString(model));
+        objectMapper.writeValue(response.getOutputStream(), model);
     }
 
     private void parseSingleResponse(Map<String, ?> model, HttpServletResponse response) throws IOException {
@@ -35,6 +34,6 @@ public class JsonView implements View {
                         .findAny()
                         .get();
 
-        response.getWriter().write(objectMapper.writeValueAsString(model.get(key)));
+        objectMapper.writeValue(response.getOutputStream(), model.get(key));
     }
 }
