@@ -30,14 +30,14 @@ class JdbcTemplateTest {
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
 
-        jdbcTemplate = new JdbcTemplate(new UserRowMapper());
+        jdbcTemplate = JdbcTemplate.getInstance();
         jdbcTemplate.update(INSERT_QUERY, USER_ID, PASSWORD, NAME, EMAIL);
     }
 
     @DisplayName("저장 및 단건 조회 테스트")
     @Test
     void insertAndSelect() {
-        User actual = jdbcTemplate.queryForObject(SELECT_QUERY, USER_ID);
+        User actual = jdbcTemplate.queryForObject(new UserRowMapper(), SELECT_QUERY, USER_ID);
 
         assertThat(actual).isEqualTo(new User(USER_ID, PASSWORD, NAME, EMAIL));
     }
@@ -45,7 +45,7 @@ class JdbcTemplateTest {
     @DisplayName("다건 조회 테스트")
     @Test
     void selectAll() {
-        List<User> actual = jdbcTemplate.queryForList(SELECT_ALL_QUERY);
+        List<User> actual = jdbcTemplate.queryForList(new UserRowMapper(), SELECT_ALL_QUERY);
 
         assertThat(actual).hasSize(2);
         assertThat(actual.get(1)).isEqualTo(new User(USER_ID, PASSWORD, NAME, EMAIL));

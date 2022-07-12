@@ -9,10 +9,15 @@ import java.util.List;
 
 public class JdbcTemplate {
 
-    private final RowMapper<?> rowMapper;
+    private JdbcTemplate() {
+    }
 
-    public JdbcTemplate(RowMapper<?> rowMapper) {
-        this.rowMapper = rowMapper;
+    public static JdbcTemplate getInstance() {
+        return LazyHolder.INSTANCE;
+    }
+
+    private static class LazyHolder {
+        private static final JdbcTemplate INSTANCE = new JdbcTemplate();
     }
 
     public void update(String sql, Object... arguments) {
@@ -25,7 +30,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T queryForObject(String sql, Object... arguments) {
+    public <T> T queryForObject(RowMapper<?> rowMapper, String sql, Object... arguments) {
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement preparedStatement =
                      new PreparedStatementCreatorImpl(sql, arguments).createPreparedStatement(connection);
@@ -42,7 +47,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> List<T> queryForList(String sql, Object... arguments) {
+    public <T> List<T> queryForList(RowMapper<?> rowMapper, String sql, Object... arguments) {
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement preparedStatement =
                      new PreparedStatementCreatorImpl(sql, arguments).createPreparedStatement(connection);
