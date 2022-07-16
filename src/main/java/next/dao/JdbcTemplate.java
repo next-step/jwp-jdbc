@@ -38,6 +38,10 @@ public class JdbcTemplate<T> {
             PreparedStatement preparedStatement = con.prepareStatement(sql);
             ResultSet rs = initParameters(parameters, preparedStatement).executeQuery()) {
 
+            if (rs.getFetchSize() > 1) {
+                throw new IllegalArgumentException("반환 값이 1개 이상입니다.");
+            }
+
             if (rs.next()) {
                 T newInstance = type.getDeclaredConstructor().newInstance();
                 Field[] declaredFields = type.getDeclaredFields();
