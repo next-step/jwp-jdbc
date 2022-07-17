@@ -6,6 +6,9 @@ public class User {
     private String name;
     private String email;
 
+    private User() {
+    }
+
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
         this.password = password;
@@ -27,6 +30,11 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public void update(String name, String email) {
+        this.name = name;
+        this.email = email;
     }
 
     public void update(User updateUser) {
