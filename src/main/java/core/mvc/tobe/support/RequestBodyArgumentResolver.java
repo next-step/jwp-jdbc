@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResolver {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public boolean supports(MethodParameter methodParameter) {
