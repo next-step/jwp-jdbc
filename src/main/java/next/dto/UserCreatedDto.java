@@ -6,7 +6,7 @@ public class UserCreatedDto {
     private String name;
     private String email;
 
-    private UserCreatedDto() {
+    public UserCreatedDto() {
     }
 
     public UserCreatedDto(String userId, String password, String name, String email) {

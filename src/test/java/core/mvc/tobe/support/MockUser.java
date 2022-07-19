@@ -2,9 +2,6 @@ package core.mvc.tobe.support;
 
 public class MockUser {
 
-    public MockUser(String id) {
-        this.id = id;
-    }
 
     private String id;
 
@@ -17,6 +14,13 @@ public class MockUser {
     private int age;
 
     private long money;
+
+    public MockUser() {
+    }
+
+    public MockUser(String id) {
+        this.id = id;
+    }
 
     public String getId() {
         return id;
