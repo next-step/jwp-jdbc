@@ -6,7 +6,11 @@ import java.util.List;
 
 public class UserDao {
 
-    private final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate<>();
+    private final JdbcTemplate<User> jdbcTemplate;
+
+    public UserDao(JdbcTemplate<User> jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
