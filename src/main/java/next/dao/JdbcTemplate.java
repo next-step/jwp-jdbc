@@ -11,7 +11,16 @@ import java.util.List;
 
 public class JdbcTemplate {
 
-    public void update(String sql, List<Object> objects) {
+    private static final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+
+    private JdbcTemplate() {
+    }
+
+    public static JdbcTemplate getInstance() {
+        return jdbcTemplate;
+    }
+
+    public void update(String sql, Object... objects) {
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement preparedStatement = con.prepareStatement(sql)) {
 
@@ -23,10 +32,10 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T findOne(String sql, PreparedStatementValues preparedStatementValues, RowMapper<T> rowMapper) {
+    public <T> T findOne(String sql, RowMapper<T> rowMapper, Object... objects) {
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement preparedStatement = con.prepareStatement(sql);
-            ResultSet rs = initPrepareStatement(preparedStatementValues.getValues(), preparedStatement).executeQuery()) {
+            ResultSet rs = initPrepareStatement(new PreparedStatementValues(objects).getValues(), preparedStatement).executeQuery()) {
 
             if (rs.getFetchSize() > 1) {
                 throw new IllegalArgumentException("반환 값이 1개 이상입니다.");
@@ -41,18 +50,11 @@ public class JdbcTemplate {
         }
     }
 
-    private PreparedStatement initPrepareStatement(List<PreparedStatementValue> values, PreparedStatement preparedStatement) throws SQLException {
-        for (PreparedStatementValue value : values) {
-            preparedStatement.setObject(value.getIndex(), value.getValue());
-        }
-        return preparedStatement;
-    }
-
-    public <T> List<T> findAll(String sql, RowMapper<T> rowMapper) {
+    public <T> List<T> findAll(String sql, RowMapper<T> rowMapper, Object... objects) {
         List<T> results = new ArrayList<>();
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement preparedStatement = con.prepareStatement(sql);
-            ResultSet rs = preparedStatement.executeQuery()) {
+            ResultSet rs = initPrepareStatement(new PreparedStatementValues(objects).getValues(), preparedStatement).executeQuery()) {
 
             while (rs.next()) {
                 results.add(rowMapper.mapRow(rs));
@@ -62,5 +64,12 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private PreparedStatement initPrepareStatement(List<PreparedStatementValue> values, PreparedStatement preparedStatement) throws SQLException {
+        for (PreparedStatementValue value : values) {
+            preparedStatement.setObject(value.getIndex(), value.getValue());
+        }
+        return preparedStatement;
     }
 }

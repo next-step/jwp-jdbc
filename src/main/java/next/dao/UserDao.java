@@ -24,21 +24,11 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
-
-        return jdbcTemplate.findAll(sql, resultSet ->
-                new User(resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email")));
+        return jdbcTemplate.findAll(sql, UserRowMapper.getInstance());
     }
 
     public User findByUserId(String userId) {
         String sql = "SELECT * FROM USERS WHERE userid=?";
-
-        return jdbcTemplate.findOne(sql,new PreparedStatementValues(userId), resultSet ->
-                new User(resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email")));
+        return jdbcTemplate.findOne(sql, UserRowMapper.getInstance(), userId);
     }
 }
