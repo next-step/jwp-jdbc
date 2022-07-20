@@ -19,7 +19,7 @@ public class UserDao {
 
     public void update(User user) {
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-        jdbcTemplate.update(sql, List.of(user.getUserId(), user.getPassword(), user.getName(), user.getEmail()));
+        jdbcTemplate.update(sql, List.of( user.getPassword(), user.getName(), user.getEmail(), user.getUserId()));
     }
 
     public List<User> findAll() {
