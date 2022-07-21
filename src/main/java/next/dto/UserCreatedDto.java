@@ -1,5 +1,7 @@
 package next.dto;
 
+import next.model.User;
+
 import java.util.Objects;
 
 public class UserCreatedDto {
@@ -34,6 +36,10 @@ public class UserCreatedDto {
         return email;
     }
 
+    public User toUser() {
+        return new User(userId, password, name, email);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -42,27 +48,15 @@ public class UserCreatedDto {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         UserCreatedDto that = (UserCreatedDto) o;
-
-        if (!Objects.equals(userId, that.userId)) {
-            return false;
-        }
-        if (!Objects.equals(password, that.password)) {
-            return false;
-        }
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        return Objects.equals(email, that.email);
+        return Objects.equals(userId, that.userId)
+                && Objects.equals(password, that.password)
+                && Objects.equals(name, that.name)
+                && Objects.equals(email, that.email);
     }
 
     @Override
     public int hashCode() {
-        int result = userId != null ? userId.hashCode() : 0;
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        return result;
+        return Objects.hash(userId, password, name, email);
     }
 }
