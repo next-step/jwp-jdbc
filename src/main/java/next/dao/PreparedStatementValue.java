@@ -1,11 +1,11 @@
 package next.dao;
 
-public class JdbcParameter {
+public class PreparedStatementValue {
     private final int index;
 
     private final Object value;
 
-    public JdbcParameter(int index, Object value) {
+    public PreparedStatementValue(int index, Object value) {
         this.index = index;
         this.value = value;
     }

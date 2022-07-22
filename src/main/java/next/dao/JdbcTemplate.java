@@ -2,30 +2,29 @@ package next.dao;
 
 import core.jdbc.ConnectionManager;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class JdbcTemplate<T> {
+public class JdbcTemplate {
 
-    public void insert(String sql, List<JdbcParameter> parameters) {
-        execute(sql, parameters);
+    private static final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+
+    private JdbcTemplate() {
     }
 
-    public void update(String sql, List<JdbcParameter> parameters) {
-        execute(sql, parameters);
+    public static JdbcTemplate getInstance() {
+        return jdbcTemplate;
     }
 
-    private void execute(String sql, List<JdbcParameter> parameters) {
+    public void update(String sql, Object... objects) {
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement preparedStatement = con.prepareStatement(sql)) {
-            initParameters(parameters, preparedStatement);
+
+            initPrepareStatement(new PreparedStatementValues(objects).getValues(), preparedStatement);
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -33,60 +32,44 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public T findOne(String sql, List<JdbcParameter> parameters, Class<T> type) {
+    public <T> T findOne(String sql, RowMapper<T> rowMapper, Object... objects) {
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement preparedStatement = con.prepareStatement(sql);
-            ResultSet rs = initParameters(parameters, preparedStatement).executeQuery()) {
+            ResultSet rs = initPrepareStatement(new PreparedStatementValues(objects).getValues(), preparedStatement).executeQuery()) {
 
             if (rs.getFetchSize() > 1) {
                 throw new IllegalArgumentException("반환 값이 1개 이상입니다.");
             }
 
             if (rs.next()) {
-                T newInstance = type.getDeclaredConstructor().newInstance();
-                Field[] declaredFields = type.getDeclaredFields();
-
-                setFields(rs, newInstance, declaredFields);
-
-                return newInstance;
+                return rowMapper.mapRow(rs);
             }
             throw new IllegalArgumentException("대상을 찾을수 없습니다.");
-        } catch (SQLException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private PreparedStatement initParameters(List<JdbcParameter> parameters, PreparedStatement preparedStatement) throws SQLException {
-        for (JdbcParameter parameter : parameters) {
-            preparedStatement.setObject(parameter.getIndex(), parameter.getValue());
-        }
-        return preparedStatement;
-    }
-
-    public List<T> findAll(String sql, Class<T> type) {
+    public <T> List<T> findAll(String sql, RowMapper<T> rowMapper, Object... objects) {
         List<T> results = new ArrayList<>();
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement preparedStatement = con.prepareStatement(sql);
-            ResultSet rs = preparedStatement.executeQuery()) {
+            ResultSet rs = initPrepareStatement(new PreparedStatementValues(objects).getValues(), preparedStatement).executeQuery()) {
 
             while (rs.next()) {
-                T newInstance = type.getDeclaredConstructor().newInstance();
-                Field[] declaredFields = type.getDeclaredFields();
-
-                setFields(rs, newInstance, declaredFields);
-                results.add(newInstance);
+                results.add(rowMapper.mapRow(rs));
             }
 
             return results;
-        } catch (SQLException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void setFields(ResultSet rs, T newInstance, Field[] declaredFields) throws SQLException, IllegalAccessException {
-        for (Field field : declaredFields) {
-            field.setAccessible(true);
-            field.set(newInstance, rs.getString(field.getName()));
+    private PreparedStatement initPrepareStatement(List<PreparedStatementValue> values, PreparedStatement preparedStatement) throws SQLException {
+        for (PreparedStatementValue value : values) {
+            preparedStatement.setObject(value.getIndex(), value.getValue());
         }
+        return preparedStatement;
     }
 }
