@@ -3,6 +3,9 @@ package next.model;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class User {
     private String userId;
     private String password;
@@ -80,6 +83,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public static User from(ResultSet resultSet) throws SQLException {
+        String userId = resultSet.getString("userId");
+        String password = resultSet.getString("password");
+        String name = resultSet.getString("name");
+        String email = resultSet.getString("email");
+        return new User(userId, password, name, email);
     }
 
     @Override
