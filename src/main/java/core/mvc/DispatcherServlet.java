@@ -25,6 +25,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerAdapterRegistry handlerAdapterRegistry;
 
+    private HandlerInterceptorRegistry handlerInterceptorRegistry;
+
     private HandlerExecutor handlerExecutor;
 
     @Override
@@ -38,6 +40,9 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        handlerInterceptorRegistry = new HandlerInterceptorRegistry();
+        handlerInterceptorRegistry.addHandlerInterceptor(new LoggingInterceptor());
     }
 
     @Override
@@ -52,8 +57,12 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
+            Object handler = maybeHandler.get();
+            handlerInterceptorRegistry.preHandles(req, resp, handler);
 
-            ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+            ModelAndView mav = handlerExecutor.handle(req, resp, handler);
+
+            handlerInterceptorRegistry.postHandles(req, resp, handler, mav);
             render(mav, req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
