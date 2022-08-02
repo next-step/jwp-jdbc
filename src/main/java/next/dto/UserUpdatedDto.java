@@ -1,5 +1,9 @@
 package next.dto;
 
+import next.model.User;
+
+import java.util.Objects;
+
 public class UserUpdatedDto {
     private String name;
     private String email;
@@ -18,5 +22,26 @@ public class UserUpdatedDto {
 
     public String getEmail() {
         return email;
+    }
+
+    public User toUser() {
+        return new User(null, null, name, email);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UserUpdatedDto that = (UserUpdatedDto) o;
+        return Objects.equals(name, that.name) && Objects.equals(email, that.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, email);
     }
 }
