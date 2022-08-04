@@ -17,6 +17,16 @@ public class DataBase {
         users.put(user.getUserId(), user);
     }
 
+    public static User getUserById(String userId) {
+        User user = findUserById(userId);
+
+        if (user == null) {
+            throw new NullPointerException("사용자를 찾을 수 없습니다.");
+        }
+
+        return user;
+    }
+
     public static User findUserById(String userId) {
         return users.get(userId);
     }
