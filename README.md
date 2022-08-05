@@ -7,3 +7,7 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+## 기능 요구사항 - 1단계 (REST API 및 테스트 리팩토링)
+- [x] `core.mvc.JsonViewTest`의 모든 테스트를 pass하도록 JsonView를 구현한다.
+- [x] `next.controller.UserAcceptanceTest` 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용한다.
