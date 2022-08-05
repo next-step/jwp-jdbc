@@ -35,7 +35,7 @@ public class UserApiController {
         response.setStatus(HttpServletResponse.SC_CREATED);
         response.addHeader(HttpHeaders.LOCATION, BASE_URL + "/api/users?userId=" + dto.getUserId());
 
-        ModelAndView mav = new ModelAndView(new JsonView());
+        ModelAndView mav = ModelAndView.withJsonView();
         mav.addObject("user", user);
         return mav;
     }
@@ -49,7 +49,7 @@ public class UserApiController {
             throw new UserNotFoundException(userId);
         }
 
-        ModelAndView mav = new ModelAndView(new JsonView());
+        ModelAndView mav = ModelAndView.withJsonView();
         mav.addObject("user", user);
         return mav;
     }
