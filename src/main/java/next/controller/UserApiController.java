@@ -28,17 +28,15 @@ public class UserApiController {
 
     @RequestMapping(value = BASE_URL, method = RequestMethod.POST)
     public ModelAndView createUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String requestBody = StreamUtils.copyToString(request.getInputStream(), UTF_8);
-        UserCreatedDto dto = objectMapper.readValue(requestBody, UserCreatedDto.class);
+        UserCreatedDto dto = convertRequestBodyToObject(request, UserCreatedDto.class);
         User user = dto.toUser();
         DataBase.addUser(user);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         response.addHeader(HttpHeaders.LOCATION, BASE_URL + "?userId=" + dto.getUserId());
 
-        ModelAndView mav = ModelAndView.withJsonView();
-        mav.addObject("user", user);
-        return mav;
+        return ModelAndView.withJsonView()
+            .addObject("user", user);
     }
 
     @RequestMapping(value = BASE_URL, method = RequestMethod.GET)
@@ -46,9 +44,8 @@ public class UserApiController {
         String userId = request.getParameter("userId");
         User user = findUser(userId);
 
-        ModelAndView mav = ModelAndView.withJsonView();
-        mav.addObject("user", user);
-        return mav;
+        return ModelAndView.withJsonView()
+            .addObject("user", user);
     }
 
     @RequestMapping(value = BASE_URL, method = RequestMethod.PUT)
@@ -56,13 +53,17 @@ public class UserApiController {
         String userId = request.getParameter("userId");
         User user = findUser(userId);
 
-        String requestBody = StreamUtils.copyToString(request.getInputStream(), UTF_8);
-        UserUpdatedDto dto = objectMapper.readValue(requestBody, UserUpdatedDto.class);
+        UserUpdatedDto dto = convertRequestBodyToObject(request, UserUpdatedDto.class);
         User updateUser = new User(user.getUserId(), user.getPassword(), dto.getName(), dto.getEmail());
 
         user.update(updateUser);
 
         return ModelAndView.withJsonView();
+    }
+
+    private <T> T convertRequestBodyToObject(HttpServletRequest request, Class<T> clazz) throws IOException {
+        String requestBody = StreamUtils.copyToString(request.getInputStream(), UTF_8);
+        return objectMapper.readValue(requestBody, clazz);
     }
 
     private User findUser(String userId) {
