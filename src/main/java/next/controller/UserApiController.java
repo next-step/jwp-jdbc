@@ -29,7 +29,7 @@ public class UserApiController {
     @RequestMapping(value = BASE_URL, method = RequestMethod.POST)
     public ModelAndView createUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         UserCreatedDto dto = convertRequestBodyToObject(request, UserCreatedDto.class);
-        User user = dto.toUser();
+        User user = new User(dto.getUserId(), dto.getPassword(), dto.getName(), dto.getEmail());
         DataBase.addUser(user);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
