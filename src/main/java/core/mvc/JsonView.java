@@ -14,12 +14,12 @@ import java.util.Map.Entry;
 
 public class JsonView implements View {
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 
         String content = extractContent(model);
-        response.setContentLength(content.length());
 
         PrintWriter writer = response.getWriter();
         writer.write(content);
