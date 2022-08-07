@@ -7,3 +7,10 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+
+## Step 1 - REST API 및 테스트 리팩토링
+- 요구사항 1. HTML 이외에 JSON으로 데이터를 요청하고 응답을 받도록 지원해야 한다.
+  - [ ] `core.mvc.JsonViewTest`의 모든 테스트를 pass하도록 JsonView를 구현한다.
+  - [ ] `next.controller.UserAcceptanceTest` 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용한다.
+    - [ ] @ResponseBody 애노테이션 구현하기
