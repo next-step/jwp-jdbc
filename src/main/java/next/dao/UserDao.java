@@ -11,37 +11,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
+    private final JdbcTemplate jdbcTemplate;
 
-            if (con != null) {
-                con.close();
-            }
-        }
+    public UserDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public void insert(User user) {
+        jdbcTemplate.insert("INSERT INTO USERS VALUES (?, ?, ?, ?)", user);
     }
 
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+    public void update(User user) {
+        jdbcTemplate.update("UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? where userId = ?", user);
+    }
+
+    public List<User> findAll() {
+        return jdbcTemplate.query("SELECT * FROM USERS");
     }
 
     public User findByUserId(String userId) throws SQLException {
