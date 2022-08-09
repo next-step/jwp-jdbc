@@ -7,42 +7,47 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import next.model.User;
+public class JdbcTemplate {
 
-public abstract class JdbcTemplate {
-
-    public void execute(String sql) {
+    public void execute(String sql, PreparedStatementSetter pss) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            setValues(ps);
+            pss.setValues(ps);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            setValues(ps);
-            ResultSet rs = ps.executeQuery();
-            List<T> results = new ArrayList<>();
-            while (rs.next()) {
-                results.add(rowMapper.mapRow(rs));
-            }
-            return results;
+            pss.setValues(ps);
+            return mappingRowToObject(rowMapper, ps);
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper) {
-        List<T> results = query(sql, rowMapper);
+    private <T> List<T> mappingRowToObject(RowMapper<T> rowMapper, PreparedStatement ps) throws SQLException {
+        try (ResultSet rs = ps.executeQuery()) {
+            List<T> results = new ArrayList<>();
+            while (rs.next()) {
+                results.add(rowMapper.mapRow(rs));
+            }
+            return results;
+        }
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
+        return query(sql, rowMapper, ps -> {});
+    }
+
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
+        List<T> results = query(sql, rowMapper, pss);
         if (results.size() != 1) {
             throw new IncorrectResultSizeDataAccessException();
         }
-        return results.get(0);
+        return results.iterator().next();
     }
-
-    public abstract void setValues(PreparedStatement ps) throws SQLException;
 }
