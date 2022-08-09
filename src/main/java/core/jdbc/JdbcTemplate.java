@@ -17,7 +17,7 @@ public abstract class JdbcTemplate {
             setValues(ps);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
         }
     }
 
@@ -36,14 +36,14 @@ public abstract class JdbcTemplate {
             }
             return users;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
         }
     }
 
     public User queryForObject(String sql) {
         List<User> users = query(sql);
         if (users.size() != 1) {
-            throw new RuntimeException();
+            throw new IncorrectResultSizeDataAccessException();
         }
         return users.get(0);
     }
