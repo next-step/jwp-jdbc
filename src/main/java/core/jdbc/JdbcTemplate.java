@@ -9,6 +9,14 @@ import java.util.List;
 
 public class JdbcTemplate {
 
+    public void execute(String sql, Object... values) {
+        execute(sql, ps -> {
+            for (int index = 1; index <= values.length; index++) {
+                ps.setObject(index, values[index - 1]);
+            }
+        });
+    }
+
     public void execute(String sql, PreparedStatementSetter pss) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -17,6 +25,26 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
+    }
+
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
+        return queryForObject(sql, rowMapper, ps -> {
+            for (int index = 1; index <= values.length; index++) {
+                ps.setObject(index, values[index - 1]);
+            }
+        });
+    }
+
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
+        List<T> results = query(sql, rowMapper, pss);
+        if (results.size() != 1) {
+            throw new IncorrectResultSizeDataAccessException();
+        }
+        return results.iterator().next();
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
+        return query(sql, rowMapper, ps -> {});
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
@@ -37,17 +65,5 @@ public class JdbcTemplate {
             }
             return results;
         }
-    }
-
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
-        return query(sql, rowMapper, ps -> {});
-    }
-
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
-        List<T> results = query(sql, rowMapper, pss);
-        if (results.size() != 1) {
-            throw new IncorrectResultSizeDataAccessException();
-        }
-        return results.iterator().next();
     }
 }

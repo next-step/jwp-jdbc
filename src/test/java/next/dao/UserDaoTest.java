@@ -11,9 +11,13 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
 import next.model.User;
 
 class UserDaoTest {
+
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private final UserDao userDao = new UserDao(jdbcTemplate);
 
     @BeforeEach
     void setup() {
@@ -25,7 +29,6 @@ class UserDaoTest {
     @Test
     void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -38,7 +41,6 @@ class UserDaoTest {
 
     @Test
     void findAll() {
-        UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
