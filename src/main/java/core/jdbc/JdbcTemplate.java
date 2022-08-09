@@ -49,13 +49,13 @@ public class JdbcTemplate {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             pss.setValues(ps);
-            return mappingRowToObject(rowMapper, ps);
+            return mappingRowToObject(ps, rowMapper);
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    private <T> List<T> mappingRowToObject(RowMapper<T> rowMapper, PreparedStatement ps) throws SQLException {
+    private <T> List<T> mappingRowToObject(PreparedStatement ps, RowMapper<T> rowMapper) throws SQLException {
         try (ResultSet rs = ps.executeQuery()) {
             List<T> results = new ArrayList<>();
             while (rs.next()) {
