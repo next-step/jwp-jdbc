@@ -2,6 +2,9 @@ package core.mvc.tobe.support;
 
 public class MockUser {
 
+    public MockUser() {
+    }
+
     public MockUser(String id) {
         this.id = id;
     }
