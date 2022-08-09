@@ -33,6 +33,6 @@ public class JsonView implements View {
                 .findFirst();
         }
 
-        return Optional.of(model.values());
+        return Optional.of(model);
     }
 }
