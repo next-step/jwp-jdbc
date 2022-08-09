@@ -1,11 +1,15 @@
 package core.mvc;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
-
 public class JsonUtils {
+
+    private JsonUtils() {
+    }
+
     public static <T> T toObject(String json, Class<T> clazz) throws ObjectMapperException {
         try {
             ObjectMapper objectMapper = new ObjectMapper();

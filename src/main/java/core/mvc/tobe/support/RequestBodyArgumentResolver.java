@@ -1,15 +1,20 @@
 package core.mvc.tobe.support;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import core.annotation.web.RequestBody;
-import core.mvc.tobe.MethodParameter;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.StreamUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import core.annotation.web.RequestBody;
+import core.mvc.JsonUtils;
+import core.mvc.tobe.MethodParameter;
 
 public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResolver {
 
@@ -29,12 +34,25 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
         }
     }
 
-    private static Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request) throws IOException {
-        String body = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
+    private Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request) throws IOException {
+        int contentLength = request.getContentLength();
+        String body = getRequestBody(request.getInputStream(), contentLength);
+
         if (StringUtils.isBlank(body)) {
             return null;
         }
-        Class<?> type = methodParameter.getType();
-        return OBJECT_MAPPER.readValue(body, type);
+
+        return JsonUtils.toObject(body, methodParameter.getType());
+    }
+
+    private String getRequestBody(InputStream inputStream, int contentLength) throws IOException {
+        StringBuilder out = new StringBuilder(contentLength);
+        InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        char[] buffer = new char[contentLength];
+        int read;
+        while ((read = reader.read(buffer)) != -1) {
+            out.append(buffer, 0, read);
+        }
+        return out.toString();
     }
 }
