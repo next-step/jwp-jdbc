@@ -1,64 +1,64 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
-import next.model.User;
-
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+
+import core.jdbc.JdbcTemplate;
+import next.model.User;
 
 public class UserDao {
 
-    private final JdbcTemplate jdbcTemplate;
-
-    public UserDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
     public void insert(User user) {
-        jdbcTemplate.insert("INSERT INTO USERS VALUES (?, ?, ?, ?)", user);
+        String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, user.getUserId());
+                ps.setString(2, user.getPassword());
+                ps.setString(3, user.getName());
+                ps.setString(4, user.getEmail());
+            }
+        };
+        jdbcTemplate.execute(sql);
     }
 
     public void update(User user) {
-        jdbcTemplate.update("UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? where userId = ?", user);
+        String sql = "UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? where userId = ?";
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, user.getUserId());
+                ps.setString(2, user.getPassword());
+                ps.setString(3, user.getName());
+                ps.setString(4, user.getEmail());
+                ps.setString(5, user.getUserId());
+            }
+        };
+        jdbcTemplate.execute(sql);
     }
 
     public List<User> findAll() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+
+            }
+        };
+
         return jdbcTemplate.query("SELECT * FROM USERS");
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+    public User findByUserId(String userId) {
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userId = ?";
 
-            rs = pstmt.executeQuery();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, userId);
+            }
+        };
 
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        return jdbcTemplate.queryForObject(sql);
     }
 }
