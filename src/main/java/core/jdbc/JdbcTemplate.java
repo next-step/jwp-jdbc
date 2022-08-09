@@ -35,8 +35,9 @@ public class JdbcTemplate {
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         List<T> results = query(sql, rowMapper, pss);
-        if (results.size() != 1) {
-            throw new IncorrectResultSizeDataAccessException();
+        int size = results.size();
+        if (size != 1) {
+            throw new IncorrectResultSizeDataAccessException(size);
         }
         return results.iterator().next();
     }
