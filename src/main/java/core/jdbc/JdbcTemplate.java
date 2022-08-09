@@ -21,31 +21,27 @@ public abstract class JdbcTemplate {
         }
     }
 
-    public List<User> query(String sql) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             setValues(ps);
             ResultSet rs = ps.executeQuery();
-            List<User> users = new ArrayList<>();
+            List<T> results = new ArrayList<>();
             while (rs.next()) {
-                String userId = rs.getString("userId");
-                String password = rs.getString("password");
-                String name = rs.getString("name");
-                String email = rs.getString("email");
-                users.add(new User(userId, password, name, email));
+                results.add(rowMapper.mapRow(rs));
             }
-            return users;
+            return results;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    public User queryForObject(String sql) {
-        List<User> users = query(sql);
-        if (users.size() != 1) {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper) {
+        List<T> results = query(sql, rowMapper);
+        if (results.size() != 1) {
             throw new IncorrectResultSizeDataAccessException();
         }
-        return users.get(0);
+        return results.get(0);
     }
 
     public abstract void setValues(PreparedStatement ps) throws SQLException;
