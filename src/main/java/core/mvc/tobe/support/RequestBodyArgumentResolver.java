@@ -23,14 +23,18 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
     @Override
     public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
         try {
-            String body = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
-            if (StringUtils.isBlank(body)) {
-                return null;
-            }
-            Class<?> type = methodParameter.getType();
-            return OBJECT_MAPPER.readValue(body, type);
+            return resolveArgument(methodParameter, request);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request) throws IOException {
+        String body = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
+        if (StringUtils.isBlank(body)) {
+            return null;
+        }
+        Class<?> type = methodParameter.getType();
+        return OBJECT_MAPPER.readValue(body, type);
     }
 }

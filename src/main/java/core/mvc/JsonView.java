@@ -11,14 +11,14 @@ import java.util.Optional;
 
 public class JsonView implements View {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         Optional<?> maybeBody = getBody(model);
         if (maybeBody.isPresent()) {
-            objectMapper.writeValue(response.getWriter(), maybeBody.get());
+            OBJECT_MAPPER.writeValue(response.getWriter(), maybeBody.get());
         }
     }
 
