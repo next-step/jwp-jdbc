@@ -43,7 +43,7 @@ public class JsonViewTest {
         view.render(model, request, response);
 
         Car actual = JsonUtils.toObject(response.getContentAsString(), Car.class);
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -56,7 +56,7 @@ public class JsonViewTest {
 
         view.render(model, request, response);
 
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
         logger.debug("response body : {}", response.getContentAsString());
     }
 }
