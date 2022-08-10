@@ -11,6 +11,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
@@ -30,10 +31,13 @@ class DefaultPreparedStatementSetterTest {
     @ParameterizedTest
     @ValueSource(strings = {"select * from users", "update users set name = 'newAdmin' where name='admin'"})
     void constructDefaultInstance(String sql) throws Exception {
-        PreparedStatementSetter pss = new DefaultPreparedStatementSetter(sql);
+        PreparedStatementSetter pss = new DefaultPreparedStatementSetter();
 
-        PreparedStatement ps = pss.values();
-        String extractQuery = ps.toString().split("prep0: ")[1];
+        Connection conn = ConnectionManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        pss.setValues(ps);
+
+        String extractQuery = ps.toString().split(": ")[1];
         logger.info("extrcted query: {}", extractQuery);
         assertThat(extractQuery).isEqualTo(sql);
         assertThat(ps.getParameterMetaData().getParameterCount()).isZero();
@@ -44,9 +48,11 @@ class DefaultPreparedStatementSetterTest {
     void constructWithParameters() throws Exception {
         String sql = "INSERT INTO USERS VALUES(?, ?, ?, ?);";
         List<Object> params = List.of("catsbi", "abc123", "hansol", "catsbi@nextstep.com");
-        PreparedStatementSetter pss = new DefaultPreparedStatementSetter(sql, params);
+        PreparedStatementSetter pss = new DefaultPreparedStatementSetter(params);
 
-        PreparedStatement ps = pss.values();
+        Connection conn = ConnectionManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        pss.setValues(ps);
         logger.info("extrcted query: {}", ps);
 
         assertThat(ps.getParameterMetaData().getParameterCount()).isEqualTo(4);

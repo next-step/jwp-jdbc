@@ -1,67 +1,56 @@
 package core.jdbc;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.Objects;
 
 public class DefaultPreparedStatementSetter implements PreparedStatementSetter {
+    private static final PreparedStatementSetter EMPTY = new DefaultPreparedStatementSetter();
 
-    private final String sql;
     private final List<Object> values = new ArrayList<>();
 
 
-    public DefaultPreparedStatementSetter(String sql) {
-        this(sql, Collections.emptyList());
+    public DefaultPreparedStatementSetter() {}
+
+
+    public static PreparedStatementSetter empty() {
+        return EMPTY;
     }
 
-    public DefaultPreparedStatementSetter(String sql, Object... values) {
-        this(sql, Arrays.stream(values).collect(toList()));
-    }
-
-    public DefaultPreparedStatementSetter(String sql, List<Object> values) {
-        this.sql = sql;
+    public DefaultPreparedStatementSetter(List<Object> values) {
         this.values.addAll(values);
     }
 
     @Override
-    public PreparedStatement values() throws Exception {
-        Connection conn = ConnectionManager.getConnection();
-        try {
-            PreparedStatement psmt = conn.prepareStatement(sql);
-            for (int i = 0; i < values.size(); i++) {
-                appendStatement(i, psmt);
-            }
-            return psmt;
-        } catch (SQLException e) {
-            throw new Exception(e);
+    public void setValues(PreparedStatement ps) throws Exception {
+        for (int i = 0; i < values.size(); i++) {
+            appendStatement(i, ps);
         }
     }
 
-    private void appendStatement(int idx, PreparedStatement psmt) throws SQLException {
+    private void appendStatement(int idx, PreparedStatement ps) throws SQLException {
+        assert Objects.nonNull(ps) && values.size() > idx ;
+
         Object value = values.get(idx);
         Class<?> clazz = value.getClass();
 
         if (Integer.class == clazz || clazz.equals(Integer.TYPE)) {
-            psmt.setInt(idx, (int) value);
+            ps.setInt(idx, (int) value);
             return;
         }
 
         if (clazz == Double.class || clazz.equals(Double.TYPE)) {
-            psmt.setDouble(idx, (double) value);
+            ps.setDouble(idx, (double) value);
             return;
         }
 
         if (clazz == Long.class || clazz.equals(Long.TYPE)) {
-            psmt.setLong(idx, (long) value);
+            ps.setLong(idx, (long) value);
             return;
         }
 
-        psmt.setString(idx + 1, (String) value);
+        ps.setString(idx + 1, (String) value);
     }
 }
