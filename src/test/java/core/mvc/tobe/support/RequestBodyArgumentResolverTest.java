@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RequestBodyArgumentResolverTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final RequestBodyArgumentResolver argumentResolver = new RequestBodyArgumentResolver();
+    private static final ArgumentResolver argumentResolver = new RequestBodyArgumentResolver();
 
     private MockHttpServletResponse response;
 

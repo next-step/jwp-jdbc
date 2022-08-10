@@ -25,9 +25,10 @@ public class JsonView implements View {
                 : renderElements(model);
         response.setContentLength(body.getBytes(StandardCharsets.UTF_8).length);
 
-        PrintWriter writer = response.getWriter();
-        writer.write(body);
-        writer.flush();
+        try (PrintWriter writer = response.getWriter()) {
+            writer.write(body);
+            writer.flush();
+        }
     }
 
     private String renderOneElement(Map<String, ?> model) throws JsonProcessingException {
