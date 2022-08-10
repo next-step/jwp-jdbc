@@ -15,11 +15,11 @@
   - [x] `next.controller.UserAcceptanceTest` 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용한다.
     - [x] @ResponseBody 애노테이션 구현하기
 - 요구사항 2. JDBC 라이브러리 구현하기
-  - [ ] `JdbcTemplate` 인터페이스 및 메소드 정의
-    - [ ] 쿼리를 그대로 전달하는 query 메소드 구현 및 테스트
-    - [ ] 쿼리 전달용 파라미터 객체를 만드는 메소드 구현 및 테스트
-    - [ ] insert(or update)용 update 메서드 구현 및 테스트
-  - [ ] 결과값 객체 변환 인터페이스 `RowMapper` 정의
-  - [ ] 쿼리에 전달할 파라미터 객체 `PreparedStatementSetter` 정의
-  - [ ] UserDao가 JdbcTemplate을 사용하도록 로직 변경
-  - [ ] next.dao.UserDaoTes 테스트 케이스 성공
+  - [x] `JdbcTemplate` 인터페이스 및 메소드 정의
+    - [x] 쿼리를 그대로 전달하는 query 메소드 구현 및 테스트
+    - [x] 쿼리 전달용 파라미터 객체를 만드는 메소드 구현 및 테스트
+    - [x] insert(or update)용 update 메서드 구현 및 테스트
+  - [x] 결과값 객체 변환 인터페이스 `RowMapper` 정의
+  - [x] 쿼리에 전달할 파라미터 객체 `PreparedStatementSetter` 정의
+  - [x] UserDao가 JdbcTemplate을 사용하도록 로직 변경
+  - [x] next.dao.UserDaoTes 테스트 케이스 성공

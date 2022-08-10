@@ -38,8 +38,10 @@ public class DefaultJdbcTemplate implements JdbcTemplate{
 
             pss.setValues(ps);
             ResultSet rs = ps.executeQuery();
-
-            return rowMapper.mapping(rs);
+            if (rs.next()) {
+                return rowMapper.mapping(rs);
+            }
+            return null;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

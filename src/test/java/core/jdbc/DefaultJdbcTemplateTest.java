@@ -132,7 +132,6 @@ class DefaultJdbcTemplateTest {
 
         logger.info("users: {}", users);
         assertThat(users).hasSize(4);
-
     }
 
 }
