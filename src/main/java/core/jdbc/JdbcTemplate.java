@@ -13,7 +13,7 @@ public class JdbcTemplate {
         execute(sql, ps -> setVariadicArguments(ps, values));
     }
 
-    private static void setVariadicArguments(PreparedStatement ps, Object[] values) throws SQLException {
+    private void setVariadicArguments(PreparedStatement ps, Object[] values) throws SQLException {
         for (int index = 1; index <= values.length; index++) {
             ps.setObject(index, values[index - 1]);
         }
