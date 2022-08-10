@@ -1,27 +1,30 @@
 package core.jdbc;
 
+import org.springframework.dao.DataAccessException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultJdbcTemplate implements JdbcTemplate{
 
     @Override
-    public void update(String sql, PreparedStatementSetter pss) {
+    public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             pss.setValues(ps);
             ps.executeUpdate();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void update(String sql, Object... values) {
+    public void update(String sql, Object... values) throws DataAccessException {
         PreparedStatementSetter pss = createPreparedStatementSetter(values);
         update(sql, pss);
     }
@@ -32,7 +35,7 @@ public class DefaultJdbcTemplate implements JdbcTemplate{
     }
 
     @Override
-    public <T> T createForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
+    public <T> T createForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) throws DataAccessException {
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -42,18 +45,18 @@ public class DefaultJdbcTemplate implements JdbcTemplate{
                 return rowMapper.mapping(rs);
             }
             return null;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public <T> T createForObject(String sql, RowMapper<T> rowMapper, Object... values) {
+    public <T> T createForObject(String sql, RowMapper<T> rowMapper, Object... values) throws DataAccessException {
         return createForObject(sql, rowMapper, createPreparedStatementSetter(values));
     }
 
     @Override
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) throws DataAccessException {
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -67,13 +70,13 @@ public class DefaultJdbcTemplate implements JdbcTemplate{
             }
 
             return result;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... values) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... values) throws DataAccessException {
         return query(sql, rowMapper, createPreparedStatementSetter(values));
     }
 }

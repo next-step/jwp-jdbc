@@ -24,7 +24,7 @@ public class DefaultPreparedStatementSetter implements PreparedStatementSetter {
     }
 
     @Override
-    public void setValues(PreparedStatement ps) throws Exception {
+    public void setValues(PreparedStatement ps) throws SQLException {
         for (int i = 0; i < values.size(); i++) {
             appendStatement(i, ps);
         }
