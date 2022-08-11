@@ -21,12 +21,13 @@ public class JdbcTemplate {
     public <T> List<T> queryForList(String sql, RowMapper<T> mapper, @Nullable PreparedStatementParameterSetter setter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
+            // execute sql query
             if (setter != null) {
                 setter.set(pstmt);
             }
-
             ResultSet rs = pstmt.executeQuery();
 
+            // get and map data from sql result
             List<T> list = new ArrayList<>();
             while (rs.next()) {
                 T mappedData = mapper.map(rs);
