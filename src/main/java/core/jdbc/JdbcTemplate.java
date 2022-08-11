@@ -1,7 +1,5 @@
 package core.jdbc;
 
-import next.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,35 +8,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-    public List<User> queryForList(String sql, RowMapper rm) {
+    public <T> List<T> queryForList(String sql, RowMapper<T> mapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
 
-            List<User> users = new ArrayList<>();
+            List<T> list = new ArrayList<>();
             while (rs.next()) {
-                User user = rm.map(rs);
-                users.add(user);
+                T mappedData = mapper.map(rs);
+                list.add(mappedData);
             }
             rs.close();
-            return users;
+            return list;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
     }
 
-    public User queryForObject(String sql, RowMapper mapper, PreparedStatementParameterSetter setter) {
+    public <T> T queryForObject(String sql, RowMapper<T> mapper, PreparedStatementParameterSetter setter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.set(pstmt);
+
             ResultSet rs = pstmt.executeQuery();
 
-            User user = null;
+            T mappedData = null;
             if (rs.next()) {
-                user = mapper.map(rs);
+                mappedData = mapper.map(rs);
             }
             rs.close();
-            return user;
+            return mappedData;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
