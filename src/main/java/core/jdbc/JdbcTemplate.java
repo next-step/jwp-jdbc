@@ -38,4 +38,14 @@ public class JdbcTemplate {
             throw new DataAccessException(e);
         }
     }
+
+    public void update(String sql, PreparedStatementParameterSetter setter) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            setter.set(pstmt);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
 }
