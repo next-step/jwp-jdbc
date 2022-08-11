@@ -2,10 +2,7 @@ package core.jdbc;
 
 import org.springframework.jdbc.core.PreparedStatementCallback;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +21,12 @@ public class JdbcTemplate {
         return results.iterator().next();
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
-        return query(sql, rowMapper, ps -> {});
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) throws DataAccessException {
+        return query(sql, new RowMapperResultSetExtractor<>(rowMapper));
+    }
+
+    private <T> T query(String sql, ResultSetExtractor<T> rse) throws DataAccessException {
+        return execute(new QueryStatementCallback<>(sql, rse));
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
@@ -69,6 +70,15 @@ public class JdbcTemplate {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement ps = psc.createPreparedStatement(con)) {
             return action.doInPreparedStatement(ps);
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    private <T> T execute(StatementCallback<T> action) {
+        try (Connection con = ConnectionManager.getConnection();
+             Statement stmt = con.createStatement()) {
+            return action.doInStatement(stmt);
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
