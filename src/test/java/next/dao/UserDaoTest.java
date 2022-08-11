@@ -1,29 +1,34 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
-import next.model.User;
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import java.util.List;
+import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
+import next.model.User;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class UserDaoTest {
 
-public class UserDaoTest {
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private final UserDao userDao = new UserDao(jdbcTemplate);
+
     @BeforeEach
-    public void setup() {
+    void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("jwp.sql"));
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
     @Test
-    public void crud() throws Exception {
+    void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
         userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
@@ -35,8 +40,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void findAll() throws Exception {
-        UserDao userDao = new UserDao();
+    void findAll() {
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
