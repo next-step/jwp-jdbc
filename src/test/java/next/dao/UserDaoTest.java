@@ -1,18 +1,17 @@
 package next.dao;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.List;
-
+import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
+import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import core.jdbc.ConnectionManager;
-import core.jdbc.JdbcTemplate;
-import next.model.User;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class UserDaoTest {
 
@@ -29,14 +28,16 @@ class UserDaoTest {
     @Test
     void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
-        userDao.insert(expected);
+        int affectedRows = userDao.insert(expected);
         User actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
+        assertThat(affectedRows).isEqualTo(1);
 
         expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
-        userDao.update(expected);
+        affectedRows = userDao.update(expected);
         actual = userDao.findByUserId(expected.getUserId());
         assertThat(actual).isEqualTo(expected);
+        assertThat(affectedRows).isEqualTo(1);
     }
 
     @Test

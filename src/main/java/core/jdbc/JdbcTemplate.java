@@ -1,5 +1,7 @@
 package core.jdbc;
 
+import org.springframework.jdbc.core.PreparedStatementCallback;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,22 +11,8 @@ import java.util.List;
 
 public class JdbcTemplate {
 
-    public void execute(String sql, Object... values) {
-        execute(sql, new ArgumentPreparedStatementSetter(values));
-    }
-
-    public void execute(String sql, PreparedStatementSetter pss) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            pss.setValues(ps);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException(e);
-        }
-    }
-
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
-        return queryForObject(sql, rowMapper, new ArgumentPreparedStatementSetter(values));
+        return queryForObject(sql, rowMapper, newArgumentPreparedStatementSetter(values));
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
@@ -58,5 +46,35 @@ public class JdbcTemplate {
             }
             return results;
         }
+    }
+
+    public int update(String sql, Object... values) throws DataAccessException {
+        return update(sql, newArgumentPreparedStatementSetter(values));
+    }
+
+    public int update(String sql, PreparedStatementSetter pss) throws DataAccessException {
+        return update(new SimplePreparedStatementCreator(sql), pss);
+    }
+
+    private int update(PreparedStatementCreator psc, PreparedStatementSetter pss) throws DataAccessException {
+        return execute(psc, ps -> {
+            if (pss != null) {
+                pss.setValues(ps);
+            }
+            return ps.executeUpdate();
+        });
+    }
+
+    private <T> T execute(PreparedStatementCreator psc, PreparedStatementCallback<T> action) throws DataAccessException {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement ps = psc.createPreparedStatement(con)) {
+            return action.doInPreparedStatement(ps);
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    private ArgumentPreparedStatementSetter newArgumentPreparedStatementSetter(Object[] values) {
+        return new ArgumentPreparedStatementSetter(values);
     }
 }
