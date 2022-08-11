@@ -3,7 +3,6 @@ package core.jdbc;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
@@ -21,6 +20,14 @@ public class JdbcTemplate {
         return results.iterator().next();
     }
 
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
+        return query(sql, pss, new RowMapperResultSetExtractor<>(rowMapper));
+    }
+
+    private <T> T query(String sql, PreparedStatementSetter pss, ResultSetExtractor<T> rse) {
+        return query(new SimplePreparedStatementCreator(sql), pss, rse);
+    }
+
     public <T> List<T> query(String sql, RowMapper<T> rowMapper) throws DataAccessException {
         return query(sql, new RowMapperResultSetExtractor<>(rowMapper));
     }
@@ -29,24 +36,16 @@ public class JdbcTemplate {
         return execute(new QueryStatementCallback<>(sql, rse));
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            pss.setValues(ps);
-            return mappingRowToObject(ps, rowMapper);
-        } catch (SQLException e) {
-            throw new DataAccessException(e);
-        }
-    }
-
-    private <T> List<T> mappingRowToObject(PreparedStatement ps, RowMapper<T> rowMapper) throws SQLException {
-        try (ResultSet rs = ps.executeQuery()) {
-            List<T> results = new ArrayList<>();
-            while (rs.next()) {
-                results.add(rowMapper.mapRow(rs));
+    private <T> T query(PreparedStatementCreator psc, PreparedStatementSetter pss, ResultSetExtractor<T> rse) {
+        return execute(psc, ps -> {
+            if (pss != null) {
+                pss.setValues(ps);
             }
-            return results;
-        }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rse.extractData(rs);
+            }
+        });
     }
 
     public int update(String sql, Object... values) throws DataAccessException {
