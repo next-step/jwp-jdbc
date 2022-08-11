@@ -2,6 +2,7 @@ package next.dao;
 
 import core.jdbc.ConnectionManager;
 import core.jdbc.DataAccessException;
+import core.jdbc.JdbcTemplate;
 import next.model.User;
 
 import java.sql.Connection;
@@ -75,24 +76,15 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
-
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-
-            User user = null;
-
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
-            rs.close();
-
-            return user;
-        } catch (SQLException e) {
-            throw new DataAccessException(e);
-        }
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        return jdbcTemplate.queryForObject(sql,
+                rs -> new User(
+                        rs.getString("userId"),
+                        rs.getString("password"),
+                        rs.getString("name"),
+                        rs.getString("email")
+                ),
+                pstmt -> pstmt.setObject(1, userId)
+        );
     }
 }
