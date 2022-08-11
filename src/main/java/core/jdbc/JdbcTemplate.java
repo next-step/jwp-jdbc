@@ -10,13 +10,7 @@ import java.util.List;
 public class JdbcTemplate {
 
     public void execute(String sql, Object... values) {
-        execute(sql, ps -> setVariadicArguments(ps, values));
-    }
-
-    private void setVariadicArguments(PreparedStatement ps, Object[] values) throws SQLException {
-        for (int index = 1; index <= values.length; index++) {
-            ps.setObject(index, values[index - 1]);
-        }
+        execute(sql, new ArgumentPreparedStatementSetter(values));
     }
 
     public void execute(String sql, PreparedStatementSetter pss) {
@@ -30,7 +24,7 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
-        return queryForObject(sql, rowMapper, ps -> setVariadicArguments(ps, values));
+        return queryForObject(sql, rowMapper, new ArgumentPreparedStatementSetter(values));
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
