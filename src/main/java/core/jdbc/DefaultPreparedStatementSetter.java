@@ -8,6 +8,7 @@ import java.util.Objects;
 
 public class DefaultPreparedStatementSetter implements PreparedStatementSetter {
     private static final PreparedStatementSetter EMPTY = new DefaultPreparedStatementSetter();
+    public static final String INVALID_PARAMETER_TYPE_FORMATTED_MSG = "유효하지 않은 값입니다. value: %s, type: %s";
 
     private final List<Object> values = new ArrayList<>();
 
@@ -51,6 +52,11 @@ public class DefaultPreparedStatementSetter implements PreparedStatementSetter {
             return;
         }
 
-        ps.setString(idx + 1, (String) value);
+        if (clazz == String.class) {
+            ps.setString(idx + 1, value.toString());
+            return ;
+        }
+
+        throw new IllegalArgumentException(String.format(INVALID_PARAMETER_TYPE_FORMATTED_MSG, value, clazz));
     }
 }

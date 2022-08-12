@@ -53,7 +53,7 @@ class DefaultPreparedStatementSetterTest {
         Connection conn = ConnectionManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         pss.setValues(ps);
-        logger.info("extrcted query: {}", ps);
+        logger.info("extracted query: {}", ps);
 
         assertThat(ps.getParameterMetaData().getParameterCount()).isEqualTo(4);
     }
