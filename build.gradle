@@ -49,6 +49,8 @@ dependencies {
     testImplementation 'io.projectreactor.netty:reactor-netty-http:1.0.19'
     testImplementation "org.springframework:spring-test:${springVersion}"
     testImplementation "org.springframework:spring-webflux:${springVersion}"
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
+
 }
 
 test {
