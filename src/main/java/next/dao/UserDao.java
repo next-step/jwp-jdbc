@@ -14,9 +14,9 @@ public class UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void insert(User user) {
+    public int insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        jdbcTemplate.execute(sql, ps -> {
+        return jdbcTemplate.update(sql, ps -> {
             ps.setString(1, user.getUserId());
             ps.setString(2, user.getPassword());
             ps.setString(3, user.getName());
@@ -24,9 +24,9 @@ public class UserDao {
         });
     }
 
-    public void update(User user) {
+    public int update(User user) {
         String sql = "UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userId = ?";
-        jdbcTemplate.execute(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
+        return jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
