@@ -1,8 +1,11 @@
 package next.controller;
 
+import next.WebServerLauncher;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -15,8 +18,26 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserAcceptanceTest {
+class UserAcceptanceTest {
+
     private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceTest.class);
+    private static final Thread WAS = new Thread(() -> {
+        try {
+            WebServerLauncher.main(new String[]{});
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    });
+
+    @BeforeAll
+    static void beforeAll() {
+        WAS.start();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        WAS.interrupt();
+    }
 
     @Test
     @DisplayName("사용자 회원가입/조회/수정/삭제")
