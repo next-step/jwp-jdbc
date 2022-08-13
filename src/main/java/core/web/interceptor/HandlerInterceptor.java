@@ -1,4 +1,4 @@
-package core.web.intercepor;
+package core.web.interceptor;
 
 import core.mvc.ModelAndView;
 
