@@ -7,3 +7,15 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+## 1단계 - REST API 및 테스트 리팩토링
+
+- `core.mvc.JsonViewTest` 테스트가 통과하도록 `JsonView` 구현
+- `next.controller.UserAcceptanceTest` 테스트가 통과하도록 `Controller` 추가
+
+### 힌트
+
+- `Jackson`에 대한 학습 테스트를 추가해 사용법을 익히고 사용
+- `Java Object`를 `JSON` 데이터로 변환하는 `View` 인터페이스 구현체 추가
+  - 응답 시, `ContentType`은 `MediaType.APPLICATION_JSON_UTF8_VALUE`
+  - `Map`에 담긴 model 데이터가 1개면 value 값, 2개 이상이면 JSON으로 변환
