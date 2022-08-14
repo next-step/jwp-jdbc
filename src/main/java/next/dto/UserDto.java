@@ -1,7 +1,8 @@
-package next.controller;
+package next.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import next.model.User;
 
 import java.util.Objects;
 
@@ -22,6 +23,10 @@ public class UserDto {
         this.password = password;
         this.name = name;
         this.email = email;
+    }
+
+    public static UserDto from(User user) {
+        return new UserDto(user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public String getUserId() {

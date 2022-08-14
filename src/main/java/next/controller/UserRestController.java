@@ -8,6 +8,7 @@ import core.db.DataBase;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
 import next.dto.UserCreatedDto;
+import next.dto.UserDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.springframework.http.HttpHeaders;
@@ -28,7 +29,7 @@ public class UserRestController {
         response.setStatus(HttpStatus.CREATED.value());
         response.addHeader(HttpHeaders.LOCATION, String.format("%s/%s", BASE_PATH, user.getUserId()));
         return new ModelAndView(new JsonView())
-                .addObject("user", user);
+                .addObject("user", UserDto.from(user));
     }
 
     @RequestMapping(value = BASE_PATH + "/{id}", method = RequestMethod.GET)
@@ -37,7 +38,7 @@ public class UserRestController {
         validateUserExists(user);
         response.setStatus(HttpStatus.OK.value());
         return new ModelAndView(new JsonView())
-                .addObject("user", user);
+                .addObject("user", UserDto.from(user));
     }
 
     @RequestMapping(value = BASE_PATH + "/{id}", method = RequestMethod.PUT)

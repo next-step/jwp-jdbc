@@ -2,6 +2,7 @@ package next.controller;
 
 import next.WebServerLauncher;
 import next.dto.UserCreatedDto;
+import next.dto.UserDto;
 import next.dto.UserUpdatedDto;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
