@@ -12,6 +12,7 @@ import next.dto.UserUpdatedDto;
 import next.model.User;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,7 +22,7 @@ public class UserRestController {
     private static final String BASE_PATH = "/api/users";
 
     @RequestMapping(value = BASE_PATH, method = RequestMethod.POST)
-    public ModelAndView create(UserCreatedDto createdDto, HttpServletResponse response) {
+    public ModelAndView create(@RequestBody UserCreatedDto createdDto, HttpServletResponse response) {
         User user = new User(createdDto.getUserId(), createdDto.getPassword(), createdDto.getName(), createdDto.getEmail());
         DataBase.addUser(user);
         response.setStatus(HttpStatus.CREATED.value());
@@ -30,7 +31,7 @@ public class UserRestController {
                 .addObject("user", user);
     }
 
-    @RequestMapping(value = BASE_PATH + "/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = BASE_PATH + "/{id}", method = RequestMethod.GET)
     public ModelAndView retrieve(@PathVariable String id, HttpServletResponse response) {
         User user = DataBase.findUserById(id);
         validateUserExists(user);
@@ -40,7 +41,7 @@ public class UserRestController {
     }
 
     @RequestMapping(value = BASE_PATH + "/{id}", method = RequestMethod.PUT)
-    public ModelAndView update(@PathVariable String id, UserUpdatedDto updatedDto, HttpServletResponse response) {
+    public ModelAndView update(@PathVariable String id, @RequestBody UserUpdatedDto updatedDto, HttpServletResponse response) {
         User user = DataBase.findUserById(id);
         validateUserExists(user);
         user.update(new User(user.getUserId(), user.getPassword(), updatedDto.getName(), updatedDto.getEmail()));

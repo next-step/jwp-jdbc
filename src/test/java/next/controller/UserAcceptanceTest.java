@@ -3,7 +3,6 @@ package next.controller;
 import next.WebServerLauncher;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
-import next.model.User;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -57,12 +56,12 @@ class UserAcceptanceTest {
         logger.debug("location : {}", location); // /api/users?userId=pobi 와 같은 형태로 반환
 
         // 조회
-        User actual = client()
+        UserDto actual = client()
                 .get()
                 .uri(location.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(User.class)
+                .expectBody(UserDto.class)
                 .returnResult().getResponseBody();
         assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
         assertThat(actual.getName()).isEqualTo(expected.getName());
@@ -83,7 +82,7 @@ class UserAcceptanceTest {
                 .uri(location.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(User.class)
+                .expectBody(UserDto.class)
                 .returnResult().getResponseBody();
         assertThat(actual.getName()).isEqualTo(updateUser.getName());
         assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
