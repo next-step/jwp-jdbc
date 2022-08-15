@@ -19,7 +19,8 @@ public class RequestParamArgumentResolver extends AbstractAnnotationArgumentReso
         RequestParam requestParam = getAnnotation(methodParameter, RequestParam.class);
         String key = getRequestParamKey(requestParam, methodParameter.getParameterName());
 
-        Object arg = request.getParameter(key);
+        final RequestParameterUtils requestParameterUtils = new RequestParameterUtils(request);
+        Object arg = requestParameterUtils.getParameter(key);
 
         if (methodParameter.isString()) {
             return arg;

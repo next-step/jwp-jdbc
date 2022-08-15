@@ -18,7 +18,8 @@ import static core.util.StringUtil.upperFirstChar;
 
 public class ModelArgumentResolver implements ArgumentResolver {
 
-    private ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+    private RequestParameterUtils requestParameterUtils;
+    private final ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
     @Override
     public boolean supports(MethodParameter methodParameter) {
@@ -32,6 +33,7 @@ public class ModelArgumentResolver implements ArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
+        requestParameterUtils = new RequestParameterUtils(request);
         try {
             return resolveArgumentInternal(methodParameter, request, response);
         } catch (IllegalAccessException e) {
@@ -47,25 +49,25 @@ public class ModelArgumentResolver implements ArgumentResolver {
 
     private Object resolveArgumentInternal(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         Class<?> clazz = methodParameter.getType();
-        Object argument = getDefaultInstance(clazz, request);
+        Object argument = getDefaultInstance(clazz);
 
         for (Field field : clazz.getDeclaredFields()) {
-            populateArgument(argument, clazz, field, request);
+            populateArgument(argument, clazz, field);
         }
 
         return argument;
     }
 
-    private void populateArgument(Object target, Class<?> clazz, Field field, HttpServletRequest request) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    private void populateArgument(Object target, Class<?> clazz, Field field) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         final String setterMethod = "set" + upperFirstChar(field.getName());
 
         if (hasFieldMethod(clazz, setterMethod, field.getType())) {
             final Method method = clazz.getDeclaredMethod(setterMethod, field.getType());
-            method.invoke(target, ReflectionUtils.convertStringValue(request.getParameter(field.getName()), field.getType()));
+            method.invoke(target, ReflectionUtils.convertStringValue(requestParameterUtils.getParameter(field.getName()), field.getType()));
         }
     }
 
-    private <T> T getDefaultInstance(Class<T> clazz, HttpServletRequest request) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    private <T> T getDefaultInstance(Class<T> clazz) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         for (Constructor constructor : clazz.getConstructors()) {
             final String[] parameterNames = nameDiscoverer.getParameterNames(constructor);
             assert parameterNames != null;
@@ -73,7 +75,7 @@ public class ModelArgumentResolver implements ArgumentResolver {
             final Class[] parameterTypes = constructor.getParameterTypes();
             Object[] args = new Object[parameterTypes.length];
             for (int i = 0; i < parameterTypes.length; i++) {
-                args[i] = parameterTypes[i].cast(request.getParameter(parameterNames[i]));
+                args[i] = parameterTypes[i].cast(requestParameterUtils.getParameter(parameterNames[i]));
             }
 
             final Object arg = constructor.newInstance(args);
