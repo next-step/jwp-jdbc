@@ -15,7 +15,6 @@
 
 ### 기능 목록
 - [ ] JsonView 구현
-  - [ ] View 인터페이스의 구현체로 JsonView를 생성한다
   - [ ] 응답을 Json 포맷으로 한다
     - [ ] 응답 헤더에 ContentType을 'application/json'으로 설정한다  
   - [ ] 응답 데이터의 요소가 1개인 경우 
