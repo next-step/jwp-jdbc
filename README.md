@@ -19,7 +19,7 @@
 - [ ] JsonView 구현
   - [x] 응답을 Json 포맷으로 한다
     - [x] 응답 헤더에 ContentType을 'application/json'으로 설정한다  
-  - [ ] 응답 데이터의 요소가 1개인 경우 
+  - [x] 응답 데이터의 요소가 1개인 경우 
   - [ ] 응답 데이터의 요소가 2개 이상인 경우 
 - [ ] UserApiController 구현
   - [ ] Annotation 기반 Controller로 구현한다
