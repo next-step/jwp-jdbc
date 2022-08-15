@@ -8,6 +8,7 @@ import core.db.DataBase;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
 import javax.servlet.http.HttpServletResponse;
+import next.dto.UserUpdatedDto;
 import next.model.User;
 
 @Controller
@@ -30,6 +31,17 @@ public class UserApiController {
         modelAndView.addObject("user", user);
 
         return modelAndView;
+    }
+
+    @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
+    public ModelAndView update(@RequestParam String userId, UserUpdatedDto userUpdatedDto) {
+        final User user = DataBase.findUserById(userId);
+
+        final User updateUser = new User(user.getUserId(), user.getPassword(), userUpdatedDto.getName(), userUpdatedDto.getEmail());
+
+        user.update(updateUser);
+
+        return new ModelAndView(new JsonView());
     }
 
 }

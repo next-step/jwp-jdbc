@@ -23,8 +23,8 @@
   - [x] 응답 데이터의 요소가 2개 이상인 경우 
 - [x] RequestParameterUtils 
   - [x] 클라이언트의 요청 파라미터를 QeuryString 혹은 RequestBody에서 구한다
-- [ ] UserApiController 구현
+- [x] UserApiController 구현
   - [x] Annotation 기반 Controller로 구현한다
   - [x] 회원가입 `POST /api/users`
   - [x] 회원조회 `GET /api/users`
-  - [ ] 회원수정 `PUT /api/users`
+  - [x] 회원수정 `PUT /api/users`
