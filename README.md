@@ -26,5 +26,5 @@
 - [ ] UserApiController 구현
   - [x] Annotation 기반 Controller로 구현한다
   - [x] 회원가입 `POST /api/users`
-  - [ ] 회원조회 `GET /api/users`
+  - [x] 회원조회 `GET /api/users`
   - [ ] 회원수정 `PUT /api/users`
