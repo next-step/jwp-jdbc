@@ -17,8 +17,8 @@
 - [x] JsonUtils
   - [x] Java Object를 Json 문자열로 변환한다  
 - [ ] JsonView 구현
-  - [ ] 응답을 Json 포맷으로 한다
-    - [ ] 응답 헤더에 ContentType을 'application/json'으로 설정한다  
+  - [x] 응답을 Json 포맷으로 한다
+    - [x] 응답 헤더에 ContentType을 'application/json'으로 설정한다  
   - [ ] 응답 데이터의 요소가 1개인 경우 
   - [ ] 응답 데이터의 요소가 2개 이상인 경우 
 - [ ] UserApiController 구현
