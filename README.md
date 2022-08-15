@@ -24,4 +24,7 @@
 - [x] RequestParameterUtils 
   - [x] 클라이언트의 요청 파라미터를 QeuryString 혹은 RequestBody에서 구한다
 - [ ] UserApiController 구현
-  - [ ] Annotation 기반 Controller로 구현한다
+  - [x] Annotation 기반 Controller로 구현한다
+  - [x] 회원가입 `POST /api/users`
+  - [ ] 회원조회 `GET /api/users`
+  - [ ] 회원수정 `PUT /api/users`
