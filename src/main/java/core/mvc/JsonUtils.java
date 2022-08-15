@@ -1,6 +1,7 @@
 package core.mvc;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -15,6 +16,15 @@ public class JsonUtils {
                     .withSetterVisibility(JsonAutoDetect.Visibility.NONE));
             return objectMapper.readValue(json, clazz);
         } catch (IOException e) {
+            throw new ObjectMapperException(e);
+        }
+    }
+
+    public static <T> String toString(T data) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(data);
+        } catch (JsonProcessingException e) {
             throw new ObjectMapperException(e);
         }
     }
