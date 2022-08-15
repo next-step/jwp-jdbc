@@ -9,7 +9,7 @@ import java.util.Optional;
 public class HandlerMappingRegistry {
     private final List<HandlerMapping> handlerMappings = new ArrayList<>();
 
-    public void addHandlerMpping(HandlerMapping handlerMapping) {
+    public void addHandlerMapping(HandlerMapping handlerMapping) {
         handlerMapping.initialize();
         handlerMappings.add(handlerMapping);
     }
