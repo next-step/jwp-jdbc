@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-public class Jackson2HttpMessageConverter implements HttpMessageConverter<Object> {
+public class Jackson2HttpMessageConverter implements HttpMessageConverter {
 
     private static final Jackson2HttpMessageConverter INSTANCE = new Jackson2HttpMessageConverter();
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = new ObjectMapper();

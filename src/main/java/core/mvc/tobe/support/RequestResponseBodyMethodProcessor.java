@@ -15,14 +15,14 @@ import java.util.Optional;
 
 public class RequestResponseBodyMethodProcessor extends AbstractAnnotationArgumentResolver {
 
-    private final Collection<HttpMessageConverter<?>> converters;
+    private final Collection<HttpMessageConverter> converters;
 
-    private RequestResponseBodyMethodProcessor(Collection<HttpMessageConverter<?>> converters) {
+    private RequestResponseBodyMethodProcessor(Collection<HttpMessageConverter> converters) {
         Assert.notNull(converters, "'messageConverters' must not be null");
         this.converters = Collections.unmodifiableCollection(converters);
     }
 
-    public static RequestResponseBodyMethodProcessor from(Collection<HttpMessageConverter<?>> converters) {
+    public static RequestResponseBodyMethodProcessor from(Collection<HttpMessageConverter> converters) {
         return new RequestResponseBodyMethodProcessor(converters);
     }
 
