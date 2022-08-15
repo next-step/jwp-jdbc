@@ -1,5 +1,9 @@
 package core.mvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -9,13 +13,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import study.jackson.Car;
 
-import java.util.HashMap;
-import java.util.Map;
+class JsonViewTest {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class JsonViewTest {
-    private static final Logger logger = LoggerFactory.getLogger( JsonViewTest.class );
+    private static final Logger logger = LoggerFactory.getLogger(JsonViewTest.class);
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private View view;
@@ -52,11 +52,12 @@ public class JsonViewTest {
         Map<String, Object> model = new HashMap<>();
         Car expected = new Car("Black", "Sonata");
         model.put("car", expected);
-        model.put("name", "포비");
+        model.put("name", "pobi");
 
         view.render(model, request, response);
 
         assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        assertThat(response.getContentAsString()).isEqualTo("{\"car\":{\"color\":\"Black\",\"type\":\"Sonata\"},\"name\":\"pobi\"}");
         logger.debug("response body : {}", response.getContentAsString());
     }
 }

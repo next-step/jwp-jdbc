@@ -18,12 +18,14 @@ public class JsonView implements View {
             final String jsonString = parseJsonString(model);
             write(jsonString, response);
         }
-
     }
 
     private static String parseJsonString(final Map<String, ?> model) {
-        final String key = String.valueOf(model.keySet().toArray()[0]);
-        return JsonUtils.toJson(model.get(key));
+        if (model.size() == 1) {
+            final String key = String.valueOf(model.keySet().toArray()[0]);
+            return JsonUtils.toJson(model.get(key));
+        }
+        return JsonUtils.toJson(model);
     }
 
     private void write(final String jsonString, final HttpServletResponse response) {
