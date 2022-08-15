@@ -14,6 +14,8 @@
 > HTML 이외에 JSON으로 데이터를 요청하고 응답을 받도록 지원해야 한다.
 
 ### 기능 목록
+- [x] JsonUtils
+  - [x] Java Object를 Json 문자열로 변환한다  
 - [ ] JsonView 구현
   - [ ] 응답을 Json 포맷으로 한다
     - [ ] 응답 헤더에 ContentType을 'application/json'으로 설정한다  
