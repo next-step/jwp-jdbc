@@ -29,11 +29,11 @@ public class ExecutionTimeLogInterceptor implements HandlerInterceptor {
         if (watch.isRunning()) {
             watch.stop();
         }
+        logger.debug("실행 시간 : {}s", stopWatch.get().getTotalTimeSeconds());
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        logger.debug("실행 시간 : {}s", stopWatch.get().getTotalTimeSeconds());
         stopWatch.remove();
     }
 }
