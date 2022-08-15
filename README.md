@@ -7,3 +7,20 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+# 🚀 1단계 - REST API 및 테스트 리팩토링
+
+### 요구사항
+> HTML 이외에 JSON으로 데이터를 요청하고 응답을 받도록 지원해야 한다.
+
+### 기능 목록
+- [ ] JsonView 구현
+  - [ ] View 인터페이스의 구현체로 JsonView를 생성한다
+  - [ ] 응답을 Json 포맷으로 한다
+    - [ ] 응답 헤더에 ContentType을 'application/json'으로 설정한다  
+  - [ ] 응답 데이터의 요소가 1개인 경우 
+  - [ ] 응답 데이터의 요소가 2개 이상인 경우 
+- [ ] UserApiController 구현
+  - [ ] Annotation 기반 Controller로 구현한다
+- [ ] RequestBodyArgumentResolver 구현
+  - [ ] 클라이언트의 요청이 RequestBody의 데이터를 변환한다 
