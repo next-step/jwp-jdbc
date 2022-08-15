@@ -25,4 +25,26 @@ class JsonUtilsTest {
 
         assertThat(actual).isEqualTo(expected);
     }
+
+    @DisplayName("json 문자열에서 특정 파라미터를 조회한다")
+    @Test
+    void find_value() {
+        final Car car = new Car("white", "e class avantgarde");
+        final String jsonString = JsonUtils.toJson(car);
+
+        final String actual = JsonUtils.getParameter(jsonString, "color");
+
+        assertThat(actual).isEqualTo("white");
+    }
+
+    @DisplayName("json 문자열에서 존재하지 않는 파라미터를 조회하면 null을 반환한다")
+    @Test
+    void has_no_value() {
+        final Car car = new Car("white", "e class avantgarde");
+        final String jsonString = JsonUtils.toJson(car);
+
+        final String actual = JsonUtils.getParameter(jsonString, "name");
+
+        assertThat(actual).isNull();
+    }
 }
