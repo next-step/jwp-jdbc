@@ -21,7 +21,7 @@
     - [x] 응답 헤더에 ContentType을 'application/json'으로 설정한다  
   - [x] 응답 데이터의 요소가 1개인 경우 
   - [x] 응답 데이터의 요소가 2개 이상인 경우 
+- [x] RequestParameterUtils 
+  - [x] 클라이언트의 요청 파라미터를 QeuryString 혹은 RequestBody에서 구한다
 - [ ] UserApiController 구현
   - [ ] Annotation 기반 Controller로 구현한다
-- [ ] RequestBodyArgumentResolver 구현
-  - [ ] 클라이언트의 요청이 RequestBody의 데이터를 변환한다 
