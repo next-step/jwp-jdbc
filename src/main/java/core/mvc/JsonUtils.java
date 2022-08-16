@@ -23,7 +23,7 @@ public class JsonUtils {
         throw new AssertionError();
     }
 
-    public static <T> T toObject(String json, Class<T> clazz) throws ObjectMapperException {
+    public static <T> T parse(String json, Class<T> clazz) throws ObjectMapperException {
         try {
             return OBJECT_MAPPER.readValue(json, clazz);
         } catch (IOException e) {
@@ -31,7 +31,7 @@ public class JsonUtils {
         }
     }
 
-    public static String toJson(final Object object) throws ObjectMapperException {
+    public static String stringify(final Object object) throws ObjectMapperException {
         try {
             return OBJECT_MAPPER.writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -39,7 +39,7 @@ public class JsonUtils {
         }
     }
 
-    public static String getParameter(final String jsonString, final String jsonKey) throws ObjectMapperException {
+    public static String getAsStringOrNull(final String jsonString, final String jsonKey) throws ObjectMapperException {
         try {
             final JsonNode jsonNode = OBJECT_MAPPER.readTree(jsonString);
             return jsonNode.findValue(jsonKey).asText();

@@ -23,9 +23,9 @@ public class JsonView implements View {
     private static String parseJsonString(final Map<String, ?> model) {
         if (model.size() == 1) {
             final String key = String.valueOf(model.keySet().toArray()[0]);
-            return JsonUtils.toJson(model.get(key));
+            return JsonUtils.stringify(model.get(key));
         }
-        return JsonUtils.toJson(model);
+        return JsonUtils.stringify(model);
     }
 
     private void write(final String jsonString, final HttpServletResponse response) {

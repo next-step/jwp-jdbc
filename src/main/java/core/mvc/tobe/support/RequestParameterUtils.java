@@ -68,7 +68,7 @@ public class RequestParameterUtils {
     private String getRequestBodyParameter(final String parameterName) {
         final String parameter = (String) parameters.get(parameterName);
         if (Objects.isNull(parameter)) {
-            return JsonUtils.getParameter(body, parameterName);
+            return JsonUtils.getAsStringOrNull(body, parameterName);
         }
         return parameter;
     }

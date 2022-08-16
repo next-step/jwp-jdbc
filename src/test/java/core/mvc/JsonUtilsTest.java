@@ -11,7 +11,7 @@ class JsonUtilsTest {
     @Test
     void toObject() {
         String json = "{ \"color\" : \"Black\", \"type\" : \"BMW\" }";
-        Car car = JsonUtils.toObject(json, Car.class);
+        Car car = JsonUtils.parse(json, Car.class);
         assertThat(car.getColor()).isEqualTo("Black");
         assertThat(car.getType()).isEqualTo("BMW");
     }
@@ -21,7 +21,7 @@ class JsonUtilsTest {
     void to_json_string() {
         final Car car = new Car("white", "e class avantgarde");
         String expected = "{\"color\":\"white\",\"type\":\"e class avantgarde\"}";
-        String actual = JsonUtils.toJson(car);
+        String actual = JsonUtils.stringify(car);
 
         assertThat(actual).isEqualTo(expected);
     }
@@ -30,20 +30,20 @@ class JsonUtilsTest {
     @Test
     void find_value() {
         final Car car = new Car("white", "e class avantgarde");
-        final String jsonString = JsonUtils.toJson(car);
+        final String jsonString = JsonUtils.stringify(car);
 
-        final String actual = JsonUtils.getParameter(jsonString, "color");
+        final String actual = JsonUtils.getAsStringOrNull(jsonString, "color");
 
         assertThat(actual).isEqualTo("white");
     }
 
-    @DisplayName("json 문자열에서 존재하지 않는 파라미터를 조회하면 null을 반환한다")
+    @DisplayName("json 문자열에서 존재하지 않는 속성를 조회하면 null을 반환한다")
     @Test
     void has_no_value() {
         final Car car = new Car("white", "e class avantgarde");
-        final String jsonString = JsonUtils.toJson(car);
+        final String jsonString = JsonUtils.stringify(car);
 
-        final String actual = JsonUtils.getParameter(jsonString, "name");
+        final String actual = JsonUtils.getAsStringOrNull(jsonString, "name");
 
         assertThat(actual).isNull();
     }
