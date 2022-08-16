@@ -15,6 +15,7 @@ import core.db.DataBase;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
 import next.dto.UserCreatedDto;
+import next.dto.UserUpdatedDto;
 import next.model.User;
 
 @Controller
@@ -32,11 +33,21 @@ public class UserApiController {
 	}
 
 	@RequestMapping(value = "/api/users", method = RequestMethod.GET)
-	public ModelAndView findOne(@RequestParam String userId) {
+	public ModelAndView findOne(@RequestParam String userId, HttpServletResponse response) {
 		logger.debug("userId: {}", userId);
 		User user = DataBase.findUserById(userId);
 		ModelAndView mav = new ModelAndView(new JsonView());
 		mav.addObject("user", user);
+		response.setStatus(HttpStatus.OK.value());
 		return mav;
+	}
+
+	@RequestMapping(value = "/api/users", method = RequestMethod.PUT)
+	public ModelAndView modify(@RequestParam String userId, @RequestBody UserUpdatedDto userUpdatedDto, HttpServletResponse response) {
+		logger.debug("userId: {}, UserUpdatedDto: {}", userId, userUpdatedDto);
+		User findUser = DataBase.findUserById(userId);
+		DataBase.addUser(new User(findUser.getUserId(), findUser.getPassword(), userUpdatedDto.getName(), userUpdatedDto.getEmail()));
+		response.setStatus(HttpStatus.OK.value());
+		return new ModelAndView(new JsonView());
 	}
 }

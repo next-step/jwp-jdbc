@@ -59,7 +59,6 @@ public class UserAcceptanceTest {
                 .exchange()
                 .expectStatus().isOk();
 
-
         actual = client()
                 .get()
                 .uri(location.toString())
