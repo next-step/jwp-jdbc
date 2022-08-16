@@ -5,14 +5,14 @@ import java.io.PrintWriter;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 public class JsonView implements View {
 
+    private static final String APPLICATION_JSON_UTF8_VALUE = "application/json;charset=UTF-8";
+
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setContentType(APPLICATION_JSON_UTF8_VALUE);
 
         if (!model.isEmpty()) {
             final String jsonString = parseJsonString(model);
@@ -33,7 +33,7 @@ public class JsonView implements View {
             writer.write(jsonString);
             writer.flush();
         } catch (IOException e) {
-            response.setStatus(HttpStatus.NOT_FOUND.value());
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 }
