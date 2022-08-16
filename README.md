@@ -35,6 +35,6 @@
   - 리턴 타입을 메서드명에 명시함으로써 사용자에게 API 를 쉽게 사용할 수 있도록(?) 할 수 있다
   - null 이 리턴될 수 있어서 메서드명에 `OrNull` 을 추가함 
 - [ ] RequestBody 를 처리할 수 있는 ArgumentResolver 추가
-  - [ ] `@RequestBody` 애너테이션 추가
+  - [x] `@RequestBody` 애너테이션 추가
   - [ ] RequestBody format 이 json 인 경우
   - [ ] RequestBody format 이 query string 인 경우
