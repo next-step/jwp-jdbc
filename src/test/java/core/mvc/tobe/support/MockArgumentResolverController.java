@@ -1,6 +1,7 @@
 package core.mvc.tobe.support;
 
 import core.annotation.web.PathVariable;
+import core.annotation.web.RequestBody;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestParam;
 
@@ -28,6 +29,11 @@ public class MockArgumentResolverController {
 
     @RequestMapping("/user")
     String mockUser(MockUser user) {
+        return user.toString();
+    }
+
+    @RequestMapping("/requestBody/user")
+    String mockRequestBody(@RequestBody MockUser user) {
         return user.toString();
     }
 

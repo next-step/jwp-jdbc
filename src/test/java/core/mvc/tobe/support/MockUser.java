@@ -6,6 +6,9 @@ public class MockUser {
         this.id = id;
     }
 
+    private MockUser() {
+    }
+
     private String id;
 
     private String name;
