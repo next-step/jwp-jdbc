@@ -28,3 +28,12 @@
   - [x] 회원가입 `POST /api/users`
   - [x] 회원조회 `GET /api/users`
   - [x] 회원수정 `PUT /api/users`
+
+### 1단계 피드백
+- [ ] JsonView 에서 한글 데이터를 처리할 수 있도록 수정(한글이 깨지지 않도록)
+- [ ] JsonUtils#getParameter 메서드명 수정 (getAsString)
+  - 리턴 타입을 메서드명에 명시함으로써 사용자에게 API 를 쉽게 사용할 수 있도록(?) 할 수 있다
+- [ ] RequestBody 를 처리할 수 있는 ArgumentResolver 추가
+  - [ ] `@RequestBody` 애너테이션 추가
+  - [ ] RequestBody format 이 json 인 경우
+  - [ ] RequestBody format 이 query string 인 경우
