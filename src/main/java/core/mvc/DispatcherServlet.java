@@ -27,6 +27,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerExecutor handlerExecutor;
 
+    private InterceptorHandler interceptorHandler;
+
     @Override
     public void init() {
         handlerMappingRegistry = new HandlerMappingRegistry();
@@ -38,27 +40,53 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        interceptorHandler = new DefaultInterceptorHandler();
+        InterceptorMetaData imd = new DefaultInterceptorMetaData()
+                .addInterceptor(new TimeLoggingInterceptor())
+                .addPathPatterns("/**");
+
+        interceptorHandler.addInterceptor(imd);
+
+
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String requestUri = req.getRequestURI();
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
+        Exception ex = null;
+        Optional<Object> maybeHandler = Optional.empty();
 
         try {
-            Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(req);
+            maybeHandler = handlerMappingRegistry.getHandler(req);
             if (!maybeHandler.isPresent()) {
                 resp.setStatus(HttpStatus.NOT_FOUND.value());
                 return;
             }
 
+            boolean preHandlePassed = interceptorHandler.preHandle(req, resp, maybeHandler.get());
+            if (!preHandlePassed) {
+                preHandleFailedLogic(req, resp, maybeHandler.get());
+                return;
+            }
 
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+            interceptorHandler.postHandle(req, resp, maybeHandler.get(), mav);
             render(mav, req, resp);
-        } catch (Throwable e) {
+
+        } catch (Exception e) {
             logger.error("Exception : {}", e);
+            ex = e;
             throw new ServletException(e.getMessage());
+        } finally {
+            interceptorHandler.afterCompletionHandle(req, resp, maybeHandler.get(), ex);
         }
+    }
+
+    private void preHandleFailedLogic(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
+        JspView jspView = new JspView("redirect:home.jsp");
+        render(new ModelAndView(jspView), req, resp);
     }
 
     private void render(ModelAndView mav, HttpServletRequest req, HttpServletResponse resp) throws Exception {

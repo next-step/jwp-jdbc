@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class DefaultPreparedStatementSetter implements PreparedStatementSetter {
+public class DefaultPreparedStatementSetter implements PreparedStatementSetter<PreparedStatement> {
     private static final PreparedStatementSetter EMPTY = new DefaultPreparedStatementSetter();
     public static final String INVALID_PARAMETER_TYPE_FORMATTED_MSG = "유효하지 않은 값입니다. value: %s, type: %s";
 
