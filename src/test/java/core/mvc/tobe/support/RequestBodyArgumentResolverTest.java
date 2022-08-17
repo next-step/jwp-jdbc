@@ -11,9 +11,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class RequestBodyQueryStringArgumentResolverTest {
+class RequestBodyArgumentResolverTest {
 
-    final RequestBodyQueryStringArgumentResolver resolver = new RequestBodyQueryStringArgumentResolver();
+    private final RequestBodyArgumentResolver resolver = new RequestBodyArgumentResolver();
 
     @DisplayName("파라미터에 RequestBody 애노테이션의 존재 여부에 따라 변환할 수 있다")
     @ParameterizedTest(name = "[{arguments}]")

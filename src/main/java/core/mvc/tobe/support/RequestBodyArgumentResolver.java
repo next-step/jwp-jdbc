@@ -5,7 +5,7 @@ import core.mvc.tobe.MethodParameter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class RequestBodyQueryStringArgumentResolver extends AbstractAnnotationArgumentResolver {
+public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResolver {
 
     @Override
     public boolean supports(final MethodParameter methodParameter) {
