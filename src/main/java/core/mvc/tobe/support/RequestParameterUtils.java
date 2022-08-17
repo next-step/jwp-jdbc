@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import core.mvc.JsonUtils;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collector;
@@ -18,8 +17,8 @@ public class RequestParameterUtils {
     private static final String QUERY_STRING_KEY_VALUE_DELIMITER = "=";
     private static final String QUERY_STRING_DELIMITER = "&";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ThreadLocal<Map<String, Object>> PARAMETER_THREAD_LOCAL = new ThreadLocal<>();
 
-    private final Map<String, Object> parameters = new HashMap<>();
     private final HttpServletRequest request;
     private final String body;
 
@@ -38,7 +37,7 @@ public class RequestParameterUtils {
     }
 
     private void parseRequestBodyParameters() throws JsonProcessingException {
-        parameters.putAll(parseRequestBody());
+        PARAMETER_THREAD_LOCAL.set(parseRequestBody());
     }
 
     private Map<String, Object> parseRequestBody() throws JsonProcessingException {
@@ -66,10 +65,14 @@ public class RequestParameterUtils {
     }
 
     private String getRequestBodyParameter(final String parameterName) {
-        final String parameter = (String) parameters.get(parameterName);
+        final String parameter = (String) PARAMETER_THREAD_LOCAL.get().get(parameterName);
         if (Objects.isNull(parameter)) {
             return JsonUtils.getAsStringOrNull(body, parameterName);
         }
         return parameter;
+    }
+
+    public static void invalidate() {
+        PARAMETER_THREAD_LOCAL.remove();
     }
 }

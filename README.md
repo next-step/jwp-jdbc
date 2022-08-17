@@ -36,7 +36,9 @@
   - null 이 리턴될 수 있어서 메서드명에 `OrNull` 을 추가함 
 - [x] RequestBody 를 처리할 수 있는 ArgumentResolver 추가
   - [x] `@RequestBody` 애너테이션 추가
-  - [x] RequestParameterUtils를 활용한 query string, json 지원
+  - [x] RequestParameterUtils를 활용한 query string, json 지원 
 - [x] AbstractModelArgumentResolver 추상화 
   - [ ] RequestBodyArgumentResolver에서 동일한 코드를 재사용 
+- [x] RequestParameterUtils ThreadLocal 추가 
+  - [x] HttpServletRequest에서 한 번 조회한 post data 를 여러 파라미터에도 적용할 수 있도록 ThreadLocal 사용 
 
