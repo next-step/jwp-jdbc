@@ -37,4 +37,19 @@ public class MockArgumentResolverController {
         return user.toString();
     }
 
+    @RequestMapping("/requestBody/userId")
+    String mockRequestBodyUserId(@RequestBody String userId) {
+        return userId;
+    }
+
+    @RequestMapping("/requestBody/age")
+    String mockRequestBodyAge(@RequestBody int age) {
+        return String.valueOf(age);
+    }
+
+    @RequestMapping("/requestParam/requestBody/age")
+    String mockRequestBodyAgeAndMoney(@RequestParam int age, @RequestBody long money) {
+        return age + "_" + money;
+    }
+
 }

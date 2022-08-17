@@ -24,7 +24,7 @@ public abstract class AbstractModelArgumentResolver implements ArgumentResolver 
         return !isSimpleType(methodParameter.getType());
     }
 
-    private boolean isSimpleType(Class<?> clazz) {
+    protected boolean isSimpleType(Class<?> clazz) {
         return ClassUtils.isPrimitiveOrWrapper(clazz)
                 || CharSequence.class.isAssignableFrom(clazz);
     }

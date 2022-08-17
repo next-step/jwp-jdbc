@@ -2,6 +2,7 @@ package core.mvc.tobe.support;
 
 import core.annotation.web.RequestBody;
 import core.mvc.tobe.MethodParameter;
+import core.util.ReflectionUtils;
 import java.util.Arrays;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +24,11 @@ public class RequestBodyArgumentResolver extends AbstractModelArgumentResolver {
     @Override
     public Object resolveArgument(final MethodParameter methodParameter, final HttpServletRequest request, final HttpServletResponse response) {
         parameterUtils = new RequestParameterUtils(request);
+
+        if (isSimpleType(methodParameter.getType())) {
+            final String parameterValue = getParameter(request, methodParameter.getParameterName());
+            return ReflectionUtils.convertStringValue(parameterValue, methodParameter.getType());
+        }
         return super.resolveArgument(methodParameter, request, response);
     }
 
