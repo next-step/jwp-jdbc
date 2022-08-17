@@ -24,8 +24,8 @@ public class UserApiController {
         DataBase.addUser(user);
 
         response.setStatus(201);
-        response.setHeader("location", "/api/users?userId="+user.getUserId());
-        
+        response.setHeader("location", "/api/users?userId=" + user.getUserId());
+
         return new ModelAndView(new JsonView());
     }
 
