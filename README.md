@@ -7,3 +7,38 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+# 🚀 1단계 - REST API 및 테스트 리팩토링
+
+### 요구사항
+> HTML 이외에 JSON으로 데이터를 요청하고 응답을 받도록 지원해야 한다.
+
+### 기능 목록
+- [x] JsonUtils
+  - [x] Java Object를 Json 문자열로 변환한다  
+- [x] JsonView 구현
+  - [x] 응답을 Json 포맷으로 한다
+    - [x] 응답 헤더에 ContentType을 'application/json'으로 설정한다  
+  - [x] 응답 데이터의 요소가 1개인 경우 
+  - [x] 응답 데이터의 요소가 2개 이상인 경우 
+- [x] RequestParameterUtils 
+  - [x] 클라이언트의 요청 파라미터를 QeuryString 혹은 RequestBody에서 구한다
+- [x] UserApiController 구현
+  - [x] Annotation 기반 Controller로 구현한다
+  - [x] 회원가입 `POST /api/users`
+  - [x] 회원조회 `GET /api/users`
+  - [x] 회원수정 `PUT /api/users`
+
+### 1단계 피드백
+- [x] JsonView 에서 한글 데이터를 처리할 수 있도록 수정(한글이 깨지지 않도록)
+- [x] JsonUtils#getParameter 메서드명 수정 (`getAsStringOrNull`)
+  - 리턴 타입을 메서드명에 명시함으로써 사용자에게 API 를 쉽게 사용할 수 있도록(?) 할 수 있다
+  - null 이 리턴될 수 있어서 메서드명에 `OrNull` 을 추가함 
+- [x] RequestBody 를 처리할 수 있는 ArgumentResolver 추가
+  - [x] `@RequestBody` 애너테이션 추가
+  - [x] RequestParameterUtils를 활용한 query string, json 지원 
+- [x] AbstractModelArgumentResolver 추상화 
+  - [x] RequestBodyArgumentResolver에서 동일한 코드를 재사용 
+- [x] RequestParameterUtils ThreadLocal 추가 
+  - [x] HttpServletRequest에서 한 번 조회한 post data 를 여러 파라미터에도 적용할 수 있도록 ThreadLocal 사용 
+

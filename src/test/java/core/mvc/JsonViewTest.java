@@ -1,21 +1,22 @@
 package core.mvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import study.jackson.Car;
 
-import java.util.HashMap;
-import java.util.Map;
+class JsonViewTest {
 
-import static org.assertj.core.api.Assertions.assertThat;
+    private static final Logger logger = LoggerFactory.getLogger(JsonViewTest.class);
+    private static final String APPLICATION_JSON_UTF8_VALUE = "application/json;charset=UTF-8";
 
-public class JsonViewTest {
-    private static final Logger logger = LoggerFactory.getLogger( JsonViewTest.class );
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private View view;
@@ -30,7 +31,7 @@ public class JsonViewTest {
     @Test
     void render_no_element() throws Exception {
         view.render(new HashMap<>(), request, response);
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        assertThat(response.getContentType()).isEqualTo(APPLICATION_JSON_UTF8_VALUE);
         assertThat(response.getContentAsString()).isBlank();
     }
 
@@ -42,8 +43,8 @@ public class JsonViewTest {
 
         view.render(model, request, response);
 
-        Car actual = JsonUtils.toObject(response.getContentAsString(), Car.class);
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        Car actual = JsonUtils.parse(response.getContentAsString(), Car.class);
+        assertThat(response.getContentType()).isEqualTo(APPLICATION_JSON_UTF8_VALUE);
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -56,7 +57,8 @@ public class JsonViewTest {
 
         view.render(model, request, response);
 
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        assertThat(response.getContentType()).isEqualTo(APPLICATION_JSON_UTF8_VALUE);
+        assertThat(response.getContentAsString()).isEqualTo("{\"car\":{\"color\":\"Black\",\"type\":\"Sonata\"},\"name\":\"포비\"}");
         logger.debug("response body : {}", response.getContentAsString());
     }
 }
