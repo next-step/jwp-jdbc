@@ -1,6 +1,7 @@
 package next.controller;
 
 import core.annotation.web.Controller;
+import core.annotation.web.RequestBody;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.annotation.web.RequestParam;
@@ -15,7 +16,7 @@ import next.model.User;
 public class UserApiController {
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
-    public ModelAndView create(User user, HttpServletResponse response) {
+    public ModelAndView create(@RequestBody User user, HttpServletResponse response) {
         DataBase.addUser(user);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
@@ -34,7 +35,7 @@ public class UserApiController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
-    public ModelAndView update(@RequestParam String userId, UserUpdatedDto userUpdatedDto) {
+    public ModelAndView update(@RequestParam String userId, @RequestBody UserUpdatedDto userUpdatedDto) {
         final User user = DataBase.findUserById(userId);
 
         final User updateUser = new User(user.getUserId(), user.getPassword(), userUpdatedDto.getName(), userUpdatedDto.getEmail());

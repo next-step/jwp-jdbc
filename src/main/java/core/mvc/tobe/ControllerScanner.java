@@ -27,6 +27,7 @@ public class ControllerScanner {
     private static final List<ArgumentResolver> argumentResolvers = asList(
                 new HttpRequestArgumentResolver(),
                 new HttpResponseArgumentResolver(),
+                new RequestBodyArgumentResolver(),
                 new RequestParamArgumentResolver(),
                 new PathVariableArgumentResolver(),
                 new ModelArgumentResolver()
