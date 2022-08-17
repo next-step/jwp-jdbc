@@ -15,7 +15,7 @@ public class UserUpdatedDto {
     }
 
     public User toUser() {
-        return new User(null, null, name, email);
+        return new User(name, email);
     }
 
     public String getName() {
