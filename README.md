@@ -34,9 +34,9 @@
 - [x] JsonUtils#getParameter 메서드명 수정 (`getAsStringOrNull`)
   - 리턴 타입을 메서드명에 명시함으로써 사용자에게 API 를 쉽게 사용할 수 있도록(?) 할 수 있다
   - null 이 리턴될 수 있어서 메서드명에 `OrNull` 을 추가함 
-- [ ] RequestBody 를 처리할 수 있는 ArgumentResolver 추가
+- [x] RequestBody 를 처리할 수 있는 ArgumentResolver 추가
   - [x] `@RequestBody` 애너테이션 추가
-  - [ ] RequestParameterUtils를 활용한 query string, json 지원
+  - [x] RequestParameterUtils를 활용한 query string, json 지원
 - [x] AbstractModelArgumentResolver 추상화 
   - [ ] RequestBodyArgumentResolver에서 동일한 코드를 재사용 
 

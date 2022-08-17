@@ -10,6 +10,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 class RequestBodyArgumentResolverTest {
 
@@ -33,5 +36,34 @@ class RequestBodyArgumentResolverTest {
             Arguments.of("mockUser", false),
             Arguments.of("mockRequestBodyUser", true)
         );
+    }
+
+    @DisplayName("RequestBody의 값을 변환")
+    @ParameterizedTest(name = "[{arguments}]")
+    @ValueSource(strings = {
+        "id=admin&name=테스트유저&age=20&money=10000&addr=대한민국",
+        "{\"id\":\"admin\",\"name\":\"테스트유저\",\"age\":\"20\",\"money\":\"10000\",\"addr\":\"대한민국\"}"
+    })
+    void request_body_by_format(String postData) throws NoSuchMethodException {
+        final Method method = MockArgumentResolverController.class.getDeclaredMethod("mockRequestBodyUser", MockUser.class);
+        final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        final MethodParameter methodParameter = new MethodParameter(method, MockUser.class, parameterAnnotations[0], "user");
+
+        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setContent(postData.getBytes());
+
+        final MockUser actual = (MockUser) resolver.resolveArgument(methodParameter, request, response);
+
+        assertThat(actual).isEqualTo(expectedMockUser());
+    }
+
+    private MockUser expectedMockUser() {
+        final MockUser mockUser = new MockUser("admin");
+        mockUser.setName("테스트유저");
+        mockUser.setAge(20);
+        mockUser.setMoney(10_000L);
+        mockUser.setAddr("대한민국");
+        return mockUser;
     }
 }

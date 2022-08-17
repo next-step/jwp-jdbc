@@ -1,5 +1,7 @@
 package core.mvc.tobe.support;
 
+import java.util.Objects;
+
 public class MockUser {
 
     public MockUser(String id) {
@@ -60,6 +62,25 @@ public class MockUser {
 
     public void setMoney(long money) {
         this.money = money;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final MockUser mockUser = (MockUser) o;
+        return getAge() == mockUser.getAge() && getMoney() == mockUser.getMoney() && Objects.equals(getId(), mockUser.getId())
+            && Objects.equals(getName(), mockUser.getName()) && Objects.equals(getAddr(), mockUser.getAddr()) && Objects.equals(
+            getNotSetterPhoneNumber(), mockUser.getNotSetterPhoneNumber());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getAddr(), getNotSetterPhoneNumber(), getAge(), getMoney());
     }
 
     @Override

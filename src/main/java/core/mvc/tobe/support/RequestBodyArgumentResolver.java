@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class RequestBodyArgumentResolver extends AbstractModelArgumentResolver {
 
+    private RequestParameterUtils parameterUtils;
+
     @Override
     public boolean supports(final MethodParameter methodParameter) {
         return super.supports(methodParameter) && supportAnnotation(methodParameter);
@@ -20,11 +22,12 @@ public class RequestBodyArgumentResolver extends AbstractModelArgumentResolver {
 
     @Override
     public Object resolveArgument(final MethodParameter methodParameter, final HttpServletRequest request, final HttpServletResponse response) {
-        return null;
+        parameterUtils = new RequestParameterUtils(request);
+        return super.resolveArgument(methodParameter, request, response);
     }
 
     @Override
     String getParameter(final HttpServletRequest request, final String parameterName) {
-        return null;
+        return parameterUtils.getParameter(parameterName);
     }
 }
