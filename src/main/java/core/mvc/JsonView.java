@@ -14,15 +14,19 @@ public class JsonView implements View {
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 
         if (model == null || model.isEmpty()) {
             return;
         }
 
-        for (Entry<String, ?> entry : model.entrySet()) {
-            response.getWriter().write(JsonUtils.fromObject(entry.getValue()));
+        if (model.size() == 1) {
+            for (Entry<String, ?> entry : model.entrySet()) {
+                response.getWriter().write(JsonUtils.fromObject(entry.getValue()));
+            }
+            return;
         }
 
+        response.getWriter().write(JsonUtils.fromObject(model));
     }
 }
