@@ -13,17 +13,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
-public class RequestResponseBodyMethodProcessor extends AbstractAnnotationArgumentResolver {
+public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResolver {
 
     private final Collection<HttpMessageConverter> converters;
 
-    private RequestResponseBodyMethodProcessor(Collection<HttpMessageConverter> converters) {
+    private RequestBodyArgumentResolver(Collection<HttpMessageConverter> converters) {
         Assert.notNull(converters, "'messageConverters' must not be null");
         this.converters = Collections.unmodifiableCollection(converters);
     }
 
-    public static RequestResponseBodyMethodProcessor from(Collection<HttpMessageConverter> converters) {
-        return new RequestResponseBodyMethodProcessor(converters);
+    public static RequestBodyArgumentResolver from(Collection<HttpMessageConverter> converters) {
+        return new RequestBodyArgumentResolver(converters);
     }
 
     @Override

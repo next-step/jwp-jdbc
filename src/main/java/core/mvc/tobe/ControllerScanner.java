@@ -7,8 +7,8 @@ import core.mvc.tobe.support.HttpRequestArgumentResolver;
 import core.mvc.tobe.support.HttpResponseArgumentResolver;
 import core.mvc.tobe.support.ModelArgumentResolver;
 import core.mvc.tobe.support.PathVariableArgumentResolver;
+import core.mvc.tobe.support.RequestBodyArgumentResolver;
 import core.mvc.tobe.support.RequestParamArgumentResolver;
-import core.mvc.tobe.support.RequestResponseBodyMethodProcessor;
 import core.mvc.tobe.support.converter.Jackson2HttpMessageConverter;
 import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
@@ -38,7 +38,7 @@ public class ControllerScanner {
             new HttpResponseArgumentResolver(),
             new RequestParamArgumentResolver(),
             new PathVariableArgumentResolver(),
-            RequestResponseBodyMethodProcessor.from(List.of(Jackson2HttpMessageConverter.instance())),
+            RequestBodyArgumentResolver.from(List.of(Jackson2HttpMessageConverter.instance())),
             new ModelArgumentResolver()
     );
 

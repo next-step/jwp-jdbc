@@ -1,8 +1,6 @@
 package core.mvc.tobe.support.converter;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
 
@@ -28,10 +26,7 @@ public class Jackson2HttpMessageConverter implements HttpMessageConverter {
 
     @Override
     public boolean canRead(Class<?> clazz, MediaType mediaType) {
-        if (!isSupportedMediaType(mediaType)) {
-            return false;
-        }
-        return DEFAULT_OBJECT_MAPPER.canDeserialize(javaType(clazz));
+        return isSupportedMediaType(mediaType);
     }
 
     @Override
@@ -42,10 +37,6 @@ public class Jackson2HttpMessageConverter implements HttpMessageConverter {
         } catch (IOException e) {
             throw new IllegalStateException("could not read request message", e);
         }
-    }
-
-    private JavaType javaType(Class<?> clazz) {
-        return DEFAULT_OBJECT_MAPPER.constructType(GenericTypeResolver.resolveType(clazz, (Class<?>) null));
     }
 
     private boolean isSupportedMediaType(MediaType mediaType) {
