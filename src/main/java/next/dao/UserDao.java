@@ -1,78 +1,49 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
+import core.jdbc.RowMapper;
 import next.model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
+    private static final JdbcTemplate jdbcTemplate = JdbcTemplate.instance();
+    private static final RowMapper<User> USER_ROW_MAPPER = rs -> new User(
+            rs.getString("userId"),
+            rs.getString("password"),
+            rs.getString("name"),
+            rs.getString("email")
+    );
 
-            if (con != null) {
-                con.close();
-            }
-        }
+    public void insert(User user) {
+        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", Map.of(
+                1, user.getUserId(),
+                2, user.getPassword(),
+                3, user.getName(),
+                4, user.getEmail()
+        ));
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+    public void update(User user) {
+        jdbcTemplate.update("UPDATE USERS SET password=?, name=?, email=? WHERE userId=?", Map.of(
+                1, user.getPassword(),
+                2, user.getName(),
+                3, user.getEmail(),
+                4, user.getUserId()
+        ));
     }
 
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+    public List<User> findAll() {
+        return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS", USER_ROW_MAPPER);
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
-
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    public User findByUserId(String userId) {
+        return jdbcTemplate.queryForObject(
+                "SELECT userId, password, name, email FROM USERS WHERE userid=?",
+                USER_ROW_MAPPER,
+                Map.of(1, userId)
+        ).orElse(null);
     }
 }
