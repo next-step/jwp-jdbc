@@ -40,7 +40,7 @@ class RequestBodyArgumentResolverTest {
     @Test
     @DisplayName("requestBody 애노테이션이 있으면 지원")
     void supports() throws NoSuchMethodException {
-        RequestBodyArgumentResolver.from(JACKSON_CONVERTERS).supports(dtoParameterMethodWithRequestBodyMethodParameter());
+        RequestBodyArgumentResolver.defaults().supports(dtoParameterMethodWithRequestBodyMethodParameter());
     }
 
     @Test
@@ -54,7 +54,7 @@ class RequestBodyArgumentResolverTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         request.setContent(String.format("{\"userId\":\"%s\",\"password\":\"%s\", \"name\":\"%s\", \"email\":\"%s\"}", id, password, name, email).getBytes());
-        RequestBodyArgumentResolver jacksonMethodProcessor = RequestBodyArgumentResolver.from(JACKSON_CONVERTERS);
+        RequestBodyArgumentResolver jacksonMethodProcessor = RequestBodyArgumentResolver.defaults();
         //when
         Object result = jacksonMethodProcessor.resolveArgument(dtoParameterMethodWithRequestBodyMethodParameter(), request, new MockHttpServletResponse());
         //then

@@ -2,6 +2,7 @@ package core.mvc.tobe.support;
 
 import core.mvc.tobe.MethodParameter;
 import core.mvc.tobe.support.converter.HttpMessageConverter;
+import core.mvc.tobe.support.converter.Jackson2HttpMessageConverter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.Assert;
@@ -11,10 +12,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResolver {
 
+    private static final RequestBodyArgumentResolver RESOLVER_WITH_DEFAULT_CONVERTERS = from(List.of(Jackson2HttpMessageConverter.instance()));
     private final Collection<HttpMessageConverter> converters;
 
     private RequestBodyArgumentResolver(Collection<HttpMessageConverter> converters) {
@@ -24,6 +27,10 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
 
     public static RequestBodyArgumentResolver from(Collection<HttpMessageConverter> converters) {
         return new RequestBodyArgumentResolver(converters);
+    }
+
+    public static RequestBodyArgumentResolver defaults() {
+        return RESOLVER_WITH_DEFAULT_CONVERTERS;
     }
 
     @Override
