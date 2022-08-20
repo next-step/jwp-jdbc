@@ -85,4 +85,4 @@
 - [ ] 리팩토링
   - [ ] UserDao에서 JdbcTemplate을 사용하도록 변경  
     - [x] insert, udpate 
-    - [ ] select 
+    - [x] select 
