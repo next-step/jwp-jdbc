@@ -17,10 +17,14 @@ public class JdbcTemplate {
 
     public int execute(final String sql, final Object... arguments) {
         initPreparedStatement(sql, arguments);
-        try {
 
-            return preparedStatement.executeUpdate();
+        try {
+            final int result = preparedStatement.executeUpdate();
+            connection.commit();
+
+            return result;
         } catch (SQLException e) {
+            DataSourceUtils.rollback(connection);
             throw new JdbcTemplateException(e);
         } finally {
             DataSourceUtils.release(connection, preparedStatement);
@@ -31,6 +35,8 @@ public class JdbcTemplate {
         initPreparedStatement(sql, arguments);
 
         try {
+            connection.setReadOnly(true);
+
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return Optional.of(function.apply(resultSet));
@@ -48,6 +54,8 @@ public class JdbcTemplate {
         initPreparedStatement(sql, arguments);
 
         try {
+            connection.setReadOnly(true);
+
             resultSet = preparedStatement.executeQuery();
             List<T> results = new ArrayList<>();
             while (resultSet.next()) {
@@ -65,6 +73,7 @@ public class JdbcTemplate {
     private void initPreparedStatement(final String sql, final Object[] arguments) {
         try {
             connection = ConnectionManager.getConnection();
+            connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(sql);
             setArguments(preparedStatement, arguments);
         } catch (SQLException e) {

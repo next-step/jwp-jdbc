@@ -18,6 +18,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 class JdbcTemplateTest {
 
     private static final String INSERT_SQL = "insert into users (userId, password, name, email) values (?, ?, ?, ?)";
+    private static final String SELECT_SQL = "SELECT userId, password, name, email FROM USERS";
 
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
@@ -47,7 +48,7 @@ class JdbcTemplateTest {
     @DisplayName("데이터 한 건을 조회한다")
     @Test
     void queryForObject() {
-        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
+        final String sql = SELECT_SQL + " WHERE userid = ?";
 
         final Optional<User> actual = jdbcTemplate.queryForObject(sql, userRowMapperFunction(), "admin");
 
@@ -59,7 +60,7 @@ class JdbcTemplateTest {
     @DisplayName("데이터 한 건을 조회 시 일치하는 데이터가 없는 경우 Optional 객체가 리턴된다")
     @Test
     void no_data_queryForObject() {
-        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
+        final String sql = SELECT_SQL + " WHERE userid = ?";
 
         final Optional<User> actual = jdbcTemplate.queryForObject(sql, userRowMapperFunction(), "userId");
 
@@ -71,9 +72,7 @@ class JdbcTemplateTest {
     void queryForList() {
         jdbcTemplate.execute(INSERT_SQL, "userId", "password", "name", "email");
 
-        final String sql = "SELECT userId, password, name, email FROM USERS";
-
-        final List<User> actual = jdbcTemplate.queryForList(sql, userRowMapperFunction());
+        final List<User> actual = jdbcTemplate.queryForList(SELECT_SQL, userRowMapperFunction());
 
         assertThat(actual).hasSize(2)
             .extracting("userId")
@@ -85,11 +84,20 @@ class JdbcTemplateTest {
     void empty_queryForList() {
         jdbcTemplate.execute("delete from users");
 
-        final String sql = "SELECT userId, password, name, email FROM USERS";
-
-        final List<User> actual = jdbcTemplate.queryForList(sql, userRowMapperFunction());
+        final List<User> actual = jdbcTemplate.queryForList(SELECT_SQL, userRowMapperFunction());
 
         assertThat(actual).isEmpty();
+    }
+
+    @DisplayName("쿼리 실행 중 예외 발생 시 rollback 된다")
+    @Test
+    void transaction_rollback() {
+        assertThatThrownBy(() -> jdbcTemplate.execute(INSERT_SQL))
+            .isInstanceOf(JdbcTemplateException.class);
+
+        final List<User> users = jdbcTemplate.queryForList(SELECT_SQL, userRowMapperFunction());
+
+        assertThat(users).hasSize(1);
     }
 
     private RowMapperFunction<User> userRowMapperFunction() {

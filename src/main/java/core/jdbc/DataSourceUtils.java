@@ -1,5 +1,6 @@
 package core.jdbc;
 
+import core.jdbc.exception.JdbcTemplateException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ public class DataSourceUtils {
             try {
                 connection.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new JdbcTemplateException(e);
             }
         }
     }
@@ -26,7 +27,7 @@ public class DataSourceUtils {
             try {
                 statement.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new JdbcTemplateException(e);
             }
         }
     }
@@ -36,7 +37,7 @@ public class DataSourceUtils {
             try {
                 resultSet.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new JdbcTemplateException(e);
             }
         }
     }
@@ -49,5 +50,13 @@ public class DataSourceUtils {
 
     public static void release(final Connection connection, final Statement statement) {
         release(connection, statement, null);
+    }
+
+    public static void rollback(final Connection connection) {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
     }
 }
