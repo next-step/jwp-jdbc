@@ -82,7 +82,7 @@
     - [x] Connection, Statement, ResultSet 생성 및 close
     - [x] SQL 문에 인자를 맵핑
     - [x] List 반환 
-- [ ] 리팩토링
-  - [ ] UserDao에서 JdbcTemplate을 사용하도록 변경  
+- [x] 리팩토링
+  - [x] UserDao에서 JdbcTemplate을 사용하도록 변경  
     - [x] insert, udpate 
     - [x] select 
