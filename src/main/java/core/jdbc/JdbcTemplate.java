@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class JdbcTemplate {
@@ -35,6 +37,24 @@ public class JdbcTemplate {
             }
 
             return Optional.empty();
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        } finally {
+            DataSourceUtils.release(connection, preparedStatement, resultSet);
+        }
+    }
+
+    public <T> List<T> queryForList(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
+        initPreparedStatement(sql, arguments);
+
+        try {
+            resultSet = preparedStatement.executeQuery();
+            List<T> results = new ArrayList<>();
+            while (resultSet.next()) {
+                results.add(function.apply(resultSet));
+            }
+
+            return results;
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         } finally {

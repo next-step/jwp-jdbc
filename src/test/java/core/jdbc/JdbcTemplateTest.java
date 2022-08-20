@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import core.jdbc.exception.JdbcTemplateException;
- import java.util.Optional;
+import java.util.List;
+import java.util.Optional;
 import next.model.User;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,25 +47,49 @@ class JdbcTemplateTest {
     @DisplayName("데이터 한 건을 조회한다")
     @Test
     void queryForObject() {
-        jdbcTemplate.execute(INSERT_SQL, "userId", "password", "name", "email");
+        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
 
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
-
-        final Optional<User> actual = jdbcTemplate.queryForObject(sql, userRowMapperFunction(), "userId");
+        final Optional<User> actual = jdbcTemplate.queryForObject(sql, userRowMapperFunction(), "admin");
 
         assertThat(actual).isPresent()
             .get()
-            .isEqualTo(new User("userId", "password", "name", "email"));
+            .isEqualTo(new User("admin", "password", "자바지기", "admin@slipp.net"));
     }
 
     @DisplayName("데이터 한 건을 조회 시 일치하는 데이터가 없는 경우 Optional 객체가 리턴된다")
     @Test
     void no_data_queryForObject() {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
+        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = ?";
 
         final Optional<User> actual = jdbcTemplate.queryForObject(sql, userRowMapperFunction(), "userId");
 
         assertThat(actual).isNotPresent();
+    }
+
+    @DisplayName("데이터 여러 건을 조회한다")
+    @Test
+    void queryForList() {
+        jdbcTemplate.execute(INSERT_SQL, "userId", "password", "name", "email");
+
+        final String sql = "SELECT userId, password, name, email FROM USERS";
+
+        final List<User> actual = jdbcTemplate.queryForList(sql, userRowMapperFunction());
+
+        assertThat(actual).hasSize(2)
+            .extracting("userId")
+            .containsExactly("admin", "userId");
+    }
+
+    @DisplayName("데이터 여러 건을 조회 시 데이터가 없는 경우 빈 컬렉션을 반환한다")
+    @Test
+    void empty_queryForList() {
+        jdbcTemplate.execute("delete from users");
+
+        final String sql = "SELECT userId, password, name, email FROM USERS";
+
+        final List<User> actual = jdbcTemplate.queryForList(sql, userRowMapperFunction());
+
+        assertThat(actual).isEmpty();
     }
 
     private RowMapperFunction<User> userRowMapperFunction() {
