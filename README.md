@@ -63,9 +63,9 @@
 | ResultSet 데이터 추출      | X          | O         |
 
 ### 기능 목록
-- [ ] UserDao 기능 구현 (UserDaoTest 성공 확인)
+- [x] UserDao 기능 구현 (UserDaoTest 성공 확인)
   - [x] update
-  - [ ] findAll
+  - [x] findAll
 - [ ] 리팩토링 (JdbcTemplate)
   - [ ] SQLException은 RuntimeException으로 변환
   - [ ] insert, update, delete
