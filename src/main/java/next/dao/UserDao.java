@@ -1,7 +1,6 @@
 package next.dao;
 
 import core.jdbc.JdbcTemplate;
-import core.jdbc.RowMapper;
 import next.model.User;
 
 import java.util.List;
@@ -10,12 +9,6 @@ import java.util.Map;
 public class UserDao {
 
     private static final JdbcTemplate jdbcTemplate = JdbcTemplate.instance();
-    private static final RowMapper<User> USER_ROW_MAPPER = rs -> new User(
-            rs.getString("userId"),
-            rs.getString("password"),
-            rs.getString("name"),
-            rs.getString("email")
-    );
 
     public void insert(User user) {
         jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", Map.of(
@@ -36,13 +29,13 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS", USER_ROW_MAPPER);
+        return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS", User.class);
     }
 
     public User findByUserId(String userId) {
         return jdbcTemplate.queryForObject(
                 "SELECT userId, password, name, email FROM USERS WHERE userid=?",
-                USER_ROW_MAPPER,
+                User.class,
                 Map.of(1, userId)
         ).orElse(null);
     }

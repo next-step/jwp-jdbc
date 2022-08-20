@@ -1,5 +1,8 @@
 package core.jdbc;
 
+import core.jdbc.exception.DataAccessException;
+import core.jdbc.exception.NonUniqueResultException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,29 +27,29 @@ public final class JdbcTemplate {
         return INSTANCE;
     }
 
-    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper) {
-        return queryForObject(sql, rowMapper, EMPTY_PARAMETERS);
+    public <T> Optional<T> queryForObject(String sql, Class<T> type) {
+        return queryForObject(sql, type, EMPTY_PARAMETERS);
     }
 
-    public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Map<Integer, Object> parameters) {
-        List<T> results = query(sql, rowMapper, parameters);
+    public <T> Optional<T> queryForObject(String sql, Class<T> type, Map<Integer, Object> parameters) {
+        List<T> results = query(sql, type, parameters);
         if (results.size() > 1) {
             throw new NonUniqueResultException(String.format("query did not return a unique result: %d", results.size()));
         }
         return results.stream().findAny();
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
-        return query(sql, rowMapper, EMPTY_PARAMETERS);
+    public <T> List<T> query(String sql, Class<T> type) {
+        return query(sql, type, EMPTY_PARAMETERS);
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Map<Integer, Object> parameters) {
+    public <T> List<T> query(String sql, Class<T> type, Map<Integer, Object> parameters) {
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             for (Map.Entry<Integer, Object> parameter : parameters.entrySet()) {
                 pstmt.setObject(parameter.getKey(), parameter.getValue());
             }
-            return extractResults(pstmt, rowMapper);
+            return extractResults(pstmt, new RowMapper<>(type));
         } catch (SQLException e) {
             throw new DataAccessException(String.format("query sql can not be executed(sql: %s, parameters: %s)", sql, parameters), e);
         }

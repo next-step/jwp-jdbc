@@ -1,4 +1,4 @@
-package core.jdbc;
+package core.jdbc.exception;
 
 public class NonUniqueResultException extends RuntimeException {
 
