@@ -1,5 +1,6 @@
 package core.jdbc;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +29,11 @@ public final class JdbcTemplate {
     }
 
     public <T> Optional<T> queryForObject(String sql, RowMapper<T> rowMapper, Map<Integer, Object> parameters) {
-        return query(sql, rowMapper, parameters).stream().findAny();
+        List<T> results = query(sql, rowMapper, parameters);
+        if (results.size() > 1) {
+            throw new NonUniqueResultException(String.format("query did not return a unique result: %d", results.size()));
+        }
+        return results.stream().findAny();
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
@@ -36,7 +41,8 @@ public final class JdbcTemplate {
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Map<Integer, Object> parameters) {
-        try (PreparedStatement pstmt = ConnectionManager.getConnection().prepareStatement(sql)) {
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             for (Map.Entry<Integer, Object> parameter : parameters.entrySet()) {
                 pstmt.setObject(parameter.getKey(), parameter.getValue());
             }
@@ -47,7 +53,8 @@ public final class JdbcTemplate {
     }
 
     public void update(String sql, Map<Integer, Object> parameters) {
-        try (PreparedStatement pstmt = ConnectionManager.getConnection().prepareStatement(sql)) {
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             for (Map.Entry<Integer, Object> parameter : parameters.entrySet()) {
                 pstmt.setObject(parameter.getKey(), parameter.getValue());
             }
