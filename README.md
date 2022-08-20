@@ -71,12 +71,12 @@
   - [x] Statement 객체를 닫는다
   - [x] ResultSet 객체를 닫는다
 - [ ] JdbcTemplate (라이브러리)
-  - [ ] SQLException은 RuntimeException으로 변환
-  - [ ] insert, update, delete
-    - [ ] 개발자는 `SQL 문`, `SQL문에 전달한 인자` 2가지 인자만 전달할 수 있는 메서드 제공
-    - [ ] Connection, Statement 생성 및 close
+  - [x] SQLException은 RuntimeException으로 변환
+  - [x] execute (insert, update, delete)
+    - [x] 개발자는 `SQL 문`, `SQL문에 전달한 인자` 2가지 인자만 전달할 수 있는 메서드 제공
+    - [x] Connection, Statement 생성 및 close
     - [ ] 트랜잭션 시작 및 종료
-    - [ ] SQL 문에 인자를 맵핑
+    - [x] SQL 문에 인자를 맵핑
   - [ ] select
     - [ ] 개발자는 `SQL 문`, `SQL문에 전달한 인자`, `SELECT 결과 추출` 3가지 인자만 전달할 수 있는 메서드 제공
     - [ ] Connection, Statement, ResultSet 생성 및 close
