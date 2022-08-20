@@ -52,17 +52,15 @@ public class JdbcTemplate {
 
             return results;
         }, arguments);
-
-
     }
 
-    private <T> T query(final String sql, final QuerySupplier<T> function, final Object... arguments) {
+    private <T> T query(final String sql, final QuerySupplier<T> supplier, final Object... arguments) {
         initPreparedStatement(sql, arguments);
 
         try {
             connection.setReadOnly(true);
 
-            return function.get();
+            return supplier.get();
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         } finally {
