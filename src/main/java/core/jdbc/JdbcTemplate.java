@@ -32,30 +32,18 @@ public class JdbcTemplate {
     }
 
     public <T> Optional<T> queryForObject(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
-        initPreparedStatement(sql, arguments);
-
-        try {
-            connection.setReadOnly(true);
-
+        return query(sql, () -> {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return Optional.of(function.apply(resultSet));
             }
 
             return Optional.empty();
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        } finally {
-            DataSourceUtils.release(connection, preparedStatement, resultSet);
-        }
+        }, arguments);
     }
 
     public <T> List<T> queryForList(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
-        initPreparedStatement(sql, arguments);
-
-        try {
-            connection.setReadOnly(true);
-
+        return query(sql, () -> {
             resultSet = preparedStatement.executeQuery();
             List<T> results = new ArrayList<>();
             while (resultSet.next()) {
@@ -63,6 +51,18 @@ public class JdbcTemplate {
             }
 
             return results;
+        }, arguments);
+
+
+    }
+
+    private <T> T query(final String sql, final QuerySupplier<T> function, final Object... arguments) {
+        initPreparedStatement(sql, arguments);
+
+        try {
+            connection.setReadOnly(true);
+
+            return function.get();
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         } finally {
