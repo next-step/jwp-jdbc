@@ -66,6 +66,10 @@
 - [x] UserDao 기능 구현 (UserDaoTest 성공 확인)
   - [x] update
   - [x] findAll
+- [x] DataSourceUtils
+  - [x] Connection 객체를 닫는다 (쓰레드 풀에 반환한다)
+  - [x] Statement 객체를 닫는다
+  - [x] ResultSet 객체를 닫는다
 - [ ] JdbcTemplate (라이브러리)
   - [ ] SQLException은 RuntimeException으로 변환
   - [ ] insert, update, delete
