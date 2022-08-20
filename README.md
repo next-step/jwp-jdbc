@@ -66,7 +66,7 @@
 - [x] UserDao 기능 구현 (UserDaoTest 성공 확인)
   - [x] update
   - [x] findAll
-- [ ] 리팩토링 (JdbcTemplate)
+- [ ] JdbcTemplate (라이브러리)
   - [ ] SQLException은 RuntimeException으로 변환
   - [ ] insert, update, delete
     - [ ] 개발자는 `SQL 문`, `SQL문에 전달한 인자` 2가지 인자만 전달할 수 있는 메서드 제공
@@ -77,4 +77,5 @@
     - [ ] 개발자는 `SQL 문`, `SQL문에 전달한 인자`, `SELECT 결과 추출` 3가지 인자만 전달할 수 있는 메서드 제공
     - [ ] Connection, Statement, ResultSet 생성 및 close
     - [ ] SQL 문에 인자를 맵핑
-
+- [ ] 리팩토링
+  - [ ] UserDao에서 JdbcTemplate을 사용하도록 변경  
