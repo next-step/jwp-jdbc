@@ -1,8 +1,6 @@
 package core.mvc.tobe.support.converter;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
 
@@ -10,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-public class Jackson2HttpMessageConverter implements HttpMessageConverter<Object> {
+public class Jackson2HttpMessageConverter implements HttpMessageConverter {
 
     private static final Jackson2HttpMessageConverter INSTANCE = new Jackson2HttpMessageConverter();
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = new ObjectMapper();
@@ -28,10 +26,7 @@ public class Jackson2HttpMessageConverter implements HttpMessageConverter<Object
 
     @Override
     public boolean canRead(Class<?> clazz, MediaType mediaType) {
-        if (!isSupportedMediaType(mediaType)) {
-            return false;
-        }
-        return DEFAULT_OBJECT_MAPPER.canDeserialize(javaType(clazz));
+        return isSupportedMediaType(mediaType);
     }
 
     @Override
@@ -42,10 +37,6 @@ public class Jackson2HttpMessageConverter implements HttpMessageConverter<Object
         } catch (IOException e) {
             throw new IllegalStateException("could not read request message", e);
         }
-    }
-
-    private JavaType javaType(Class<?> clazz) {
-        return DEFAULT_OBJECT_MAPPER.constructType(GenericTypeResolver.resolveType(clazz, (Class<?>) null));
     }
 
     private boolean isSupportedMediaType(MediaType mediaType) {

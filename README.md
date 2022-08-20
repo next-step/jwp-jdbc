@@ -19,3 +19,8 @@
 - `Java Object`를 `JSON` 데이터로 변환하는 `View` 인터페이스 구현체 추가
   - 응답 시, `ContentType`은 `MediaType.APPLICATION_JSON_UTF8_VALUE`
   - `Map`에 담긴 model 데이터가 1개면 value 값, 2개 이상이면 JSON으로 변환
+
+
+## 2단계 - JDBC 라이브러리 구현
+
+`next.dao.UserDaoTest` 클래스를 활용하여 `UserDao` 대한 리팩토링 실습 진행

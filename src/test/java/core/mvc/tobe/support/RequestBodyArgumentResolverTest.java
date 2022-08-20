@@ -19,28 +19,28 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("요청 바디 인자 가져오기")
-class RequestResponseBodyMethodProcessorTest {
+class RequestBodyArgumentResolverTest {
 
-    private static final List<HttpMessageConverter<?>> JACKSON_CONVERTERS = List.of(Jackson2HttpMessageConverter.instance());
+    private static final List<HttpMessageConverter> JACKSON_CONVERTERS = List.of(Jackson2HttpMessageConverter.instance());
 
     @Test
     @DisplayName("변환기들로 생성")
     void instance() {
         assertThatNoException()
-                .isThrownBy(() -> RequestResponseBodyMethodProcessor.from(JACKSON_CONVERTERS));
+                .isThrownBy(() -> RequestBodyArgumentResolver.from(JACKSON_CONVERTERS));
     }
 
     @Test
     @DisplayName("리스트는 필수")
     void instance_null_thrownIllegalArgumentException() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> RequestResponseBodyMethodProcessor.from(null));
+                .isThrownBy(() -> RequestBodyArgumentResolver.from(null));
     }
 
     @Test
     @DisplayName("requestBody 애노테이션이 있으면 지원")
     void supports() throws NoSuchMethodException {
-        RequestResponseBodyMethodProcessor.from(JACKSON_CONVERTERS).supports(dtoParameterMethodWithRequestBodyMethodParameter());
+        RequestBodyArgumentResolver.defaults().supports(dtoParameterMethodWithRequestBodyMethodParameter());
     }
 
     @Test
@@ -54,7 +54,7 @@ class RequestResponseBodyMethodProcessorTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         request.setContent(String.format("{\"userId\":\"%s\",\"password\":\"%s\", \"name\":\"%s\", \"email\":\"%s\"}", id, password, name, email).getBytes());
-        RequestResponseBodyMethodProcessor jacksonMethodProcessor = RequestResponseBodyMethodProcessor.from(JACKSON_CONVERTERS);
+        RequestBodyArgumentResolver jacksonMethodProcessor = RequestBodyArgumentResolver.defaults();
         //when
         Object result = jacksonMethodProcessor.resolveArgument(dtoParameterMethodWithRequestBodyMethodParameter(), request, new MockHttpServletResponse());
         //then
@@ -62,7 +62,7 @@ class RequestResponseBodyMethodProcessorTest {
     }
 
     private MethodParameter dtoParameterMethodWithRequestBodyMethodParameter() throws NoSuchMethodException {
-        Method method = RequestResponseBodyMethodProcessorTest.class
+        Method method = RequestBodyArgumentResolverTest.class
                 .getDeclaredMethod("dtoParameterMethodWithRequestBody", UserCreatedDto.class);
         Parameter parameter = method.getParameters()[0];
         return new MethodParameter(method, parameter.getType(), parameter.getAnnotations(), "dto");
