@@ -78,9 +78,10 @@
     - [ ] 트랜잭션 시작 및 종료
     - [x] SQL 문에 인자를 맵핑
   - [ ] select
-    - [ ] 개발자는 `SQL 문`, `SQL문에 전달한 인자`, `SELECT 결과 추출` 3가지 인자만 전달할 수 있는 메서드 제공
-    - [ ] Connection, Statement, ResultSet 생성 및 close
-    - [ ] SQL 문에 인자를 맵핑
+    - [x] 개발자는 `SQL 문`, `SQL문에 전달한 인자`, `SELECT 결과 추출` 3가지 인자만 전달할 수 있는 메서드 제공
+    - [x] Connection, Statement, ResultSet 생성 및 close
+    - [x] SQL 문에 인자를 맵핑
+    - [ ] List 반환 
 - [ ] 리팩토링
   - [ ] UserDao에서 JdbcTemplate을 사용하도록 변경  
     - [x] insert, udpate 

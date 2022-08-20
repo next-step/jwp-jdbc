@@ -3,18 +3,19 @@ package core.jdbc;
 import core.jdbc.exception.JdbcTemplateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class JdbcTemplate {
 
-    public int execute(final String insertSql, final Object... arguments) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = ConnectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(insertSql);
+    private Connection connection;
+    private PreparedStatement preparedStatement;
+    private ResultSet resultSet;
 
-            setArguments(preparedStatement, arguments);
+    public int execute(final String sql, final Object... arguments) {
+        initPreparedStatement(sql, arguments);
+        try {
 
             return preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -24,7 +25,34 @@ public class JdbcTemplate {
         }
     }
 
-    private static void setArguments(final PreparedStatement preparedStatement, final Object[] arguments) throws SQLException {
+    public <T> Optional<T> queryForObject(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
+        initPreparedStatement(sql, arguments);
+
+        try {
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(function.apply(resultSet));
+            }
+
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        } finally {
+            DataSourceUtils.release(connection, preparedStatement, resultSet);
+        }
+    }
+
+    private void initPreparedStatement(final String sql, final Object[] arguments) {
+        try {
+            connection = ConnectionManager.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            setArguments(preparedStatement, arguments);
+        } catch (SQLException e) {
+            throw new JdbcTemplateException(e);
+        }
+    }
+
+    private void setArguments(final PreparedStatement preparedStatement, final Object[] arguments) throws SQLException {
         for (int i = 0; i < arguments.length; i++) {
             preparedStatement.setObject((i+1), arguments[i]);
         }
