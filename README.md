@@ -64,7 +64,7 @@
 
 ### 기능 목록
 - [ ] UserDao 기능 구현 (UserDaoTest 성공 확인)
-  - [ ] update
+  - [x] update
   - [ ] findAll
 - [ ] 리팩토링 (JdbcTemplate)
   - [ ] SQLException은 RuntimeException으로 변환
