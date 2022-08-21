@@ -45,6 +45,7 @@ dependencies {
 
     runtimeOnly 'com.h2database:h2:2.1.212'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
+    testImplementation "org.mockito:mockito-core:3.+"
     testImplementation 'org.assertj:assertj-core:3.22.0'
     testImplementation 'io.projectreactor.netty:reactor-netty-http:1.0.19'
     testImplementation "org.springframework:spring-test:${springVersion}"

@@ -18,13 +18,9 @@ final class QueryArgumentParser {
     private String questionSymbolArgumentsSql;
     private Map<Integer, String> argumentKeys;
 
-    private QueryArgumentParser(String sql) {
+    QueryArgumentParser(String sql) {
         Assert.hasText(sql, "'sql' must not be blank");
         this.sql = sql;
-    }
-
-    static QueryArgumentParser from(String sql) {
-        return new QueryArgumentParser(sql);
     }
 
     String questionSymbolArgumentsSql() {

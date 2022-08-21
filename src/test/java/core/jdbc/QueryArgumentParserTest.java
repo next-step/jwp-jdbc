@@ -15,14 +15,14 @@ class QueryArgumentParserTest {
     @DisplayName("문자열로 생성")
     void instance() {
         assertThatNoException()
-                .isThrownBy(() -> QueryArgumentParser.from("SELECT * from User"));
+                .isThrownBy(() -> new QueryArgumentParser("SELECT * from User"));
     }
 
     @Test
     @DisplayName("#{?} 형태의 인자 패턴을 ? 문자로 변경")
     void questionSymbolArgumentsSql() {
         //given
-        QueryArgumentParser selectUser = QueryArgumentParser.from("SELECT * from User where userId = #{userId}, password = #{password}");
+        QueryArgumentParser selectUser = new QueryArgumentParser("SELECT * from User where userId = #{userId}, password = #{password}");
         //when
         String sql = selectUser.questionSymbolArgumentsSql();
         //then
@@ -35,7 +35,7 @@ class QueryArgumentParserTest {
         //given
         String selectUserSql = "SELECT * from User";
         //when
-        String questionSymbolArgumentsSql = QueryArgumentParser.from(selectUserSql).questionSymbolArgumentsSql();
+        String questionSymbolArgumentsSql = new QueryArgumentParser(selectUserSql).questionSymbolArgumentsSql();
         //then
         assertThat(questionSymbolArgumentsSql).isEqualTo(selectUserSql);
     }
@@ -46,7 +46,7 @@ class QueryArgumentParserTest {
         //given
         int userId = 1;
         String password = "password";
-        QueryArgumentParser selectUser = QueryArgumentParser.from("SELECT * from User where userId = #{userId}, password = #{password}");
+        QueryArgumentParser selectUser = new QueryArgumentParser("SELECT * from User where userId = #{userId}, password = #{password}");
         //when
         Map<Integer, Object> arguments = selectUser.arguments(Map.of("userId", userId, "password", password));
         //then

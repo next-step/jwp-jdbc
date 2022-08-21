@@ -44,12 +44,10 @@ public final class JdbcTemplate {
     }
 
     public <T> List<T> query(String sql, Class<T> type, Map<String, Object> parameters) {
-        QueryArgumentParser argumentParser = QueryArgumentParser.from(sql);
+        QueryArgumentParser argumentParser = new QueryArgumentParser(sql);
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(argumentParser.questionSymbolArgumentsSql())) {
-            for (Map.Entry<Integer, Object> parameter : argumentParser.arguments(parameters).entrySet()) {
-                pstmt.setObject(parameter.getKey(), parameter.getValue());
-            }
+            bindVariable(pstmt, argumentParser.arguments(parameters));
             return extractResults(pstmt, new RowMapper<>(type));
         } catch (SQLException e) {
             throw new DataAccessException(String.format("query sql can not be executed(sql: %s, parameters: %s)", sql, parameters), e);
@@ -57,15 +55,19 @@ public final class JdbcTemplate {
     }
 
     public void update(String sql, Map<String, Object> parameters) {
-        QueryArgumentParser argumentParser = QueryArgumentParser.from(sql);
+        QueryArgumentParser argumentParser = new QueryArgumentParser(sql);
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(argumentParser.questionSymbolArgumentsSql())) {
-            for (Map.Entry<Integer, Object> parameter : argumentParser.arguments(parameters).entrySet()) {
-                pstmt.setObject(parameter.getKey(), parameter.getValue());
-            }
+            bindVariable(pstmt, argumentParser.arguments(parameters));
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException(String.format("update sql can not be executed(sql: %s, parameters: %s)", sql, parameters), e);
+        }
+    }
+
+    private void bindVariable(PreparedStatement pstmt, Map<Integer, Object> parameters) throws SQLException {
+        for (Map.Entry<Integer, Object> parameter : parameters.entrySet()) {
+            pstmt.setObject(parameter.getKey(), parameter.getValue());
         }
     }
 
