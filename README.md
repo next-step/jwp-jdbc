@@ -86,3 +86,20 @@
   - [x] UserDao에서 JdbcTemplate을 사용하도록 변경  
     - [x] insert, udpate 
     - [x] select 
+
+### 2단계 피드백
+- [ ] (1단계) RequestBodyArgumentResolver를 AbstractModelArgumentResolver 상속 받지 않도록 변경
+  - [ ] 객체 맵핑에 대한 코드를 재사용하고자 상속을 했는데, 재사용을 위한 코드를 별도의 유틸로 분리하면 상속을 하지 않고 구현 가능 
+- [ ] (1단계) RequestParameterUtils에서 ThreadLocal 제거
+  - 상속 구조가 아닌 독립적인 객체 RequestBodyArgumentResolver로 구현하면 ThreadLocal이 필요 없다?
+  - Controller에서 RequestBody 애너테이션이 여러 파라미터에 적용된 경우는 어떻게?   
+- [ ] try-catch-resources 사용 (close 에 대한 검증이 보장된다는 가정)
+  - [ ] DatasourceUtils의 필요성이 없어짐
+- [ ] sql의 인자를 맵핑하는 객체 도출
+  - [ ] 인자의 순서와 인자를 가지는 객체 
+  - [ ] 인자의 타입을 확인하고 해당 타입으로 형 변환
+  - [ ] PreparedStatement에 인자를 추가 할 때 타입에 맞는 메서드로 맵핑 
+- [ ] RowMapperFunction 테스트 코드 추가 
+  - FunctionalInterface 테스트..? 
+- [ ] JdbcTemplateTest에 DELETE DML 테스트 코드 추가
+  - 요구사항에 fit하게 맞추기 보다 라이브러리를 만든다는 마인드!! 학습 목적!! 
