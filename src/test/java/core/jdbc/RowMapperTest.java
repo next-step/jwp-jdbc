@@ -25,14 +25,14 @@ class RowMapperTest {
     @DisplayName("결과 값으로 매핑")
     void map() throws SQLException {
         //given
-        ResultSet resultSet = mock(ResultSet.class);
         String userId = "userId";
-        when(resultSet.getObject("userId")).thenReturn(userId);
         String password = "password";
-        when(resultSet.getObject("password")).thenReturn(password);
         String name = "name";
-        when(resultSet.getObject("name")).thenReturn(name);
         String email = "email@email";
+        ResultSet resultSet = mock(ResultSet.class);
+        when(resultSet.getObject("userId")).thenReturn(userId);
+        when(resultSet.getObject("password")).thenReturn(password);
+        when(resultSet.getObject("name")).thenReturn(name);
         when(resultSet.getObject("email")).thenReturn(email);
         //when
         User user = new RowMapper<>(User.class).map(resultSet);
