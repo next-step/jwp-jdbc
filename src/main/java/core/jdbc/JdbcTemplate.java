@@ -15,7 +15,7 @@ import java.util.Optional;
 public final class JdbcTemplate {
 
     private static final JdbcTemplate INSTANCE = new JdbcTemplate();
-    private static final Map<Integer, Object> EMPTY_PARAMETERS = Map.of();
+    private static final Map<String, Object> EMPTY_PARAMETERS = Map.of();
 
     private JdbcTemplate() {
         if (INSTANCE != null) {
@@ -31,7 +31,7 @@ public final class JdbcTemplate {
         return queryForObject(sql, type, EMPTY_PARAMETERS);
     }
 
-    public <T> Optional<T> queryForObject(String sql, Class<T> type, Map<Integer, Object> parameters) {
+    public <T> Optional<T> queryForObject(String sql, Class<T> type, Map<String, Object> parameters) {
         List<T> results = query(sql, type, parameters);
         if (results.size() > 1) {
             throw new NonUniqueResultException(String.format("query did not return a unique result: %d", results.size()));
@@ -43,10 +43,11 @@ public final class JdbcTemplate {
         return query(sql, type, EMPTY_PARAMETERS);
     }
 
-    public <T> List<T> query(String sql, Class<T> type, Map<Integer, Object> parameters) {
+    public <T> List<T> query(String sql, Class<T> type, Map<String, Object> parameters) {
+        QueryArgumentParser argumentParser = QueryArgumentParser.from(sql);
         try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            for (Map.Entry<Integer, Object> parameter : parameters.entrySet()) {
+             PreparedStatement pstmt = conn.prepareStatement(argumentParser.questionSymbolArgumentsSql())) {
+            for (Map.Entry<Integer, Object> parameter : argumentParser.arguments(parameters).entrySet()) {
                 pstmt.setObject(parameter.getKey(), parameter.getValue());
             }
             return extractResults(pstmt, new RowMapper<>(type));
@@ -55,10 +56,11 @@ public final class JdbcTemplate {
         }
     }
 
-    public void update(String sql, Map<Integer, Object> parameters) {
+    public void update(String sql, Map<String, Object> parameters) {
+        QueryArgumentParser argumentParser = QueryArgumentParser.from(sql);
         try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            for (Map.Entry<Integer, Object> parameter : parameters.entrySet()) {
+             PreparedStatement pstmt = conn.prepareStatement(argumentParser.questionSymbolArgumentsSql())) {
+            for (Map.Entry<Integer, Object> parameter : argumentParser.arguments(parameters).entrySet()) {
                 pstmt.setObject(parameter.getKey(), parameter.getValue());
             }
             pstmt.executeUpdate();

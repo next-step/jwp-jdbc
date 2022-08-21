@@ -11,20 +11,20 @@ public class UserDao {
     private static final JdbcTemplate jdbcTemplate = JdbcTemplate.instance();
 
     public void insert(User user) {
-        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)", Map.of(
-                1, user.getUserId(),
-                2, user.getPassword(),
-                3, user.getName(),
-                4, user.getEmail()
+        jdbcTemplate.update("INSERT INTO USERS VALUES (#{userId}, #{password}, #{name}, #{email})", Map.of(
+                "userId", user.getUserId(),
+                "password", user.getPassword(),
+                "name", user.getName(),
+                "email", user.getEmail()
         ));
     }
 
     public void update(User user) {
-        jdbcTemplate.update("UPDATE USERS SET password=?, name=?, email=? WHERE userId=?", Map.of(
-                1, user.getPassword(),
-                2, user.getName(),
-                3, user.getEmail(),
-                4, user.getUserId()
+        jdbcTemplate.update("UPDATE USERS SET password=#{password}, name=#{name}, email=#{email} WHERE userId=#{userId}", Map.of(
+                "password", user.getPassword(),
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "userId", user.getUserId()
         ));
     }
 
@@ -34,9 +34,9 @@ public class UserDao {
 
     public User findByUserId(String userId) {
         return jdbcTemplate.queryForObject(
-                "SELECT userId, password, name, email FROM USERS WHERE userid=?",
+                "SELECT userId, password, name, email FROM USERS WHERE userid=#{userId}",
                 User.class,
-                Map.of(1, userId)
+                Map.of("userId", userId)
         ).orElse(null);
     }
 }
