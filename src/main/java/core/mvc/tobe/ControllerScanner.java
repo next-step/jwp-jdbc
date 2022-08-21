@@ -28,6 +28,7 @@ public class ControllerScanner {
                 new HttpRequestArgumentResolver(),
                 new HttpResponseArgumentResolver(),
                 new RequestParamArgumentResolver(),
+                new RequestBodyArgumentResolver(),
                 new PathVariableArgumentResolver(),
                 new ModelArgumentResolver()
         );

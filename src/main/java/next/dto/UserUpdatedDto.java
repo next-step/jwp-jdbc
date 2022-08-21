@@ -1,5 +1,7 @@
 package next.dto;
 
+import next.model.User;
+
 public class UserUpdatedDto {
     private String name;
     private String email;
