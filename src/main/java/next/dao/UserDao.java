@@ -25,21 +25,20 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        RowMapper rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
+        RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
         String sql = "SELECT userId, password, name, email FROM USERS";
 
-        List<Object> objects = jdbcTemplate.selectAll(sql, rowMapper);
-        return objects.stream().map(o -> (User) o).collect(Collectors.toList());
+        return jdbcTemplate.selectAll(sql, rowMapper);
     }
 
     public User findByUserId(String userId) throws SQLException {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        RowMapper rowMapper = rs -> new User(rs.getString("userId"),
+        RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"),
                                      rs.getString("password"),
                                      rs.getString("name"),
                                      rs.getString("email"));
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
 
-        return (User) jdbcTemplate.selectOne(sql, rowMapper, userId);
+        return jdbcTemplate.selectOne(sql, rowMapper, userId);
     }
 }

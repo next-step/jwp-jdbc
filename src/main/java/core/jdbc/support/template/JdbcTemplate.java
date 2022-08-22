@@ -18,11 +18,11 @@ public class JdbcTemplate {
 	public void insert(String sql, Object... parameters) throws SQLException {
 		executeUpdateQuery(sql, parameters);
 	}
-	public Object selectOne(String sql, RowMapper rm, Object... parameters) throws SQLException {
+	public <T> T selectOne(String sql, RowMapper<T> rm, Object... parameters) throws SQLException {
 		return executeSelectOneQuery(sql, rm, parameters);
 	}
 
-	public List<Object> selectAll(String sql, RowMapper rm) throws SQLException {
+	public <T> List<T> selectAll(String sql, RowMapper<T> rm) throws SQLException {
 		return executeSelectAllQuery(sql, rm);
 	}
 
@@ -45,7 +45,7 @@ public class JdbcTemplate {
 		}
 	}
 
-	private List<Object> executeSelectAllQuery(String sql, RowMapper rm, Object... parameters) throws SQLException {
+	private <T> List<T> executeSelectAllQuery(String sql, RowMapper<T> rm, Object... parameters) throws SQLException {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs;
@@ -56,7 +56,7 @@ public class JdbcTemplate {
 			setParameters(pstmt, parameters);
 			rs = pstmt.executeQuery();
 
-			List<Object> list = new ArrayList<>();
+			List<T> list = new ArrayList<T>();
 			while (rs.next()) {
 				list.add(rm.mapRow(rs));
 			}
@@ -73,8 +73,8 @@ public class JdbcTemplate {
 		}
 	}
 
-	private Object executeSelectOneQuery(String sql, RowMapper rm, Object... parameters) throws SQLException {
-		List<Object> list = executeSelectAllQuery(sql, rm, parameters);
+	private <T> T executeSelectOneQuery(String sql, RowMapper<T> rm, Object... parameters) throws SQLException {
+		List<T> list = executeSelectAllQuery(sql, rm, parameters);
 		if (list.isEmpty()) {
 			return null;
 		}
