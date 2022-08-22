@@ -9,16 +9,30 @@ import java.util.List;
 
 import core.jdbc.ConnectionManager;
 
-public abstract class JdbcTemplate {
+public class JdbcTemplate {
 
-	public void executeQuery(String sql) throws SQLException {
+	public void update(String sql, Object... parameters) throws SQLException {
+		executeUpdateQuery(sql, parameters);
+	}
+
+	public void insert(String sql, Object... parameters) throws SQLException {
+		executeUpdateQuery(sql, parameters);
+	}
+	public Object selectOne(String sql, RowMapper rm, Object... parameters) throws SQLException {
+		return executeSelectOneQuery(sql, rm, parameters);
+	}
+
+	public List<Object> selectAll(String sql, RowMapper rm) throws SQLException {
+		return executeSelectAllQuery(sql, rm);
+	}
+
+	private void executeUpdateQuery(String sql, Object... parameters) throws SQLException {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		try {
 			con = ConnectionManager.getConnection();
 			pstmt = con.prepareStatement(sql);
-
-			setParameters(pstmt);
+			setParameters(pstmt, parameters);
 			pstmt.execute();
 		} finally {
 			if (pstmt != null) {
@@ -31,47 +45,20 @@ public abstract class JdbcTemplate {
 		}
 	}
 
-	public Object executeSelectQuery(String sql) throws SQLException {
+	private List<Object> executeSelectAllQuery(String sql, RowMapper rm, Object... parameters) throws SQLException {
 		Connection con = null;
 		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		ResultSet rs;
 		try {
 			con = ConnectionManager.getConnection();
 			pstmt = con.prepareStatement(sql);
 
-			setParameters(pstmt);
-			rs = pstmt.executeQuery();
-
-			if (!rs.next()) {
-				return null;
-			}
-
-			return mapRow(rs);
-		} finally {
-			if (pstmt != null) {
-				pstmt.close();
-			}
-
-			if (con != null) {
-				con.close();
-			}
-		}
-	}
-
-	public List<Object> executeSelectAllQuery(String sql) throws SQLException {
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try {
-			con = ConnectionManager.getConnection();
-			pstmt = con.prepareStatement(sql);
-
-			setParameters(pstmt);
+			setParameters(pstmt, parameters);
 			rs = pstmt.executeQuery();
 
 			List<Object> list = new ArrayList<>();
 			while (rs.next()) {
-				list.add(mapRow(rs));
+				list.add(rm.mapRow(rs));
 			}
 
 			return list;
@@ -86,6 +73,17 @@ public abstract class JdbcTemplate {
 		}
 	}
 
-	public abstract void setParameters(PreparedStatement pstmt) throws SQLException;
-	public abstract Object mapRow(ResultSet rs) throws SQLException;
+	private Object executeSelectOneQuery(String sql, RowMapper rm, Object... parameters) throws SQLException {
+		List<Object> list = executeSelectAllQuery(sql, rm, parameters);
+		if (list.isEmpty()) {
+			return null;
+		}
+		return list.get(0);
+	}
+
+	private void setParameters(PreparedStatement pstmt, Object... parameters) throws SQLException {
+		for (int i=0; i<parameters.length; i++) {
+			pstmt.setString(i + 1, (String) parameters[i]);
+		}
+	}
 }
