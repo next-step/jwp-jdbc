@@ -1,29 +1,27 @@
 package next.dao;
 
-import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import core.jdbc.support.template.JdbcTemplate;
 import core.jdbc.support.template.RowMapper;
 import next.model.User;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
         jdbcTemplate.insert(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
 
         jdbcTemplate.update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
         String sql = "SELECT userId, password, name, email FROM USERS";
@@ -31,7 +29,7 @@ public class UserDao {
         return jdbcTemplate.selectAll(sql, rowMapper);
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         RowMapper<User> rowMapper = rs -> new User(rs.getString("userId"),
                                      rs.getString("password"),
