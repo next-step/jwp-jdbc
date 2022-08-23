@@ -87,7 +87,9 @@
     - [x] insert, udpate 
     - [x] select 
 
-### 2단계 피드백
+# 🚀 3단계 - JDBC 라이브러리 구현(힌트)
+
+### 2단계 피드백 및 3단계 기능 목록 
 - [x] (1단계) RequestBodyArgumentResolver를 AbstractModelArgumentResolver 상속 받지 않도록 변경
   - [x] 객체 맵핑에 대한 코드를 재사용하고자 상속을 했는데, 재사용을 위한 코드를 별도의 유틸로 분리하면 상속을 하지 않고 구현 가능 
 - [x] (1단계) RequestParameterUtils에서 ThreadLocal 제거
@@ -108,5 +110,5 @@
   - [x] 인자의 타입을 확인하고 해당 타입으로 형 변환
   - [x] PreparedStatement에 인자를 추가 할 때 타입에 맞는 메서드로 맵핑 
 - [x] RowMapperFunction 테스트 코드 추가 
-- [ ] JdbcTemplateTest에 DELETE DML 테스트 코드 추가
+- [x] JdbcTemplateTest에 DELETE DML 테스트 코드 추가
   - 요구사항에 fit하게 맞추기 보다 라이브러리를 만든다는 마인드!! 학습 목적!! 
