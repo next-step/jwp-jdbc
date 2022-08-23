@@ -16,18 +16,19 @@ public class JdbcTemplate {
     private ResultSet resultSet;
 
     public int execute(final String sql, final Object... arguments) {
-        initPreparedStatement(sql, arguments);
+        try (
+            final Connection con = ConnectionManager.getConnection();
+            final Transaction transaction = new Transaction(con);
+            final PreparedStatement pstmt = con.prepareStatement(sql)
+        ) {
+            setArguments(pstmt, arguments);
 
-        try {
-            final int result = preparedStatement.executeUpdate();
-            connection.commit();
+            final int result = pstmt.executeUpdate();
+            transaction.commit();
 
             return result;
         } catch (SQLException e) {
-            DataSourceUtils.rollback(connection);
             throw new JdbcTemplateException(e);
-        } finally {
-            DataSourceUtils.release(connection, preparedStatement);
         }
     }
 
