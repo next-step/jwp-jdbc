@@ -45,16 +45,24 @@ public class JdbcTemplate {
     }
 
     public <T> Optional<T> queryForObject(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
+        return queryForObject(sql, function, getPreparedStatementSetter(arguments));
+    }
+
+    public <T> Optional<T> queryForObject(final String sql, final RowMapperFunction<T> function, final PreparedStatementSetter setter) {
         return query(sql, rs -> {
             if (rs.next()) {
                 return Optional.of(function.apply(rs));
             }
 
             return Optional.empty();
-        }, arguments);
+        }, setter);
     }
 
     public <T> List<T> queryForList(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
+        return queryForList(sql, function, getPreparedStatementSetter(arguments));
+    }
+
+    public <T> List<T> queryForList(final String sql, final RowMapperFunction<T> function, final PreparedStatementSetter setter) {
         return query(sql, rs -> {
             List<T> results = new ArrayList<>();
             while (rs.next()) {
@@ -62,11 +70,7 @@ public class JdbcTemplate {
             }
 
             return results;
-        }, arguments);
-    }
-
-    private <T> T query(final String sql, final QueryFunction<T> function, final Object... arguments) {
-        return query(sql, function, getPreparedStatementSetter(arguments));
+        }, setter);
     }
 
     private PreparedStatementSetter getPreparedStatementSetter(final Object[] arguments) {
