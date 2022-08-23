@@ -107,7 +107,6 @@
   - [x] 인자를 가지는 객체 
   - [x] 인자의 타입을 확인하고 해당 타입으로 형 변환
   - [x] PreparedStatement에 인자를 추가 할 때 타입에 맞는 메서드로 맵핑 
-- [ ] RowMapperFunction 테스트 코드 추가 
-  - FunctionalInterface 테스트..? 
+- [x] RowMapperFunction 테스트 코드 추가 
 - [ ] JdbcTemplateTest에 DELETE DML 테스트 코드 추가
   - 요구사항에 fit하게 맞추기 보다 라이브러리를 만든다는 마인드!! 학습 목적!! 
