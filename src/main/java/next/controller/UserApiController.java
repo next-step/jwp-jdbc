@@ -17,12 +17,11 @@ import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
 import next.service.UserService;
-import next.service.UserServiceImpl;
 
 @Controller
 public class UserApiController {
 	private static final Logger logger = LoggerFactory.getLogger(UserApiController.class);
-	private final UserService userService = new UserServiceImpl();
+	private final UserService userService = new UserService();
 
 	@RequestMapping(value = "/api/users", method = RequestMethod.POST)
 	public ModelAndView create(@RequestBody UserCreatedDto userCreatedDto, HttpServletResponse response) {
