@@ -11,31 +11,20 @@ import org.springframework.http.MediaType;
 
 public class JsonView implements View {
 
-    private static final Logger logger = LoggerFactory.getLogger(JsonView.class);
+    public static final String JSON_VIEW_PREFIX = "json:";
 
     private String location;
-    private HttpStatus httpStatus;
 
-    public JsonView(String location, HttpStatus httpStatus) {
+    public JsonView(String location) {
         if (location == null) {
             throw new NullPointerException("location is null.");
         }
         this.location = location;
-        this.httpStatus = httpStatus;
-    }
-
-    public JsonView(String location) {
-        this(location, HttpStatus.OK);
-    }
-
-    public JsonView() {
-        this("");
     }
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        response.setStatus(this.httpStatus.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setHeader("Location", this.location);
 
         if (model == null || model.isEmpty()) {

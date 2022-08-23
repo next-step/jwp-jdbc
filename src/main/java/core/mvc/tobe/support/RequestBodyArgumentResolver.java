@@ -21,6 +21,9 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
 
     @Override
     public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
+        RequestBody annotation = getAnnotation(methodParameter, RequestBody.class);
+        boolean required = annotation.required();
+
         StringBuilder sb = new StringBuilder();
         try {
             BufferedReader bufferedReader = request.getReader();
@@ -30,7 +33,14 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
                 sb.append(charBuffer, 0, bytesRead);
             }
 
+            String requestBodyString = sb.toString();
+
+            if (required && requestBodyString.isEmpty()) {
+                throw new IllegalArgumentException("RequestBody 필수");
+            }
+
             return JsonUtils.toObject(sb.toString(), methodParameter.getType());
+
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

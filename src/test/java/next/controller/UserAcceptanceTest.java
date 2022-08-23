@@ -49,6 +49,7 @@ class UserAcceptanceTest {
         assertThat(actual.getUserId()).isEqualTo(expected.getUserId());
         assertThat(actual.getName()).isEqualTo(expected.getName());
         assertThat(actual.getEmail()).isEqualTo(expected.getEmail());
+        logger.debug("actual user: {}", actual);
 
         // 수정
         UserUpdatedDto updateUser = new UserUpdatedDto("코난", "conan@nextstep.camp");
@@ -70,6 +71,7 @@ class UserAcceptanceTest {
 
         assertThat(actual.getName()).isEqualTo(updateUser.getName());
         assertThat(actual.getEmail()).isEqualTo(updateUser.getEmail());
+        logger.debug("update user: {}", updateUser);
     }
 
     private WebTestClient client() {
