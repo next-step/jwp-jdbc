@@ -12,6 +12,13 @@ import core.jdbc.support.exception.DataAccessException;
 
 public class JdbcTemplate {
 
+	private JdbcTemplate() {
+	}
+
+	public static JdbcTemplate getInstance() {
+		return new JdbcTemplate();
+	}
+
 	public void update(String sql, Object... parameters) throws DataAccessException {
 		executeUpdateQuery(sql, parameters);
 	}
