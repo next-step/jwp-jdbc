@@ -11,19 +11,16 @@ import java.util.Optional;
 
 public class JdbcTemplate {
 
-    private Connection connection;
-    private PreparedStatement preparedStatement;
-    private ResultSet resultSet;
-
     public int execute(final String sql, final Object... arguments) {
+        final PreparedStatementCreator preparedStatementCreator = new DefaultPreparedStatementCreator(sql, arguments);
+
         try (
             final Connection con = ConnectionManager.getConnection();
             final Transaction transaction = new Transaction(con);
-            final PreparedStatement pstmt = con.prepareStatement(sql)
+            final PreparedStatement preparedStatement = preparedStatementCreator.createPreparedStatement(con)
         ) {
-            setArguments(pstmt, arguments);
 
-            final int result = pstmt.executeUpdate();
+            final int result = preparedStatement.executeUpdate();
             transaction.commit();
 
             return result;
@@ -33,10 +30,9 @@ public class JdbcTemplate {
     }
 
     public <T> Optional<T> queryForObject(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
-        return query(sql, () -> {
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return Optional.of(function.apply(resultSet));
+        return query(sql, rs -> {
+            if (rs.next()) {
+                return Optional.of(function.apply(rs));
             }
 
             return Optional.empty();
@@ -44,45 +40,29 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> queryForList(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
-        return query(sql, () -> {
-            resultSet = preparedStatement.executeQuery();
+        return query(sql, rs -> {
             List<T> results = new ArrayList<>();
-            while (resultSet.next()) {
-                results.add(function.apply(resultSet));
+            while (rs.next()) {
+                results.add(function.apply(rs));
             }
 
             return results;
         }, arguments);
     }
 
-    private <T> T query(final String sql, final QuerySupplier<T> supplier, final Object... arguments) {
-        initPreparedStatement(sql, arguments);
+    private <T> T query(final String sql, final QueryFunction<T> function, final Object... arguments) {
+        final PreparedStatementCreator preparedStatementCreator = new DefaultPreparedStatementCreator(sql, arguments);
 
-        try {
-            connection.setReadOnly(true);
+        try (
+            final Connection con = ConnectionManager.getConnection();
+            final PreparedStatement preparedStatement = preparedStatementCreator.createPreparedStatement(con);
+            final ResultSet rs = preparedStatement.executeQuery()
+        ) {
+            con.setReadOnly(true);
 
-            return supplier.get();
+            return function.apply(rs);
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
-        } finally {
-            DataSourceUtils.release(connection, preparedStatement, resultSet);
-        }
-    }
-
-    private void initPreparedStatement(final String sql, final Object[] arguments) {
-        try {
-            connection = ConnectionManager.getConnection();
-            connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(sql);
-            setArguments(preparedStatement, arguments);
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        }
-    }
-
-    private void setArguments(final PreparedStatement preparedStatement, final Object[] arguments) throws SQLException {
-        for (int i = 0; i < arguments.length; i++) {
-            preparedStatement.setObject((i + 1), arguments[i]);
         }
     }
 }
