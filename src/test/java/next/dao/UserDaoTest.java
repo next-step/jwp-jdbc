@@ -25,7 +25,7 @@ class UserDaoTest {
 
     @Test
     @DisplayName("유저 생성, 조회, 수정")
-    void crud()  {
+    void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
         userDao.insert(expected);
@@ -40,7 +40,7 @@ class UserDaoTest {
 
     @Test
     @DisplayName("전체 유저 조회")
-    void findAll()  {
+    void findAll() {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
