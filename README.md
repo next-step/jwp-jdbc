@@ -96,9 +96,12 @@
   - [x] HttpServletRequest의 Reader 객체를 얻어 mark(), reset() 활용 
     - HttpServletRequest의 Reader를 재사용해야 하다 보니 `close`를 하지 못한다. 
     - 1회 파싱 후 close하고, 해당 데이터를 들고 다녀야 하는데 어느 시점에 어떻게 데이터를 파싱해서 들고 다녀야할까?
-- [ ] try-catch-resources 사용 (close 에 대한 검증이 보장된다는 가정)
-  - [ ] DatasourceUtils의 필요성이 없어짐
-- [ ] sql의 인자를 맵핑하는 객체 도출
+- [ ] JdbcTemplate 에서 try-catch-resources 사용 (close 에 대한 검증이 보장된다는 가정)
+  - [x] 트랜잭션 처리 
+    - [x] catch 절에서 rollback 불가 
+    - [x] AutoCloseable 활용한 커밋 여부에 따라 롤백   
+  - [ ] DatasourceUtils 의 필요성이 없어짐
+- [ ] sql 인자를 맵핑하는 객체 도출
   - [ ] 인자의 순서와 인자를 가지는 객체 
   - [ ] 인자의 타입을 확인하고 해당 타입으로 형 변환
   - [ ] PreparedStatement에 인자를 추가 할 때 타입에 맞는 메서드로 맵핑 
