@@ -55,11 +55,11 @@ public class JdbcTemplate {
         }
     }
 
-    public <T>T queryForObject(String sql, RowMapper<T> rowMapper, Object... parameters) throws DataAccessException {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... parameters) throws DataAccessException {
         return queryForObject(sql, rowMapper, createPreparedStatementSetter(parameters));
     }
 
-    public <T>T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) throws DataAccessException {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) throws DataAccessException {
         List<T> result = query(sql, rowMapper, pss);
         if (result.isEmpty()) {
             return null;
