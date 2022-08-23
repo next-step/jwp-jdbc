@@ -16,7 +16,7 @@ class JdbcTemplateTest extends TestDatabaseSetup {
     private static final String INSERT_SQL = "insert into users (userId, password, name, email) values (?, ?, ?, ?)";
     private static final String SELECT_SQL = "SELECT userId, password, name, email FROM USERS";
 
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private final JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
 
     @DisplayName("정상 쿼리 실행")
     @Test

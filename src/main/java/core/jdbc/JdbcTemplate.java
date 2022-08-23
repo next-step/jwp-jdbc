@@ -11,6 +11,13 @@ import java.util.Optional;
 
 public class JdbcTemplate {
 
+    private JdbcTemplate() {
+    }
+
+    public static JdbcTemplate getInstance() {
+        return JdbcTemplateHolder.INSTANCE;
+    }
+
     public int execute(final String sql, final Object... arguments) {
         final PreparedStatementCreator preparedStatementCreator = new DefaultPreparedStatementCreator(sql, arguments);
 
@@ -64,5 +71,9 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
+    }
+
+    private static class JdbcTemplateHolder {
+        private static final JdbcTemplate INSTANCE = new JdbcTemplate();
     }
 }
