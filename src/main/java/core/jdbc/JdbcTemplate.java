@@ -19,12 +19,16 @@ public class JdbcTemplate {
     }
 
     public int execute(final String sql, final Object... arguments) {
-        final PreparedStatementCreator preparedStatementCreator = new DefaultPreparedStatementCreator(sql, arguments);
+        return execute(sql, getPreparedStatementSetter(arguments));
+    }
+
+    public int execute(final String sql, final PreparedStatementSetter setter) {
+        final PreparedStatementCreator creator = getPreparedStatementCreator(sql, setter);
 
         try (
             final Connection con = ConnectionManager.getConnection();
             final Transaction transaction = new Transaction(con);
-            final PreparedStatement preparedStatement = preparedStatementCreator.createPreparedStatement(con)
+            final PreparedStatement preparedStatement = creator.createPreparedStatement(con)
         ) {
 
             final int result = preparedStatement.executeUpdate();
@@ -34,6 +38,10 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
+    }
+
+    private PreparedStatementCreator getPreparedStatementCreator(final String sql, final PreparedStatementSetter setter) {
+        return new DefaultPreparedStatementCreator(sql, setter);
     }
 
     public <T> Optional<T> queryForObject(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
@@ -58,11 +66,19 @@ public class JdbcTemplate {
     }
 
     private <T> T query(final String sql, final QueryFunction<T> function, final Object... arguments) {
-        final PreparedStatementCreator preparedStatementCreator = new DefaultPreparedStatementCreator(sql, arguments);
+        return query(sql, function, getPreparedStatementSetter(arguments));
+    }
+
+    private PreparedStatementSetter getPreparedStatementSetter(final Object[] arguments) {
+        return new DefaultPreparedStatementSetter(arguments);
+    }
+
+    private <T> T query(final String sql, final QueryFunction<T> function, final PreparedStatementSetter setter) {
+        final PreparedStatementCreator creator = getPreparedStatementCreator(sql, setter);
 
         try (
             final Connection con = ConnectionManager.getConnection();
-            final PreparedStatement preparedStatement = preparedStatementCreator.createPreparedStatement(con);
+            final PreparedStatement preparedStatement = creator.createPreparedStatement(con);
             final ResultSet rs = preparedStatement.executeQuery()
         ) {
             con.setReadOnly(true);
