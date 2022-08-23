@@ -13,3 +13,8 @@
     - core.mvc.JsonViewTest의 모든 테스트를 pass하도록 JsonView를 구현한다.
 2. [X] 요구사항 2 - UserController 추가하기
     - next.controller.UserAcceptanceTest 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용한다.
+
+## 🚀 2단계 - JDBC 라이브러리 구현
+1. [X] 요구사항 1 : JDBC에 대한 공통 라이브러리를 만들어 개발자가 SQL 쿼리, 쿼리에 전달할 인자, SELECT 구문의 경우 조회한 데이터를 추출하는 3가지 구현에만 집중하도록 해야 한다.
+2. [X] 요구사항 2 - SQLException을 런타임 Exception으로 변환해 try/catch 절로 인해 소스 코드의 가독성을 헤치지 않도록 해야 한다.
+3. [X] 요구사항 3 -  회원목록과 개인정보수정 실습을 진행한 후 UserDao에 대한 리팩토링 실습을 진행한다.
