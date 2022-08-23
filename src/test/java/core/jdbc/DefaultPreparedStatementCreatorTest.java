@@ -7,26 +7,15 @@ import core.jdbc.exception.JdbcTemplateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-class DefaultPreparedStatementCreatorTest {
-
-    @BeforeEach
-    public void setup() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-    }
+class DefaultPreparedStatementCreatorTest extends TestDatabaseSetup {
 
     @DisplayName("사용 가능한 PreparedStatement 객체 생성")
     @Test
     void not_closed() throws SQLException {
-        final String sql = "SELECT COUNT(*) FROM USERS WHERE name = ?";
+        final String sql = "SELECT name FROM USERS WHERE userId = ?";
         final PreparedStatementCreator creator = new DefaultPreparedStatementCreator(sql, "admin");
         final PreparedStatement preparedStatement = creator.createPreparedStatement(ConnectionManager.getConnection());
 

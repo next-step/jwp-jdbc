@@ -8,26 +8,15 @@ import java.util.List;
 import java.util.Optional;
 import next.model.User;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-class JdbcTemplateTest {
+class JdbcTemplateTest extends TestDatabaseSetup {
 
     private static final String INSERT_SQL = "insert into users (userId, password, name, email) values (?, ?, ?, ?)";
     private static final String SELECT_SQL = "SELECT userId, password, name, email FROM USERS";
 
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
-
-    @BeforeEach
-    public void setup() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-    }
 
     @DisplayName("정상 쿼리 실행")
     @Test
