@@ -88,11 +88,14 @@
     - [x] select 
 
 ### 2단계 피드백
-- [ ] (1단계) RequestBodyArgumentResolver를 AbstractModelArgumentResolver 상속 받지 않도록 변경
-  - [ ] 객체 맵핑에 대한 코드를 재사용하고자 상속을 했는데, 재사용을 위한 코드를 별도의 유틸로 분리하면 상속을 하지 않고 구현 가능 
-- [ ] (1단계) RequestParameterUtils에서 ThreadLocal 제거
+- [x] (1단계) RequestBodyArgumentResolver를 AbstractModelArgumentResolver 상속 받지 않도록 변경
+  - [x] 객체 맵핑에 대한 코드를 재사용하고자 상속을 했는데, 재사용을 위한 코드를 별도의 유틸로 분리하면 상속을 하지 않고 구현 가능 
+- [x] (1단계) RequestParameterUtils에서 ThreadLocal 제거
   - 상속 구조가 아닌 독립적인 객체 RequestBodyArgumentResolver로 구현하면 ThreadLocal이 필요 없다?
-  - Controller에서 RequestBody 애너테이션이 여러 파라미터에 적용된 경우는 어떻게?   
+  - Controller에서 RequestBody 애너테이션이 여러 파라미터에 적용된 경우는 어떻게?
+  - [x] HttpServletRequest의 Reader 객체를 얻어 mark(), reset() 활용 
+    - HttpServletRequest의 Reader를 재사용해야 하다 보니 `close`를 하지 못한다. 
+    - 1회 파싱 후 close하고, 해당 데이터를 들고 다녀야 하는데 어느 시점에 어떻게 데이터를 파싱해서 들고 다녀야할까?
 - [ ] try-catch-resources 사용 (close 에 대한 검증이 보장된다는 가정)
   - [ ] DatasourceUtils의 필요성이 없어짐
 - [ ] sql의 인자를 맵핑하는 객체 도출
