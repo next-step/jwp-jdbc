@@ -103,10 +103,10 @@
   - [ ] DatasourceUtils 의 필요성이 없어짐
 - [x] PreparedStatementCreator 구현체 추가
   - [x] 생성자를 통해 SQL 문을 인자로 받아서 PreparedStatement 반환  
-- [ ] sql 인자를 맵핑하는 객체 도출
-  - [ ] 인자의 순서와 인자를 가지는 객체 
-  - [ ] 인자의 타입을 확인하고 해당 타입으로 형 변환
-  - [ ] PreparedStatement에 인자를 추가 할 때 타입에 맞는 메서드로 맵핑 
+- [x] sql 인자를 맵핑하는 객체 도출
+  - [x] 인자를 가지는 객체 
+  - [x] 인자의 타입을 확인하고 해당 타입으로 형 변환
+  - [x] PreparedStatement에 인자를 추가 할 때 타입에 맞는 메서드로 맵핑 
 - [ ] RowMapperFunction 테스트 코드 추가 
   - FunctionalInterface 테스트..? 
 - [ ] JdbcTemplateTest에 DELETE DML 테스트 코드 추가
