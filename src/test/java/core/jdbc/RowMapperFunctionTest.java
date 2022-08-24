@@ -9,11 +9,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import next.model.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class RowMapperFunctionTest extends TestDatabaseSetup {
 
@@ -46,40 +49,47 @@ class RowMapperFunctionTest extends TestDatabaseSetup {
 
         resultSet = preparedStatement.executeQuery();
 
-        final RowMapperFunction<User> function = (rs) -> {
-            rs.next();
-            return new User(
-                rs.getString("userId"),
-                rs.getString("password"),
-                rs.getString("name"),
-                rs.getString("email")
-            );
+        final RowMapperFunction<Optional<User>> function = (rs) -> {
+            if (rs.next()) {
+                return Optional.of(new User(
+                    rs.getString("userId"),
+                    rs.getString("password"),
+                    rs.getString("name"),
+                    rs.getString("email")
+                ));
+            }
+            return Optional.empty();
         };
 
         final User expected = new User("admin", "password", "자바지기", "admin@slipp.net");
 
         // when
-        final User actual = function.apply(resultSet);
+        final Optional<User> actual = function.apply(resultSet);
 
         // then
-        assertThat(actual).isEqualTo(expected);
+        assertThat(actual).isPresent()
+            .hasValue(expected);
     }
 
     @DisplayName("ResultSet 을 String 타입으로 반환한다")
-    @Test
-    void return_to_the_string_type() throws SQLException {
+    @ParameterizedTest(name = "userId {0} is {1}")
+    @CsvSource(value = {
+        "admin, admin",
+        "guest, null",
+    }, nullValues = "null")
+    void return_to_the_string_type(String userId, String expected) throws SQLException {
         // given
-        preparedStatement.setString(1, "admin");
+        preparedStatement.setString(1, userId);
         preparedStatement.setString(2, "admin@slipp.net");
 
         resultSet = preparedStatement.executeQuery();
 
         final RowMapperFunction<String> function = (rs) -> {
-            rs.next();
-            return rs.getString("userId");
+            if (rs.next()) {
+                return rs.getString("userId");
+            }
+            return null;
         };
-
-        final String expected = "admin";
 
         // when
         final String actual = function.apply(resultSet);
