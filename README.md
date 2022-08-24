@@ -123,3 +123,26 @@
 - [x] RowMapperFunctionTest 에서 Connection 과 PreparedStatement 없이 ResultSet 만 구현하여 테스트하도록 변경
   - Connection 과 PreparedStatement 에 대한 의존을 없애면 조금 더 단위 테스트 답게 작성할 수 있을 것 같다!
 - [x] RequestParameterUtilsTest#re 메서드명 수정
+
+
+### 요구사항
+> Controller에도 공통으로 처리할 필요가 있는 로직이 발생한다.  
+> Controller 전/후에 로직을 추가할 수 있는 Interceptor를 구현해 본다.   
+> 각 Controller 메소드의 실행 속도를 측정한 후 debug level로 log를 출력하는 요구사항을 구현한다.  
+
+### 기능 목록
+- [ ] 인터셉터 인터페이스
+  - [ ] 컨트롤러 실행 전 수행하는 메서드 (preHandle)
+  - [ ] 컨트롤러 실행 후 수행하는 메서드 (postHandle)
+  - [ ] 뷰 render 이후 수행하는 메서드 (afterCompletion)
+- [ ] Interceptor 목록을 가지는 일급 컬렉션 InterceptorRegistry 를 구현한다.
+  - [ ] Interceptor 인터페이스의 구현체를 일급 컬렉션에 추가할 수 있는 메서드를 제공한다.
+- [ ] DispatcherServlet 에서 InterceptorRegistry 를 생성한다.
+  - [ ] InterceptorRegistry 에 적용할 Interceptor 구현체들을 추가한다.
+- [ ] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 전에 interceptor#preHandle 메서드를 수행한다 
+  - [ ] 모든 인터셉터를 다 수행해야 한다. 
+  - [ ] preHandle 메서드에서 false 리턴이 발생한 경우 다음 인터셉터를 수행하지 않는다. 
+    - [ ] 컨트롤러도 수행하지 않는다. (예외 페이지 출력?)
+- [ ] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 후 interceptor#postHandle 메서드를 수행한다.
+  - [ ] 모든 인터셉터를 다 수행해야 한다.
+- [ ] View#render 수행 이후 interceptor#afterCompletion 수행한다. 
