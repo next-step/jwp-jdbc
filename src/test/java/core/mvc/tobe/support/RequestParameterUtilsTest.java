@@ -83,7 +83,7 @@ class RequestParameterUtilsTest {
 
     @DisplayName("PostData를 2회 이상 읽을 수 있다")
     @Test
-    void re() {
+    void can_be_read_several_times() {
         final MockHttpServletRequest request = new MockHttpServletRequest();
         String json = "{ \"color\" : \"Black\", \"type\" : \"BMW\" }";
         request.setContent(json.getBytes());

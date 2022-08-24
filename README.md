@@ -122,4 +122,4 @@
   - if 문으로 resultSet 의 결과를 한번 더 검증할 수 있어서 다양한 테스트 케이스 추가 가능  
 - [x] RowMapperFunctionTest 에서 Connection 과 PreparedStatement 없이 ResultSet 만 구현하여 테스트하도록 변경
   - Connection 과 PreparedStatement 에 대한 의존을 없애면 조금 더 단위 테스트 답게 작성할 수 있을 것 같다!
-- [ ] RequestParameterUtilsTest#re 메서드명 수정
+- [x] RequestParameterUtilsTest#re 메서드명 수정
