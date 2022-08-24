@@ -116,7 +116,7 @@
 # 🚀 4단계 - Interceptor 구현
 
 ### 3단계 피드백
-- [ ] UserApiController 에 UserDao 적용
+- [x] UserApiController 에 UserDao 적용
   - 만들었으면 써먹어 봐야지
 - [ ] RowMapperFunctionTest 에서 resultSet 의 결과를 확인하기 위한 if문 추가
   - if 문으로 resultSet 의 결과를 한번 더 검증할 수 있어서 다양한 테스트 케이스 추가 가능  
