@@ -1,18 +1,19 @@
 package core.jdbc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.jdbc.exception.MappingException;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.util.Assert;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.Map;
 
 final class RowMapper<T> {
 
-    private static final LocalVariableTableParameterNameDiscoverer NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final Class<T> objectType;
 
@@ -23,36 +24,13 @@ final class RowMapper<T> {
 
     T map(ResultSet resultSet) throws SQLException {
         try {
-            Constructor<T> objectConstructor = constructor();
-            return newInstance(resultSet, parameterNames(objectConstructor), objectConstructor);
-        } catch (ReflectiveOperationException e) {
+            Map<String, Object> value = new HashMap<>();
+            for (Field field : objectType.getDeclaredFields()) {
+                value.put(field.getName(), resultSet.getObject(field.getName()));
+            }
+            return OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(value), objectType);
+        } catch (JsonProcessingException e) {
             throw new MappingException(String.format("could not instantiate entity %s", objectType), e);
         }
-    }
-
-    private String[] parameterNames(Constructor<T> objectConstructor) {
-        String[] parameterNames = NAME_DISCOVERER.getParameterNames(objectConstructor);
-        if (parameterNames == null) {
-            throw new MappingException(String.format("%s constructor parameter names can not be null", objectType));
-        }
-        return parameterNames;
-    }
-
-    private T newInstance(ResultSet resultSet, String[] parameterNames, Constructor<T> constructor)
-            throws InstantiationException, IllegalAccessException, InvocationTargetException, SQLException {
-        Object[] args = new Object[parameterNames.length];
-        int index = 0;
-        for (String parameterName : parameterNames) {
-            args[index++] = resultSet.getObject(parameterName);
-        }
-        return constructor.newInstance(args);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Constructor<T> constructor() {
-        return (Constructor<T>) Stream.of(objectType.getConstructors())
-                .findAny()
-                .orElseThrow(() -> new UnsupportedOperationException(
-                        String.format("objectType(%s) must have any constructor", objectType)));
     }
 }
