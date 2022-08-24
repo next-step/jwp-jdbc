@@ -7,3 +7,12 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+## 1단계 - REST API 및 테스트 리팩토링
+1. JSON으로 데이터를 요청하고 응답을 받도록 지원한다.
+   1. core.mvc.JsonViewTest의 모든 테스트를 pass 한다.
+      1. JsonView 클래스의 render 메소드를 구현한다.
+         1. body 데이터를 읽어 object로 만든다.
+         2. JSON으로 응답할 때의 ContentType은 MediaType.APPLICATION_JSON_UTF8_VALUE로 반환한다.
+         3. Map에 담긴 model 데이터가 1개인 경우 value값, 2개 이상인 경우 Map 자체를 JSON으로 반환한다.
+   2. next.controller.UserAcceptanceTest 테스트를 pass 하도록 Controller를 추가한다.
