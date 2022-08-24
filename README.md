@@ -131,10 +131,10 @@
 > 각 Controller 메소드의 실행 속도를 측정한 후 debug level로 log를 출력하는 요구사항을 구현한다.  
 
 ### 기능 목록
-- [ ] 인터셉터 인터페이스
-  - [ ] 컨트롤러 실행 전 수행하는 메서드 (preHandle)
-  - [ ] 컨트롤러 실행 후 수행하는 메서드 (postHandle)
-  - [ ] 뷰 render 이후 수행하는 메서드 (afterCompletion)
+- [x] Interceptor 인터페이스
+  - [x] 컨트롤러 실행 전 수행하는 메서드 (preHandle)
+  - [x] 컨트롤러 실행 후 수행하는 메서드 (postHandle)
+  - [x] 뷰 render 이후 수행하는 메서드 (afterCompletion)
 - [ ] Interceptor 목록을 가지는 일급 컬렉션 InterceptorRegistry 를 구현한다.
   - [ ] Interceptor 인터페이스의 구현체를 일급 컬렉션에 추가할 수 있는 메서드를 제공한다.
 - [ ] DispatcherServlet 에서 InterceptorRegistry 를 생성한다.
