@@ -80,4 +80,21 @@ class RequestParameterUtilsTest {
 
         assertThat(actual).isNull();
     }
+
+    @DisplayName("PostData를 2회 이상 읽을 수 있다")
+    @Test
+    void re() {
+        final MockHttpServletRequest request = new MockHttpServletRequest();
+        String json = "{ \"color\" : \"Black\", \"type\" : \"BMW\" }";
+        request.setContent(json.getBytes());
+
+        final RequestParameterUtils firstParameter = new RequestParameterUtils(request);
+        final RequestParameterUtils secondParameter = new RequestParameterUtils(request);
+
+        String colorActual = firstParameter.getParameter("color");
+        String typeActual = secondParameter.getParameter("type");
+
+        assertThat(colorActual).isEqualTo("Black");
+        assertThat(typeActual).isEqualTo("BMW");
+    }
 }

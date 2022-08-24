@@ -52,4 +52,14 @@ public class MockArgumentResolverController {
         return age + "_" + money;
     }
 
+    @RequestMapping("/double/requestBody/primitiveAndUser")
+    String mockRequestBodyAgeAndUser(@RequestBody Integer age, @RequestBody MockUser user) {
+        return user.getName() + " is " + age + " years old";
+    }
+
+    @RequestMapping("/double/requestBody/users")
+    String mockRequestBodyUserAndUser(@RequestBody MockUser firstUser, @RequestBody MockUser secondUser) {
+        return firstUser.toString() + secondUser.toString();
+    }
+
 }

@@ -8,7 +8,7 @@ import next.model.User;
 
 public class UserDao {
 
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private final JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";

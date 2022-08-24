@@ -86,3 +86,29 @@
   - [x] UserDao에서 JdbcTemplate을 사용하도록 변경  
     - [x] insert, udpate 
     - [x] select 
+
+# 🚀 3단계 - JDBC 라이브러리 구현(힌트)
+
+### 2단계 피드백 및 3단계 기능 목록 
+- [x] (1단계) RequestBodyArgumentResolver를 AbstractModelArgumentResolver 상속 받지 않도록 변경
+  - [x] 객체 맵핑에 대한 코드를 재사용하고자 상속을 했는데, 재사용을 위한 코드를 별도의 유틸로 분리하면 상속을 하지 않고 구현 가능 
+- [x] (1단계) RequestParameterUtils에서 ThreadLocal 제거
+  - 상속 구조가 아닌 독립적인 객체 RequestBodyArgumentResolver로 구현하면 ThreadLocal이 필요 없다?
+  - Controller에서 RequestBody 애너테이션이 여러 파라미터에 적용된 경우는 어떻게?
+  - [x] HttpServletRequest의 Reader 객체를 얻어 mark(), reset() 활용 
+    - HttpServletRequest의 Reader를 재사용해야 하다 보니 `close`를 하지 못한다. 
+    - 1회 파싱 후 close하고, 해당 데이터를 들고 다녀야 하는데 어느 시점에 어떻게 데이터를 파싱해서 들고 다녀야할까?
+- [x] JdbcTemplate 에서 try-with-resources 사용 (close 에 대한 검증이 보장된다는 가정)
+  - [x] 트랜잭션 처리 
+    - [x] catch 절에서 rollback 불가 
+    - [x] AutoCloseable 활용한 커밋 여부에 따라 롤백   
+  - [ ] DatasourceUtils 의 필요성이 없어짐
+- [x] PreparedStatementCreator 구현체 추가
+  - [x] 생성자를 통해 SQL 문을 인자로 받아서 PreparedStatement 반환  
+- [x] sql 인자를 맵핑하는 객체 도출
+  - [x] 인자를 가지는 객체 
+  - [x] 인자의 타입을 확인하고 해당 타입으로 형 변환
+  - [x] PreparedStatement에 인자를 추가 할 때 타입에 맞는 메서드로 맵핑 
+- [x] RowMapperFunction 테스트 코드 추가 
+- [x] JdbcTemplateTest에 DELETE DML 테스트 코드 추가
+  - 요구사항에 fit하게 맞추기 보다 라이브러리를 만든다는 마인드!! 학습 목적!! 

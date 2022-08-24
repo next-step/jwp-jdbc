@@ -11,77 +11,89 @@ import java.util.Optional;
 
 public class JdbcTemplate {
 
-    private Connection connection;
-    private PreparedStatement preparedStatement;
-    private ResultSet resultSet;
+    private JdbcTemplate() {
+    }
+
+    public static JdbcTemplate getInstance() {
+        return JdbcTemplateHolder.INSTANCE;
+    }
 
     public int execute(final String sql, final Object... arguments) {
-        initPreparedStatement(sql, arguments);
+        return execute(sql, getPreparedStatementSetter(arguments));
+    }
 
-        try {
+    public int execute(final String sql, final PreparedStatementSetter setter) {
+        final PreparedStatementCreator creator = getPreparedStatementCreator(sql, setter);
+
+        try (
+            final Connection con = ConnectionManager.getConnection();
+            final Transaction transaction = new Transaction(con);
+            final PreparedStatement preparedStatement = creator.createPreparedStatement(con)
+        ) {
+
             final int result = preparedStatement.executeUpdate();
-            connection.commit();
+            transaction.commit();
 
             return result;
         } catch (SQLException e) {
-            DataSourceUtils.rollback(connection);
             throw new JdbcTemplateException(e);
-        } finally {
-            DataSourceUtils.release(connection, preparedStatement);
         }
+    }
+
+    private PreparedStatementCreator getPreparedStatementCreator(final String sql, final PreparedStatementSetter setter) {
+        return new DefaultPreparedStatementCreator(sql, setter);
     }
 
     public <T> Optional<T> queryForObject(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
-        return query(sql, () -> {
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return Optional.of(function.apply(resultSet));
+        return queryForObject(sql, function, getPreparedStatementSetter(arguments));
+    }
+
+    public <T> Optional<T> queryForObject(final String sql, final RowMapperFunction<T> function, final PreparedStatementSetter setter) {
+        return query(sql, rs -> {
+            if (rs.next()) {
+                return Optional.of(function.apply(rs));
             }
 
             return Optional.empty();
-        }, arguments);
+        }, setter);
     }
 
     public <T> List<T> queryForList(final String sql, final RowMapperFunction<T> function, final Object... arguments) {
-        return query(sql, () -> {
-            resultSet = preparedStatement.executeQuery();
+        return queryForList(sql, function, getPreparedStatementSetter(arguments));
+    }
+
+    public <T> List<T> queryForList(final String sql, final RowMapperFunction<T> function, final PreparedStatementSetter setter) {
+        return query(sql, rs -> {
             List<T> results = new ArrayList<>();
-            while (resultSet.next()) {
-                results.add(function.apply(resultSet));
+            while (rs.next()) {
+                results.add(function.apply(rs));
             }
 
             return results;
-        }, arguments);
+        }, setter);
     }
 
-    private <T> T query(final String sql, final QuerySupplier<T> supplier, final Object... arguments) {
-        initPreparedStatement(sql, arguments);
-
-        try {
-            connection.setReadOnly(true);
-
-            return supplier.get();
-        } catch (SQLException e) {
-            throw new JdbcTemplateException(e);
-        } finally {
-            DataSourceUtils.release(connection, preparedStatement, resultSet);
-        }
+    private PreparedStatementSetter getPreparedStatementSetter(final Object[] arguments) {
+        return new DefaultPreparedStatementSetter(arguments);
     }
 
-    private void initPreparedStatement(final String sql, final Object[] arguments) {
-        try {
-            connection = ConnectionManager.getConnection();
-            connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(sql);
-            setArguments(preparedStatement, arguments);
+    private <T> T query(final String sql, final QueryFunction<T> function, final PreparedStatementSetter setter) {
+        final PreparedStatementCreator creator = getPreparedStatementCreator(sql, setter);
+
+        try (
+            final Connection con = ConnectionManager.getConnection();
+            final PreparedStatement preparedStatement = creator.createPreparedStatement(con);
+            final ResultSet rs = preparedStatement.executeQuery()
+        ) {
+            con.setReadOnly(true);
+
+            return function.apply(rs);
         } catch (SQLException e) {
             throw new JdbcTemplateException(e);
         }
     }
 
-    private void setArguments(final PreparedStatement preparedStatement, final Object[] arguments) throws SQLException {
-        for (int i = 0; i < arguments.length; i++) {
-            preparedStatement.setObject((i + 1), arguments[i]);
-        }
+    private static class JdbcTemplateHolder {
+        private static final JdbcTemplate INSTANCE = new JdbcTemplate();
     }
 }

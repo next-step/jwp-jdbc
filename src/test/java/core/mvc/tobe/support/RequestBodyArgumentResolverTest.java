@@ -1,6 +1,7 @@
 package core.mvc.tobe.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import core.mvc.tobe.MethodParameter;
 import java.lang.annotation.Annotation;
@@ -107,6 +108,52 @@ class RequestBodyArgumentResolverTest {
 
         assertThat(ageActual).isEqualTo(20);
         assertThat(longActual).isEqualTo(10_000L);
+    }
+
+    @DisplayName("RequestBody의 값을 변환 - int and user ")
+    @Test
+    void request_body_by_int_and_user() throws NoSuchMethodException {
+        final Method method = MockArgumentResolverController.class.getDeclaredMethod("mockRequestBodyAgeAndUser", Integer.class, MockUser.class);
+        final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        final MethodParameter ageParameter = new MethodParameter(method, int.class, parameterAnnotations[0], "age");
+        final MethodParameter userMethodParameter = new MethodParameter(method, MockUser.class, parameterAnnotations[1], "user");
+
+        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setContent("{\"age\":\"20\",\"money\":\"10000\"}".getBytes());
+
+        final int age = (int) resolver.resolveArgument(ageParameter, request, response);
+        final MockUser user = (MockUser) resolver.resolveArgument(userMethodParameter, request, response);
+
+        assertAll(
+            () -> assertThat(age).isEqualTo(20),
+            () -> assertThat(user.getAge()).isEqualTo(20),
+            () -> assertThat(user.getMoney()).isEqualTo(10_000L)
+        );
+    }
+
+    @DisplayName("RequestBody의 값을 변환 - user and user ")
+    @Test
+    void request_body_by_user_and_user() throws NoSuchMethodException {
+        final Method method = MockArgumentResolverController.class.getDeclaredMethod("mockRequestBodyUserAndUser", MockUser.class, MockUser.class);
+        final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        final MethodParameter firstMethodParameter = new MethodParameter(method, MockUser.class, parameterAnnotations[0], "firstUser");
+        final MethodParameter secondMethodParameter = new MethodParameter(method, MockUser.class, parameterAnnotations[1], "secondUser");
+
+        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setContent("{\"age\":\"20\",\"money\":\"10000\"}".getBytes());
+
+        final MockUser user1 = (MockUser) resolver.resolveArgument(firstMethodParameter, request, response);
+        final MockUser user2 = (MockUser) resolver.resolveArgument(secondMethodParameter, request, response);
+
+        assertAll(
+            () -> assertThat(user1.getAge()).isEqualTo(20),
+            () -> assertThat(user1.getMoney()).isEqualTo(10000L),
+            () -> assertThat(user2.getAge()).isEqualTo(20),
+            () -> assertThat(user2.getMoney()).isEqualTo(10000L),
+            () -> assertThat(user1).isEqualTo(user2)
+        );
     }
 
     private MockUser expectedMockUser() {
