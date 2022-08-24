@@ -21,6 +21,10 @@ public class JsonView implements View {
             }
         }
 
+        if (model.size() > ONE_MODEL_COUNT) {
+            value = objectMapper.writeValueAsString(model);
+        }
+
         if (value != null) {
             response.getWriter().write(value);
         }
