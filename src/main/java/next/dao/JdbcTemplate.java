@@ -15,8 +15,13 @@ public class JdbcTemplate {
     private JdbcTemplate() {
     }
 
+    private static class InnerInstance {
+        private static final JdbcTemplate instance = new JdbcTemplate();
+    }
+
+
     public static JdbcTemplate getInstance() {
-        return new JdbcTemplate();
+        return InnerInstance.instance;
     }
 
 
@@ -33,29 +38,29 @@ public class JdbcTemplate {
 
     private void setValues(PreparedStatement pstmt, Object... parameters) throws SQLException {
        for (int i = 0; i < parameters.length; i++) {
-           pstmt.setString(i + 1, parameters[i].toString());
+           pstmt.setObject(i + 1, parameters[i]);
        }
     }
 
-    public User queryForObject(String sql, RowMapper<User> rowMapper, Object... parameters) {
-        List<User> users = query(sql, rowMapper, parameters);
-        if (users.isEmpty()) {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... parameters) {
+        List<T> list = query(sql, rowMapper, parameters);
+        if (list.isEmpty()) {
             return null;
         }
 
-        return users.get(0);
+        return list.get(0);
     }
 
-    public List<User> query(String sql, RowMapper<User> rowMapper, Object... parameters) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... parameters) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            List<User> users = new ArrayList<>();
+            List<T> list = new ArrayList<>();
             setValues(pstmt, parameters);
 
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                users.add(rowMapper.mapRow(rs));
+                list.add(rowMapper.mapRow(rs));
             }
-            return users;
+            return list;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
