@@ -112,3 +112,14 @@
 - [x] RowMapperFunction 테스트 코드 추가 
 - [x] JdbcTemplateTest에 DELETE DML 테스트 코드 추가
   - 요구사항에 fit하게 맞추기 보다 라이브러리를 만든다는 마인드!! 학습 목적!! 
+
+# 🚀 4단계 - Interceptor 구현
+
+### 3단계 피드백
+- [ ] UserApiController 에 UserDao 적용
+  - 만들었으면 써먹어 봐야지
+- [ ] RowMapperFunctionTest 에서 resultSet 의 결과를 확인하기 위한 if문 추가
+  - if 문으로 resultSet 의 결과를 한번 더 검증할 수 있어서 다양한 테스트 케이스 추가 가능  
+- [ ] RowMapperFunctionTest 에서 Connection 과 PreparedStatement 없이 ResultSet 만 구현하여 테스트하도록 변경
+  - Connection 과 PreparedStatement 에 대한 의존을 없애면 조금 더 단위 테스트 답게 작성할 수 있을 것 같다!
+- [ ] RequestParameterUtilsTest#re 메서드명 수정
