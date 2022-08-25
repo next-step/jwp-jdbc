@@ -1,14 +1,11 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
-import core.jdbc.PreparedStatementCreator;
-import core.jdbc.ResultSetExtractor;
+import core.jdbc.RowMapper;
+import java.sql.ResultSet;
 import next.model.User;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,64 +13,51 @@ import java.util.List;
 public class UserDao {
 
     private JdbcTemplate jdbcTemplate = JdbcTemplate.INSTANCE;
+    private RowMapper<User> rowMapper = (rs, rowNum) -> new User(
+        rs.getString("userId"),
+        rs.getString("password"),
+        rs.getString("name"),
+        rs.getString("email")
+    );
+
+    private PreparedStatement setValue(PreparedStatement pstmt, Object... objects) throws SQLException {
+        for (int i = 0; i < objects.length; ++i) {
+            pstmt.setObject(i+1, objects[i]);
+        }
+        return pstmt;
+    }
 
     public void insert(User user) throws SQLException {
-        jdbcTemplate.executeUpdate(con -> {
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-            return pstmt;
+        jdbcTemplate.update(con -> {
+            PreparedStatement pstmt = con.prepareStatement("INSERT INTO USERS VALUES (?, ?, ?, ?)");
+            return setValue(pstmt, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
         });
     }
 
     public void update(User user) throws SQLException {
-        jdbcTemplate.executeUpdate(con -> {
-            String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
+        jdbcTemplate.update(con -> {
+            PreparedStatement pstmt = con.prepareStatement("UPDATE USERS SET password=?, name=?, email=? WHERE userId=?");
+            setValue(pstmt, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
             return pstmt;
         });
     }
 
     public List<User> findAll() throws SQLException {
-        return (List<User>) jdbcTemplate.executeQueryForObject(
-            con -> {
-                String sql = "SELECT * FROM USERS";
-                return con.prepareStatement(sql);
-            },
-            rs -> {
-                List<User> users = new ArrayList<>();
-                if (rs.next()) {
-                    users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email")));
-                }
-
-                return users;
-            });
+        return jdbcTemplate.query(
+            con -> con.prepareStatement("SELECT * FROM USERS"),
+            rowMapper
+        );
     }
 
     public User findByUserId(String userId) throws SQLException {
-        return (User) jdbcTemplate.executeQueryForObject(con -> {
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
-            return pstmt;
-        },
-            rs -> {
-                User user = null;
-                if (rs.next()) {
-                    user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-                }
-
-                return user;
-        });
+        return jdbcTemplate.queryForObject(
+            con -> {
+                PreparedStatement pstmt = con.prepareStatement("SELECT userId, password, name, email FROM USERS WHERE userId=?");
+                setValue(pstmt, userId);
+                return pstmt;
+            },
+            rowMapper
+        );
     }
 
 }
