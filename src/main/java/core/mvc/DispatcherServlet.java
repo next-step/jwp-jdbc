@@ -4,9 +4,13 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import next.dao.interceptor.ControllerTimeCheckInterceptor;
+import next.dao.interceptor.HandlerInterceptor;
+import next.dao.interceptor.HandlerInterceptorComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.method.support.HandlerMethodArgumentResolverComposite;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -52,9 +56,13 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
+            HandlerInterceptorComposite handlerInterceptorComposite = HandlerInterceptorComposite.getInstance();
 
-            ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
-            render(mav, req, resp);
+            if (handlerInterceptorComposite.preHandle(req, resp, maybeHandler.get())) {
+                ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+                handlerInterceptorComposite.postHandle(req, resp, maybeHandler.get(), mav);
+                render(mav, req, resp);
+            }
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
             throw new ServletException(e.getMessage());
