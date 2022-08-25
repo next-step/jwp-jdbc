@@ -1,14 +1,9 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
 import next.model.User;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -39,40 +34,16 @@ public class UserDao {
         });
     }
 
-    public List<User> findAll() throws SQLException {
-        ArrayList<User> result = new ArrayList<>();
-
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS";
-            pstmt = con.prepareStatement(sql);
-
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                result.add(new User(
-                        rs.getString("userId"),
-                        rs.getString("password"),
-                        rs.getString("name"),
-                        rs.getString("email")
-                ));
-            }
-
-            return result;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    public List<User> findAll() {
+        return jdbcTemplate.queryForList(
+                connection -> connection.prepareStatement("SELECT userId, password, name, email FROM USERS"),
+                resultSet -> new User(
+                        resultSet.getString("userId"),
+                        resultSet.getString("password"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email")
+                )
+        );
     }
 
     public User findByUserId(String userId) {
