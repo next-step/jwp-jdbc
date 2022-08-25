@@ -141,12 +141,12 @@
     - [x] false 를 리턴 받으면 이후의 Interceptor 를 실행하지 않고 false 를 리턴한다.  
   - [x] 추가된 Interceptor 의 구현체들의 postHandle 메서드를 등록된 순서대로 실행한다.
 - [x] 컨트롤러의 메서드의 수행 속도를 측정하는 TimeTraceInterceptor 구현체를 추가한다.
-- [ ] DispatcherServlet 에서 InterceptorRegistry 를 생성한다.
-  - [ ] InterceptorRegistry 에 적용할 Interceptor 구현체들을 추가한다.
-- [ ] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 전에 interceptor#applyPreHandle 메서드를 수행한다 
+- [x] DispatcherServlet 에서 InterceptorRegistry 를 생성한다.
+  - [x] InterceptorRegistry 에 적용할 Interceptor 구현체들을 추가한다.
+- [x] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 전에 interceptor#applyPreHandle 메서드를 수행한다 
   - [ ] 모든 인터셉터를 다 수행해야 한다. 
   - [ ] preHandle 메서드에서 false 리턴이 발생한 경우 다음 인터셉터를 수행하지 않는다. 
     - [ ] 컨트롤러도 수행하지 않는다. (예외 페이지 출력?)
-- [ ] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 후 interceptor#applyPostHandle 메서드를 수행한다.
+- [x] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 후 interceptor#applyPostHandle 메서드를 수행한다.
   - [ ] 모든 인터셉터를 다 수행해야 한다.
 - [ ] View#render 수행 이후 interceptor#applyAfterCompletion 수행한다. 
