@@ -1,6 +1,7 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.PreparedStatementCreator;
 import next.model.User;
 
 import java.sql.Connection;
@@ -11,17 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
+    private void template(PreparedStatementCreator pstmtCreator) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
+
+            pstmt = pstmtCreator.createPreparedStatement(con);
 
             pstmt.executeUpdate();
         } finally {
@@ -35,28 +32,28 @@ public class UserDao {
         }
     }
 
+    public void insert(User user) throws SQLException {
+        template(con -> {
+            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+            PreparedStatement pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, user.getUserId());
+            pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getName());
+            pstmt.setString(4, user.getEmail());
+            return pstmt;
+        });
+    }
+
     public void update(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
+        template(con -> {
             String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
-            pstmt = con.prepareStatement(sql);
+            PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setString(1, user.getPassword());
             pstmt.setString(2, user.getName());
             pstmt.setString(3, user.getEmail());
             pstmt.setString(4, user.getUserId());
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+            return pstmt;
+        });
     }
 
     public List<User> findAll() throws SQLException {
