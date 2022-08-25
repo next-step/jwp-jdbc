@@ -14,14 +14,8 @@ public class HandlerInterceptorRegistry {
     }
 
     public boolean applyPreHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
-        for (final HandlerInterceptor interceptor : interceptors) {
-            final boolean preHandle = interceptor.preHandle(request, response, handler);
-            if (!preHandle) {
-                return false;
-            }
-        }
-
-        return true;
+        return interceptors.stream()
+            .allMatch(interceptor -> interceptor.preHandle(request, response, handler));
     }
 
     public void applyPostHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {

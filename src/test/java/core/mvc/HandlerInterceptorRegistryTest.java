@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import core.di.factory.example.QnaController;
 import core.mvc.tobe.mock.MockChainHandlerInterceptor;
 import core.mvc.tobe.mock.MockNoChainHandlerInterceptor;
+import java.util.Arrays;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -190,5 +193,45 @@ class HandlerInterceptorRegistryTest {
                 request.setAttribute("value", value * 100);
             }
         };
+    }
+
+
+    @DisplayName("stream allMatch test")
+    @Test
+    void allMatch() {
+        final List<Matcher> matchers = Arrays.asList(
+            new Matcher(1, true),
+            new Matcher(2, true),
+            new Matcher(3, false),
+            new Matcher(4, true),
+            new Matcher(5, true));
+
+        final boolean allMatch = matchers.stream()
+            .allMatch(Matcher::isMatch);
+
+        assertThat(allMatch).isFalse();
+    }
+
+    static class Matcher {
+        private final int number;
+        private final boolean match;
+
+        Matcher(final int number, final boolean match) {
+            this.number = number;
+            this.match = match;
+        }
+
+        public boolean isMatch() {
+            System.out.println(this);
+            return match;
+        }
+
+        @Override
+        public String toString() {
+            return "Matcher{" +
+                "number=" + number +
+                ", match=" + match +
+                '}';
+        }
     }
 }

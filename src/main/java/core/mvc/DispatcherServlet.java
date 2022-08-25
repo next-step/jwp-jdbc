@@ -59,7 +59,10 @@ public class DispatcherServlet extends HttpServlet {
             }
 
             final Object handler = maybeHandler.get();
-            handlerInterceptorRegistry.applyPreHandle(req, resp, handler);
+            if (!handlerInterceptorRegistry.applyPreHandle(req, resp, handler)) {
+                resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                return;
+            }
 
             ModelAndView mav = handlerExecutor.handle(req, resp, handler);
 
