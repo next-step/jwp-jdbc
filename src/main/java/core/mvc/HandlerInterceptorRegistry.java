@@ -2,6 +2,8 @@ package core.mvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class HandlerInterceptorRegistry {
 
@@ -9,6 +11,17 @@ public class HandlerInterceptorRegistry {
 
     public void addInterceptor(HandlerInterceptor interceptor) {
         interceptors.add(interceptor);
+    }
+
+    public boolean applyPreHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+        for (final HandlerInterceptor interceptor : interceptors) {
+            final boolean preHandle = interceptor.preHandle(request, response, handler);
+            if (!preHandle) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public boolean hasInterceptor() {
