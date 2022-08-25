@@ -1,7 +1,9 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
 import core.jdbc.PreparedStatementCreator;
+import core.jdbc.ResultSetExtractor;
 import next.model.User;
 
 import java.sql.Connection;
@@ -12,28 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    private void template(PreparedStatementCreator pstmtCreator) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
 
-            pstmt = pstmtCreator.createPreparedStatement(con);
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
-    }
+    private JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
     public void insert(User user) throws SQLException {
-        template(con -> {
+        jdbcTemplate.executeUpdate(con -> {
             String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setString(1, user.getUserId());
@@ -45,7 +30,7 @@ public class UserDao {
     }
 
     public void update(User user) throws SQLException {
-        template(con -> {
+        jdbcTemplate.executeUpdate(con -> {
             String sql = "UPDATE USERS SET password=?, name=?, email=? WHERE userId=?";
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setString(1, user.getPassword());
@@ -57,65 +42,38 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT * FROM USERS";
-            pstmt = con.prepareStatement(sql);
+        return (List<User>) jdbcTemplate.executeQueryForObject(
+            con -> {
+                String sql = "SELECT * FROM USERS";
+                return con.prepareStatement(sql);
+            },
+            rs -> {
+                List<User> users = new ArrayList<>();
+                if (rs.next()) {
+                    users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                        rs.getString("email")));
+                }
 
-            rs = pstmt.executeQuery();
-
-            List<User> users = new ArrayList<>();
-            if (rs.next()) {
-                users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                    rs.getString("email")));
-            }
-
-            return users;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+                return users;
+            });
     }
 
     public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
+        return (User) jdbcTemplate.executeQueryForObject(con -> {
+            String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
+            PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setString(1, userId);
-
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+            return pstmt;
+        },
+            rs -> {
+                User user = null;
+                if (rs.next()) {
+                    user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email"));
-            }
+                }
 
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+                return user;
+        });
     }
+
 }
