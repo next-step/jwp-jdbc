@@ -4,6 +4,8 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import java.util.Locale;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
+import org.springframework.lang.Nullable;
 
 @WebServlet(name = "dispatcher", urlPatterns = "/", loadOnStartup = 1)
 public class DispatcherServlet extends HttpServlet {
@@ -24,6 +27,8 @@ public class DispatcherServlet extends HttpServlet {
     private HandlerMappingRegistry handlerMappingRegistry;
 
     private HandlerAdapterRegistry handlerAdapterRegistry;
+
+    private ViewResolverComposite viewResolverComposite;
 
     private HandlerExecutor handlerExecutor;
 
@@ -36,6 +41,9 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry = new HandlerAdapterRegistry();
         handlerAdapterRegistry.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
+
+        viewResolverComposite = new ViewResolverComposite();
+        viewResolverComposite.addViewResolver(new JsonViewResolver());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
     }
@@ -62,7 +70,40 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private void render(ModelAndView mav, HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        View view = mav.getView();
-        view.render(mav.getModel(), req, resp);
+        View view = null;
+
+        String viewName = mav.getViewName();
+        if (viewName != null) {
+            view = resolveViewName(viewName);
+        }
+
+        if (view == null) {
+            view = mav.getView();
+        }
+        
+        if (view == null) {
+            throw new ServletException("Cannot resolve view");
+        }
+        
+        try {
+            if (mav.getStatus() != null) {
+                resp.setStatus(mav.getStatus().value());
+            }
+            
+            view.render(mav.getModel(), req, resp);
+            
+        } catch (Exception e) {
+            logger.debug("Error rendering view [" + view + "]", e);    
+            throw e;
+        }
+        
     }
+
+    private View resolveViewName(String viewName) {
+        if (viewResolverComposite != null) {
+            return this.viewResolverComposite.resolveViewName(viewName);
+        }
+        return null;
+    }
+
 }

@@ -14,7 +14,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JsonViewTest {
+class JsonViewTest {
     private static final Logger logger = LoggerFactory.getLogger( JsonViewTest.class );
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
@@ -24,7 +24,7 @@ public class JsonViewTest {
     void setUp() {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
-        view = new JsonView();
+        view = new JsonView("/");
     }
 
     @Test

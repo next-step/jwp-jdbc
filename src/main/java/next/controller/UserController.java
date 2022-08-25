@@ -1,5 +1,7 @@
 package next.controller;
 
+import static core.mvc.JspView.DEFAULT_REDIRECT_PREFIX;
+
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
@@ -7,12 +9,11 @@ import core.annotation.web.RequestParam;
 import core.db.DataBase;
 import core.mvc.JspView;
 import core.mvc.ModelAndView;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class UserController {
@@ -34,18 +35,18 @@ public class UserController {
     public ModelAndView create(User user) throws Exception {
         logger.debug("User : {}", user);
         DataBase.addUser(user);
-        return redirect("/");
+        return redirectJsp("/");
     }
 
-    private ModelAndView redirect(String path) {
+    private ModelAndView redirectJsp(String path) {
         return new ModelAndView(new JspView(
-                JspView.DEFAULT_REDIRECT_PREFIX + path));
+                DEFAULT_REDIRECT_PREFIX + path));
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public ModelAndView list(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         if (!UserSessionUtils.isLogined(req.getSession())) {
-            return redirect("/users/loginForm");
+            return redirectJsp("/users/loginForm");
         }
 
         ModelAndView mav = new ModelAndView(new JspView("/user/list.jsp"));
