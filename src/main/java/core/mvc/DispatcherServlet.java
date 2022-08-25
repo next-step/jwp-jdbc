@@ -66,6 +66,8 @@ public class DispatcherServlet extends HttpServlet {
             handlerInterceptorRegistry.applyPostHandle(req, resp, handler);
 
             render(mav, req, resp);
+
+            handlerInterceptorRegistry.applyAfterCompletion(req, resp, handler);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
             throw new ServletException(e.getMessage());

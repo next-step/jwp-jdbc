@@ -30,6 +30,12 @@ public class HandlerInterceptorRegistry {
         }
     }
 
+    public void applyAfterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+        for (final HandlerInterceptor interceptor : interceptors) {
+            interceptor.afterCompletion(request, response, handler);
+        }
+    }
+
     public boolean hasInterceptor() {
         return !interceptors.isEmpty();
     }
