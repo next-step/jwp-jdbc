@@ -139,6 +139,7 @@
   - [x] Interceptor 인터페이스의 구현체를 추가할 수 있는 메서드를 제공한다.
   - [x] 추가된 Interceptor 의 구현체들의 preHandle 메서드를 등록된 순서대로 실행한다.
     - [x] false 를 리턴 받으면 이후의 Interceptor 를 실행하지 않고 false 를 리턴한다.  
+  - [x] 추가된 Interceptor 의 구현체들의 postHandle 메서드를 등록된 순서대로 실행한다.
 - [ ] DispatcherServlet 에서 InterceptorRegistry 를 생성한다.
   - [ ] InterceptorRegistry 에 적용할 Interceptor 구현체들을 추가한다.
 - [ ] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 전에 interceptor#preHandle 메서드를 수행한다 

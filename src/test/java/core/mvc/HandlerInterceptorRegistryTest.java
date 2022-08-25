@@ -98,6 +98,22 @@ class HandlerInterceptorRegistryTest {
         assertThat(valueActual).isZero();
     }
 
+    @DisplayName("추가된 Interceptor 의 순서대로 postHandle 메서드를 수행한다")
+    @Test
+    void invoke_post_handle_method_in_order() {
+        // given
+        handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
+        handlerInterceptorRegistry.addInterceptor(minus100ChainInterceptor());
+
+        request.setAttribute("value", 10);
+
+        handlerInterceptorRegistry.applyPostHandle(request, response, createMockQnaController());
+        final int valueActual = (int) request.getAttribute("value");
+
+        // then
+        assertThat(valueActual).isEqualTo(10 * 100 - 100);
+    }
+
     private static QnaController createMockQnaController() {
         return new QnaController(null);
     }
@@ -110,6 +126,12 @@ class HandlerInterceptorRegistryTest {
                 request.setAttribute("value", value - 100);
                 return true;
             }
+
+            @Override
+            public void postHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+                final int value = (int) request.getAttribute("value");
+                request.setAttribute("value", value - 100);
+            }
         };
     }
 
@@ -121,6 +143,7 @@ class HandlerInterceptorRegistryTest {
                 request.setAttribute("value", value - 20);
                 return false;
             }
+
         };
     }
 
@@ -131,6 +154,12 @@ class HandlerInterceptorRegistryTest {
                 final int value = (int) request.getAttribute("value");
                 request.setAttribute("value", value * 100);
                 return true;
+            }
+
+            @Override
+            public void postHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+                final int value = (int) request.getAttribute("value");
+                request.setAttribute("value", value * 100);
             }
         };
     }

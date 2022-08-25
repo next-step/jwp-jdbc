@@ -24,6 +24,12 @@ public class HandlerInterceptorRegistry {
         return true;
     }
 
+    public void applyPostHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+        for (final HandlerInterceptor interceptor : interceptors) {
+            interceptor.postHandle(request, response, handler);
+        }
+    }
+
     public boolean hasInterceptor() {
         return !interceptors.isEmpty();
     }
