@@ -5,50 +5,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class JdbcTemplate {
+public enum JdbcTemplate {
+    INSTANCE;
 
     public void executeUpdate(PreparedStatementCreator preparedStatementCreator) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-
-            pstmt = preparedStatementCreator.createPreparedStatement(con);
-
+        try (Connection con = ConnectionManager.getConnection();
+            PreparedStatement pstmt = preparedStatementCreator.createPreparedStatement(con))
+        {
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
     public Object executeQueryForObject(PreparedStatementCreator psCreator, ResultSetExtractor<?> rsExtractor) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = psCreator.createPreparedStatement(con);
-
-            rs = pstmt.executeQuery();
-
+        try(Connection con = ConnectionManager.getConnection();
+            PreparedStatement pstmt = psCreator.createPreparedStatement(con);
+            ResultSet rs = pstmt.executeQuery())
+        {
             return rsExtractor.extractData(rs);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
     }
-
 }

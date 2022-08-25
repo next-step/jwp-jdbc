@@ -15,7 +15,7 @@ import java.util.List;
 
 public class UserDao {
 
-    private JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private JdbcTemplate jdbcTemplate = JdbcTemplate.INSTANCE;
 
     public void insert(User user) throws SQLException {
         jdbcTemplate.executeUpdate(con -> {
