@@ -196,7 +196,7 @@ class HandlerInterceptorRegistryTest {
     }
 
 
-    @DisplayName("stream allMatch test")
+    @DisplayName("stream allMatch test, false 가 나오는 순간 더 이상 진행하지 않는다")
     @Test
     void allMatch() {
         final List<Matcher> matchers = Arrays.asList(
