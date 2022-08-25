@@ -13,6 +13,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDaoTest {
+    private UserDao userDao = new UserDao();
+    private final User testUser = new User("userId", "password", "name", "javajigi@email.com");
+
     @BeforeEach
     public void setup() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -21,23 +24,33 @@ public class UserDaoTest {
     }
 
     @Test
-    public void crud() throws Exception {
-        User expected = new User("userId", "password", "name", "javajigi@email.com");
-        UserDao userDao = new UserDao();
-        userDao.insert(expected);
-        User actual = userDao.findByUserId(expected.getUserId());
-        assertThat(actual).isEqualTo(expected);
+    public void create() {
+        // given & when
+        userDao.insert(testUser);
+        User actual = userDao.findByUserId(testUser.getUserId());
+        // then
+        assertThat(actual).isEqualTo(testUser);
+    }
 
-        expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
+    @Test
+    public void update() {
+        // given
+        userDao.insert(testUser);
+        User expected = userDao.findByUserId(testUser.getUserId());
+        expected.update(new User(testUser.getUserId(), "password2", "name2", "sanjigi@email.com"));
+        // when
         userDao.update(expected);
-        actual = userDao.findByUserId(expected.getUserId());
+        User actual = userDao.findByUserId(testUser.getUserId());
+        // then
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
-    public void findAll() throws Exception {
+    public void findAll() {
+        // given & when
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
+        // then
         assertThat(users).hasSize(1);
     }
 }
