@@ -28,3 +28,9 @@
 
 ## 3단계 - JDBC 라이브러리 구현(힌트)
 
+
+## 4단계 - Interceptor 구현
+
+- `Controller` 전/후에 로직을 추가할 수 있는 `Interceptor` 구현
+  - `Controller` 메소드의 실행 속도를 측정한 후 debug level로 log를 출력
+

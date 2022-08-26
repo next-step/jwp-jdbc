@@ -15,19 +15,14 @@ final class QueryArgumentParser {
 
     private final String sql;
 
-    private String questionSymbolArgumentsSql;
-    private Map<Integer, String> argumentKeys;
-
     QueryArgumentParser(String sql) {
         Assert.hasText(sql, "'sql' must not be blank");
         this.sql = sql;
     }
 
     String questionSymbolArgumentsSql() {
-        if (questionSymbolArgumentsSql == null) {
-            compile();
-        }
-        return questionSymbolArgumentsSql;
+        return ARGUMENT_PATTERN.matcher(sql)
+                .replaceAll("?");
     }
 
     Map<Integer, Object> arguments(Map<String, Object> data) {
@@ -41,20 +36,12 @@ final class QueryArgumentParser {
     }
 
     private Map<Integer, String> argumentKeys() {
-        if (argumentKeys == null) {
-            compile();
-        }
-        return argumentKeys;
-    }
-
-    private void compile() {
         Map<Integer, String> keys = new HashMap<>();
         Matcher matcher = ARGUMENT_PATTERN.matcher(sql);
         int index = 1;
         while (matcher.find()) {
             keys.put(index++, matcher.group(ARGUMENT_NAME));
         }
-        this.argumentKeys = keys;
-        this.questionSymbolArgumentsSql = matcher.replaceAll("?");
+        return keys;
     }
 }

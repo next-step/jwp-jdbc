@@ -4,6 +4,8 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.mvc.tobe.interceptor.HandlerInterceptor;
+import core.mvc.tobe.interceptor.HandlerInterceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,10 +23,10 @@ public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
+    private final HandlerInterceptor handlerInterceptor = HandlerInterceptors.defaults();
+
     private HandlerMappingRegistry handlerMappingRegistry;
-
     private HandlerAdapterRegistry handlerAdapterRegistry;
-
     private HandlerExecutor handlerExecutor;
 
     @Override
@@ -52,13 +54,15 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
-
+            handlerInterceptor.preHandle(req, resp);
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
             render(mav, req, resp);
+            handlerInterceptor.postHandle(req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
             throw new ServletException(e.getMessage());
         }
+        handlerInterceptor.afterCompletion(req, resp);
     }
 
     private void render(ModelAndView mav, HttpServletRequest req, HttpServletResponse resp) throws Exception {
