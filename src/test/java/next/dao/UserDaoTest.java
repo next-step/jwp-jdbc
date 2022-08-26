@@ -40,4 +40,25 @@ public class UserDaoTest {
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
     }
+
+    @Test
+    public void crudByObjectMapper() {
+        User expected = new User("userId", "password", "name", "javajigi@email.com");
+        UserDao userDao = new UserDao();
+        userDao.insert(expected);
+        User actual = userDao.findByUserIdUseObjectMapper(expected.getUserId());
+        assertThat(actual).isEqualTo(expected);
+
+        expected.update(new User("userId", "password2", "name2", "sanjigi@email.com"));
+        userDao.update(expected);
+        actual = userDao.findByUserIdUseObjectMapper(expected.getUserId());
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void findAllByObjectMapper() {
+        UserDao userDao = new UserDao();
+        List<User> users = userDao.findAllUseObjectMapper();
+        assertThat(users).hasSize(1);
+    }
 }
