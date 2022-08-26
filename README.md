@@ -1,7 +1,13 @@
-## 요구사항
-- [ ] HTML 이외에 JSON으로 데이터를 요청하고 응답을 받도록 지원
+
+## 2단계 요구사항
+- [x] UserDaoTest 통과시킨다.
+- [ ] 리팩토링 진행한다.
+  - [ ] JDBC에 대한 공통 라이브러리를 만들어 개발자가 SQL 쿼리, 쿼리에 전달할 인자, SELECT 구문의 경우 조회한 데이터를 추출하는 3가지 구현에만 집중하도록 해야 한다.
+
+## 1단계 요구사항
+- [x] HTML 이외에 JSON으로 데이터를 요청하고 응답을 받도록 지원
   - [x] core.mvc.JsonViewTest의 모든 테스트를 pass하도록 JsonView를 구현
-  - [ ] next.controller.UserAcceptanceTest 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용
+  - [x] next.controller.UserAcceptanceTest 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용
 
 # JDBC 라이브러리 구현
 ## 진행 방법
