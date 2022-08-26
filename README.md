@@ -149,4 +149,20 @@
     - [x] 컨트롤러도 수행하지 않는다. (예외 페이지 출력?)
 - [x] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 후 interceptor#applyPostHandle 메서드를 수행한다.
   - [x] 모든 인터셉터를 다 수행해야 한다.
-- [x] View#render 수행 이후 interceptor#applyAfterCompletion 수행한다. 
+- [x] View#render 수행 이후 Interceptor#applyAfterCompletion 수행한다. 
+
+### 4단계 피드백
+- [ ] `addPathPatterns()` 와 같이 url 패턴이 매칭되는 경우 Interceptor 동작할 수 있도록 변경
+  - [ ] Interceptor 구현체를 Registry에 등록할 때 url 패턴과 함께 등록
+  - [ ] url 패턴 별 interceptor들을 관리할 수 있도록 내부 필드 변경
+- [ ] InterceptorRegistry에서 request를 인자로 받아 path pattern에 일치하는 interceptor 목록을 반환한다
+  - [ ] 반환 받은 interceptor들을 HanderExecutor에 주입한다
+- [ ] InterceptorRegistry에서 수행하던 apply~ 메서드들을 handlerExecutor으로 이동
+  - [ ] handlerExecutor에서 인터셉터를 수행한다
+- [ ] applyAfterCompletion 는 예외가 발생하더라도 수행될 수 있도록 변경
+  - [ ] 개발자가 예외 등의 상황에서 후처리 가능하도록 예외 클래스를 인자로 추가  
+- [ ] Interceptor 의 메서드들에 `throws Exception` 추가
+  - Interceptor 수행 중 예외가 발생할 수 있기 때문에 개발자가 try-catch 로 직접 예외를 처리하거나 interceptor 를 수행하는 클라이언트에서 
+예외를 처리할 수 있도록 유도(?)
+- [ ] TimeTraceInterceptor 시간 측정 시 LocalDateTime 활용하도록 변경
+  - [ ] ThreadLocal 적용: interceptor 는 1개의 인스턴스로 모두 동작하기 때문에 인스턴스 변수 사용을 조심해야하지 않을까?
