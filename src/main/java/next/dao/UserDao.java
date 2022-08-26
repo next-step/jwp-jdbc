@@ -31,6 +31,13 @@ public class UserDao {
                 rs.getString("email")));
     }
 
+    public List<User> findAllUseObjectMapper() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+
+        String sql = "SELECT userId, password, name, email FROM USERS";
+        return (List<User>)jdbcTemplate.query(sql, new ObjectRowMapper(User.class));
+    }
+
     public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
@@ -39,5 +46,12 @@ public class UserDao {
                 rs.getString("password"),
                 rs.getString("name"),
                 rs.getString("email")), userId);
+    }
+
+    public User findByUserIdUseObjectMapper(String userId) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+
+        return (User) jdbcTemplate.queryForObject(sql, new ObjectRowMapper(User.class), userId);
     }
 }
