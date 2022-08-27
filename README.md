@@ -164,5 +164,5 @@
 - [ ] Interceptor 의 메서드들에 `throws Exception` 추가
   - Interceptor 수행 중 예외가 발생할 수 있기 때문에 개발자가 try-catch 로 직접 예외를 처리하거나 interceptor 를 수행하는 클라이언트에서 
 예외를 처리할 수 있도록 유도(?)
-- [ ] TimeTraceInterceptor 시간 측정 시 LocalDateTime 활용하도록 변경
-  - [ ] ThreadLocal 적용: interceptor 는 1개의 인스턴스로 모두 동작하기 때문에 인스턴스 변수 사용을 조심해야하지 않을까?
+- [x] TimeTraceInterceptor 시간 측정 시 LocalDateTime 활용하도록 변경
+  - [x] ThreadLocal 적용: interceptor 는 1개의 인스턴스로 모두 동작하기 때문에 인스턴스 변수 사용을 조심해야하지 않을까?

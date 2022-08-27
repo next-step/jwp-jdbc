@@ -1,12 +1,14 @@
 package core.mvc.tobe.interceptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import core.di.factory.example.QnaController;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -36,13 +38,23 @@ class TimeTraceInterceptorTest {
 
         sleep();
 
-        timeTraceInterceptor.postHandle(request, response, qnaController);
+        timeTraceInterceptor.afterCompletion(request, response, qnaController);
 
         // then
-        final ILoggingEvent actual = listAppender.list.get(0);
+        final List<ILoggingEvent> loggingEvents = listAppender.list;
+        final ILoggingEvent startTImeActual = loggingEvents.get(0);
+        final ILoggingEvent endTimeActual = loggingEvents.get(1);
+        final ILoggingEvent durationActual = loggingEvents.get(2);
 
-        assertThat(actual.getLevel()).isSameAs(Level.DEBUG);
-        assertThat(actual.getFormattedMessage()).contains("core.di.factory.example.QnaController 의 수행 시간: 1.5");
+        assertAll(
+            () -> assertThat(startTImeActual.getLevel()).isSameAs(Level.DEBUG),
+            () -> assertThat(endTimeActual.getLevel()).isSameAs(Level.DEBUG),
+            () -> assertThat(durationActual.getLevel()).isSameAs(Level.DEBUG),
+
+            () -> assertThat(startTImeActual.getFormattedMessage()).startsWith("core.di.factory.example.QnaController 의 시작 시간:"),
+            () -> assertThat(endTimeActual.getFormattedMessage()).startsWith("core.di.factory.example.QnaController 의 종료 시간:"),
+            () -> assertThat(durationActual.getFormattedMessage()).startsWith("core.di.factory.example.QnaController 의 수행 시간: 15")
+        );
     }
 
     private static void sleep() {
