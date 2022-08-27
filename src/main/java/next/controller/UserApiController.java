@@ -21,7 +21,6 @@ public class UserApiController {
 
     private static final Map<String, User> USERS = new ConcurrentHashMap<>();
 
-    // 회원가입
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
     public ModelAndView create(
         HttpServletRequest request,
@@ -38,7 +37,6 @@ public class UserApiController {
         return ModelAndView.JsonView();
     }
 
-    // 조회
     @RequestMapping(value = "/api/users/{id}", method = RequestMethod.GET)
     public ModelAndView get(@PathVariable String id) {
         var user = USERS.get(id);
@@ -51,7 +49,6 @@ public class UserApiController {
         return modelAndView;
     }
 
-    // 수정
     @RequestMapping(value = "/api/users/{id}", method = RequestMethod.PUT)
     public ModelAndView modify(HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws
         Exception {
