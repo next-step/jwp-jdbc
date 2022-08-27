@@ -19,7 +19,7 @@ class TimeTraceInterceptorTest {
 
     @DisplayName("수행 시간을 출력한다")
     @Test
-    void time_trace() {
+    void time_trace() throws Exception {
         final Logger logger = (Logger) LoggerFactory.getLogger(TimeTraceInterceptor.class);
 
         final ListAppender<ILoggingEvent> listAppender = new ListAppender<>();

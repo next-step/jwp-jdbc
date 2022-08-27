@@ -13,18 +13,23 @@ public class HandlerInterceptorRegistry {
         interceptors.add(interceptor);
     }
 
-    public boolean applyPreHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
-        return interceptors.stream()
-            .allMatch(interceptor -> interceptor.preHandle(request, response, handler));
+    public boolean applyPreHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) throws Exception {
+        for (final HandlerInterceptor interceptor : interceptors) {
+            if (!interceptor.preHandle(request, response, handler)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public void applyPostHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+    public void applyPostHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) throws Exception {
         for (final HandlerInterceptor interceptor : interceptors) {
             interceptor.postHandle(request, response, handler);
         }
     }
 
-    public void applyAfterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+    public void applyAfterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler) throws Exception {
         for (final HandlerInterceptor interceptor : interceptors) {
             interceptor.afterCompletion(request, response, handler);
         }

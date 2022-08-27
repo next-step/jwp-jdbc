@@ -161,7 +161,7 @@
   - [ ] handlerExecutor에서 인터셉터를 수행한다
 - [ ] applyAfterCompletion 는 예외가 발생하더라도 수행될 수 있도록 변경
   - [ ] 개발자가 예외 등의 상황에서 후처리 가능하도록 예외 클래스를 인자로 추가  
-- [ ] Interceptor 의 메서드들에 `throws Exception` 추가
+- [x] Interceptor 의 메서드들에 `throws Exception` 추가
   - Interceptor 수행 중 예외가 발생할 수 있기 때문에 개발자가 try-catch 로 직접 예외를 처리하거나 interceptor 를 수행하는 클라이언트에서 
 예외를 처리할 수 있도록 유도(?)
 - [x] TimeTraceInterceptor 시간 측정 시 LocalDateTime 활용하도록 변경

@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,7 +49,7 @@ class HandlerInterceptorRegistryTest {
 
     @DisplayName("추가된 Interceptor 의 순서대로 preHandle 메서드를 수행한다")
     @Test
-    void invoke_pre_handle_method_in_order() {
+    void invoke_pre_handle_method_in_order() throws Exception {
         // given
         handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
         handlerInterceptorRegistry.addInterceptor(minus100ChainInterceptor());
@@ -67,7 +66,7 @@ class HandlerInterceptorRegistryTest {
 
     @DisplayName("추가된 Interceptor 의 순서대로 preHandle 메서드를 수행하고 true 를 리턴한다")
     @Test
-    void true_return_invoke_pre_handle_method_in_order() {
+    void true_return_invoke_pre_handle_method_in_order() throws Exception {
         // given
         handlerInterceptorRegistry.addInterceptor(minus100ChainInterceptor());
         handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
@@ -85,7 +84,7 @@ class HandlerInterceptorRegistryTest {
 
     @DisplayName("preHandle 메서드 수행 중 false 리턴이 있는 경우 다음 단계를 진행하지 않고 false 를 리턴한다 ")
     @Test
-    void if_false_return_then_does_not_proceed_to_the_next_step() {
+    void if_false_return_then_does_not_proceed_to_the_next_step() throws Exception {
         // given
         handlerInterceptorRegistry.addInterceptor(minus20NoChainInterceptor());
         handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
@@ -103,7 +102,7 @@ class HandlerInterceptorRegistryTest {
 
     @DisplayName("추가된 Interceptor 의 순서대로 postHandle 메서드를 수행한다")
     @Test
-    void invoke_post_handle_method_in_order() {
+    void invoke_post_handle_method_in_order() throws Exception {
         // given
         handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
         handlerInterceptorRegistry.addInterceptor(minus100ChainInterceptor());
@@ -119,7 +118,7 @@ class HandlerInterceptorRegistryTest {
 
     @DisplayName("추가된 Interceptor 의 순서대로 afterCompletion 메서드를 수행한다")
     @Test
-    void invoke_after_completion_method_in_order() {
+    void invoke_after_completion_method_in_order() throws Exception {
         // given
         handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
         handlerInterceptorRegistry.addInterceptor(minus100ChainInterceptor());
