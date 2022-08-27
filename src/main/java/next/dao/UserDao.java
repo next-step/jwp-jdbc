@@ -70,14 +70,11 @@ public class UserDao {
 
             rs = pstmt.executeQuery();
 
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+            while (rs.next()) {
+                User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email"));
+                users.add(user);
             }
-
-            users.add(user);
-            return users;
         } finally {
             if (rs != null) {
                 rs.close();
@@ -89,6 +86,7 @@ public class UserDao {
                 con.close();
             }
         }
+        return users;
     }
 
     public User findByUserId(String userId) throws SQLException {
