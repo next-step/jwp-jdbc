@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 
 @Controller
 public class UserAcceptanceController {
@@ -25,7 +26,7 @@ public class UserAcceptanceController {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
-    public ModelAndView createUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView createUser(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
         UserCreatedDto userCreatedDto = objectMapper.readValue(request.getReader(), UserCreatedDto.class);
         UserService.addUser(userCreatedDto);
 
@@ -35,7 +36,7 @@ public class UserAcceptanceController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
-    public ModelAndView retrieveUser(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView retrieveUser(HttpServletRequest request, HttpServletResponse response) throws SQLException {
         String userId = request.getParameter("userId");
         User user = UserService.findUserById(userId);
 
@@ -46,7 +47,7 @@ public class UserAcceptanceController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
-    public ModelAndView updateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView updateUser(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
         String userId = request.getParameter("userId");
         UserUpdatedDto userUpdatedDto = objectMapper.readValue(request.getReader(), UserUpdatedDto.class);
         UserService.updateUser(userId, userUpdatedDto);
