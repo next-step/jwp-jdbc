@@ -157,7 +157,7 @@
   - [ ] url 패턴 별 interceptor들을 관리할 수 있도록 내부 필드 변경
     - [ ] HandlerInterceptorExecution
       - [x] Interceptor를 주입 받아 생성한다
-      - [ ] Interceptor가 수행 될 PathPattern을 여러개 등록할 수 있다.
+      - [x] Interceptor가 수행 될 PathPattern을 여러개 등록할 수 있다.
       - [ ] PathPattern이 없는 경우 모든 Pattern이 일치하는 것으로 간주한다. 
       - [ ] url을 입력받아 PathPattern이 일치하는 경우 Intercepter를 반환한다. 
 - [ ] InterceptorRegistry에서 request를 인자로 받아 path pattern에 일치하는 interceptor 목록을 반환한다
