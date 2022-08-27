@@ -1,5 +1,6 @@
 package core.mvc;
 
+import core.util.PathPatternUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +17,27 @@ public class HandlerInterceptorExecution {
 
     public void addPathPatterns(String... pathPatterns) {
         this.pathPatterns.addAll(Arrays.asList(pathPatterns));
+    }
+
+    public HandlerInterceptor getHandlerInterceptor(String url) {
+        if (pathPatterns.isEmpty()) {
+            return this.handlerInterceptor;
+        }
+
+        return getHandlerInterceptorInternal(url);
+    }
+
+    private HandlerInterceptor getHandlerInterceptorInternal(final String url) {
+        if (isUrlMatch(url)) {
+            return this.handlerInterceptor;
+        }
+
+        return HandlerInterceptor.DO_NOTHING_CHAIN_INTERCEPTOR;
+    }
+
+    private boolean isUrlMatch(final String url) {
+        return pathPatterns.stream()
+            .anyMatch(pattern -> PathPatternUtil.isUrlMatch(pattern, url));
     }
 
     @Override

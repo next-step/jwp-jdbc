@@ -155,11 +155,11 @@
 - [ ] `addPathPatterns()` 와 같이 url 패턴이 매칭되는 경우 Interceptor 동작할 수 있도록 변경
   - [ ] Interceptor 구현체를 Registry에 등록할 때 url 패턴과 함께 등록
   - [ ] url 패턴 별 interceptor들을 관리할 수 있도록 내부 필드 변경
-    - [ ] HandlerInterceptorExecution
+    - [x] HandlerInterceptorExecution
       - [x] Interceptor를 주입 받아 생성한다
       - [x] Interceptor가 수행 될 PathPattern을 여러개 등록할 수 있다.
-      - [ ] PathPattern이 없는 경우 모든 Pattern이 일치하는 것으로 간주한다. 
-      - [ ] url을 입력받아 PathPattern이 일치하는 경우 Intercepter를 반환한다. 
+      - [x] url을 입력받아 PathPattern이 일치하는 경우 Intercepter를 반환한다. 
+      - [x] 등록된 PathPattern이 없는 경우 무조건 Interceptor를 반환한다. 
 - [ ] InterceptorRegistry에서 request를 인자로 받아 path pattern에 일치하는 interceptor 목록을 반환한다
   - [ ] 반환 받은 interceptor들을 HanderExecutor에 주입한다
 - [ ] InterceptorRegistry에서 수행하던 apply~ 메서드들을 handlerExecutor으로 이동
