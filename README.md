@@ -16,3 +16,7 @@
          2. render_one_element 메소드 테스트를 통과한다. (model으로 Car 객체를 받아 JSON 형태로 응답한다.)
          3. render_over_two_elemnt 메소드 테스트를 통과한다. (model으로 두개 이상의 데이터를 받아 JSON 형식으로 응답한다.)
    2. next.controller.UserAcceptanceTest 테스트를 pass 하도록 Controller를 추가한다.
+      1. UserAcceptanceController 클래스를 생성한다.
+         1. crud 메서드의 회원가입 기능을 구현한다.
+         2. crud 메서드의 조회 기능을 구현한다.
+         3. crud 메서드의 수정 기능을 구현한다.

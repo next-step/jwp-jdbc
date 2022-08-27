@@ -1,10 +1,15 @@
 package next.model;
 
+import java.util.Optional;
+
 public class User {
     private String userId;
     private String password;
     private String name;
     private String email;
+
+    public User() {
+    }
 
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
@@ -30,9 +35,9 @@ public class User {
     }
 
     public void update(User updateUser) {
-        this.password = updateUser.password;
-        this.name = updateUser.name;
-        this.email = updateUser.email;
+        this.password = Optional.ofNullable(updateUser.password).orElseGet(() -> password);
+        this.name = Optional.ofNullable(updateUser.name).orElseGet(() -> name);
+        this.email = Optional.ofNullable(updateUser.email).orElseGet(() -> email);
     }
 
     public boolean matchPassword(String password) {

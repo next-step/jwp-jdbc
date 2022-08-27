@@ -49,6 +49,8 @@ dependencies {
     testImplementation 'io.projectreactor.netty:reactor-netty-http:1.0.19'
     testImplementation "org.springframework:spring-test:${springVersion}"
     testImplementation "org.springframework:spring-webflux:${springVersion}"
+
+    implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
 }
 
 test {
