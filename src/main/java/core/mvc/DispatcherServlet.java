@@ -51,14 +51,15 @@ public class DispatcherServlet extends HttpServlet {
         String requestUri = req.getRequestURI();
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
-        try {
-            Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(req);
-            if (!maybeHandler.isPresent()) {
-                resp.setStatus(HttpStatus.NOT_FOUND.value());
-                return;
-            }
+        Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(req);
+        if (maybeHandler.isEmpty()) {
+            resp.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
 
-            final Object handler = maybeHandler.get();
+        final Object handler = maybeHandler.get();
+
+        try {
             if (!handlerInterceptorRegistry.applyPreHandle(req, resp, handler)) {
                 resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
                 return;
@@ -70,9 +71,21 @@ public class DispatcherServlet extends HttpServlet {
 
             render(mav, req, resp);
 
-            handlerInterceptorRegistry.applyAfterCompletion(req, resp, handler);
+
+        } catch (Exception e) {
+            applyAfterCompletion(req, resp, handler, e);
         } catch (Throwable e) {
+            logger.error("Throwable : {}", e);
+            throw new ServletException(e.getMessage());
+        }
+    }
+
+    private void applyAfterCompletion(final HttpServletRequest req, final HttpServletResponse resp, final Object handler, final Exception e) throws ServletException {
+        try {
+            handlerInterceptorRegistry.applyAfterCompletion(req, resp, handler, e);
+        } catch (Exception ex) {
             logger.error("Exception : {}", e);
+            logger.error("Throwable : {}", ex);
             throw new ServletException(e.getMessage());
         }
     }

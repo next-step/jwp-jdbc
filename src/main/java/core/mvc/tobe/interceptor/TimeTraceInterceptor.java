@@ -21,7 +21,7 @@ public class TimeTraceInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler) throws Exception {
+    public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler, final Exception exception) throws Exception {
         final LocalDateTime completeTime = LocalDateTime.now();
         logger.debug("{} 의 시작 시간: {}", handler.getClass().getName(), interval.get());
         logger.debug("{} 의 종료 시간: {}", handler.getClass().getName(), completeTime);

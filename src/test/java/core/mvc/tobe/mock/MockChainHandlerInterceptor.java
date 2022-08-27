@@ -22,7 +22,7 @@ public class MockChainHandlerInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+    public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler, final Exception exception) {
         logger.debug("View#render 수행 이후 수행되는 로직입니다. 다음 단계로 진행합니다.");
     }
 }

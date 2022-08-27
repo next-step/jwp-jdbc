@@ -38,7 +38,7 @@ class TimeTraceInterceptorTest {
 
         sleep();
 
-        timeTraceInterceptor.afterCompletion(request, response, qnaController);
+        timeTraceInterceptor.afterCompletion(request, response, qnaController, null);
 
         // then
         final List<ILoggingEvent> loggingEvents = listAppender.list;

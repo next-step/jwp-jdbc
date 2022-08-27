@@ -29,9 +29,9 @@ public class HandlerInterceptorRegistry {
         }
     }
 
-    public void applyAfterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler) throws Exception {
+    public void applyAfterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler, final Exception exception) throws Exception {
         for (final HandlerInterceptor interceptor : interceptors) {
-            interceptor.afterCompletion(request, response, handler);
+            interceptor.afterCompletion(request, response, handler, exception);
         }
     }
 

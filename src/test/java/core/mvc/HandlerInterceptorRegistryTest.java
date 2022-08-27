@@ -125,7 +125,7 @@ class HandlerInterceptorRegistryTest {
 
         request.setAttribute("value", 10);
 
-        handlerInterceptorRegistry.applyAfterCompletion(request, response, createMockQnaController());
+        handlerInterceptorRegistry.applyAfterCompletion(request, response, createMockQnaController(), null);
         final int valueActual = (int) request.getAttribute("value");
 
         // then
@@ -152,7 +152,7 @@ class HandlerInterceptorRegistryTest {
             }
 
             @Override
-            public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+            public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler, final Exception exception) {
                 final int value = (int) request.getAttribute("value");
                 request.setAttribute("value", value - 100);
             }
@@ -187,7 +187,7 @@ class HandlerInterceptorRegistryTest {
             }
 
             @Override
-            public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+            public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response, final Object handler, final Exception exception) {
                 final int value = (int) request.getAttribute("value");
                 request.setAttribute("value", value * 100);
             }
