@@ -3,6 +3,7 @@ package next.dao;
 import core.jdbc.ConnectionManager;
 import next.model.User;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
@@ -24,6 +25,7 @@ public class UserDaoTest {
     }
 
     @Test
+    @DisplayName("가변인자를 통한 insert 테스트")
     public void create() {
         // given & when
         userDao.insert(testUser);
@@ -33,6 +35,17 @@ public class UserDaoTest {
     }
 
     @Test
+    @DisplayName("인터페이스를 통한 insert 테스트")
+    public void create_with_interface() {
+        // given & when
+        userDao.insertWithInterface(testUser);
+        User actual = userDao.findByUserIdWithInterface(testUser.getUserId());
+        // then
+        assertThat(actual).isEqualTo(testUser);
+    }
+
+    @Test
+    @DisplayName("가변 인자를 통한 update 테스트")
     public void update() {
         // given
         userDao.insert(testUser);
@@ -41,6 +54,20 @@ public class UserDaoTest {
         // when
         userDao.update(expected);
         User actual = userDao.findByUserId(testUser.getUserId());
+        // then
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("인터페이스를 통한 update 테스트")
+    public void update_with_interface() {
+        // given
+        userDao.insertWithInterface(testUser);
+        User expected = userDao.findByUserIdWithInterface(testUser.getUserId());
+        expected.update(new User(testUser.getUserId(), "password2", "name2", "sanjigi@email.com"));
+        // when
+        userDao.updateWithInterface(expected);
+        User actual = userDao.findByUserIdWithInterface(testUser.getUserId());
         // then
         assertThat(actual).isEqualTo(expected);
     }
