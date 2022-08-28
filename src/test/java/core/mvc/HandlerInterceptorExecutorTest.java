@@ -15,48 +15,41 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-class HandlerInterceptorRegistryTest {
+class HandlerInterceptorExecutorTest {
 
-    private HandlerInterceptorRegistry handlerInterceptorRegistry;
+    private HandlerInterceptorExecutor handlerInterceptorExecutor;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
 
     @BeforeEach
     void setUp() {
-        handlerInterceptorRegistry = new HandlerInterceptorRegistry();
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
     }
 
-    @DisplayName("인터셉터를 추가할 수 있다")
+    @DisplayName("인터셉터를 추가하여 인터셉터 실행 객체를 생성한다")
     @Test
-    void add_interceptor() {
-        handlerInterceptorRegistry.addInterceptor(new MockChainHandlerInterceptor());
-        handlerInterceptorRegistry.addInterceptor(new MockNoChainHandlerInterceptor());
+    void constructor() {
+        handlerInterceptorExecutor = new HandlerInterceptorExecutor(
+          List.of(new MockChainHandlerInterceptor(), new MockNoChainHandlerInterceptor())
+        );
 
-        final boolean actual = handlerInterceptorRegistry.hasInterceptor();
+        final boolean actual = handlerInterceptorExecutor.isExecutable();
 
         assertThat(actual).isTrue();
-    }
-
-    @DisplayName("인터셉터 포함 여부를 알 수 있다")
-    @Test
-    void empty_interceptor_registry() {
-        final boolean actual = handlerInterceptorRegistry.hasInterceptor();
-
-        assertThat(actual).isFalse();
     }
 
     @DisplayName("추가된 Interceptor 의 순서대로 preHandle 메서드를 수행한다")
     @Test
     void invoke_pre_handle_method_in_order() throws Exception {
         // given
-        handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
-        handlerInterceptorRegistry.addInterceptor(minus100ChainInterceptor());
+        handlerInterceptorExecutor = new HandlerInterceptorExecutor(
+            List.of(times100ChainInterceptor(), minus100ChainInterceptor())
+        );
 
         request.setAttribute("value", 10);
 
-        final boolean actual = handlerInterceptorRegistry.applyPreHandle(request, response, createMockQnaController());
+        final boolean actual = handlerInterceptorExecutor.applyPreHandle(request, response, createMockQnaController());
         final int valueActual = (int) request.getAttribute("value");
 
         // then
@@ -68,13 +61,14 @@ class HandlerInterceptorRegistryTest {
     @Test
     void true_return_invoke_pre_handle_method_in_order() throws Exception {
         // given
-        handlerInterceptorRegistry.addInterceptor(minus100ChainInterceptor());
-        handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
+        handlerInterceptorExecutor = new HandlerInterceptorExecutor(
+            List.of(minus100ChainInterceptor(), times100ChainInterceptor())
+        );
 
         request.setAttribute("value", 10);
 
         // when
-        final boolean actual = handlerInterceptorRegistry.applyPreHandle(request, response, createMockQnaController());
+        final boolean actual = handlerInterceptorExecutor.applyPreHandle(request, response, createMockQnaController());
         final int valueActual = (int) request.getAttribute("value");
 
         // then
@@ -86,13 +80,14 @@ class HandlerInterceptorRegistryTest {
     @Test
     void if_false_return_then_does_not_proceed_to_the_next_step() throws Exception {
         // given
-        handlerInterceptorRegistry.addInterceptor(minus20NoChainInterceptor());
-        handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
+        handlerInterceptorExecutor = new HandlerInterceptorExecutor(
+            List.of(minus20NoChainInterceptor(), times100ChainInterceptor())
+        );
 
         request.setAttribute("value", 20);
 
         // when
-        final boolean actual = handlerInterceptorRegistry.applyPreHandle(request, response, createMockQnaController());
+        final boolean actual = handlerInterceptorExecutor.applyPreHandle(request, response, createMockQnaController());
         final int valueActual = (int) request.getAttribute("value");
 
         // then
@@ -104,12 +99,13 @@ class HandlerInterceptorRegistryTest {
     @Test
     void invoke_post_handle_method_in_order() throws Exception {
         // given
-        handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
-        handlerInterceptorRegistry.addInterceptor(minus100ChainInterceptor());
+        handlerInterceptorExecutor = new HandlerInterceptorExecutor(
+            List.of(times100ChainInterceptor(), minus100ChainInterceptor())
+        );
 
         request.setAttribute("value", 10);
 
-        handlerInterceptorRegistry.applyPostHandle(request, response, createMockQnaController());
+        handlerInterceptorExecutor.applyPostHandle(request, response, createMockQnaController());
         final int valueActual = (int) request.getAttribute("value");
 
         // then
@@ -120,12 +116,13 @@ class HandlerInterceptorRegistryTest {
     @Test
     void invoke_after_completion_method_in_order() throws Exception {
         // given
-        handlerInterceptorRegistry.addInterceptor(times100ChainInterceptor());
-        handlerInterceptorRegistry.addInterceptor(minus100ChainInterceptor());
+        handlerInterceptorExecutor = new HandlerInterceptorExecutor(
+            List.of(times100ChainInterceptor(), minus100ChainInterceptor())
+        );
 
         request.setAttribute("value", 10);
 
-        handlerInterceptorRegistry.applyAfterCompletion(request, response, createMockQnaController(), null);
+        handlerInterceptorExecutor.applyAfterCompletion(request, response, createMockQnaController(), null);
         final int valueActual = (int) request.getAttribute("value");
 
         // then

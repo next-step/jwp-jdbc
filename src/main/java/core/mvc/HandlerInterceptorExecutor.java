@@ -1,16 +1,15 @@
 package core.mvc;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class HandlerInterceptorRegistry {
+public class HandlerInterceptorExecutor {
 
-    private final List<HandlerInterceptor> interceptors = new ArrayList<>();
+    private final List<HandlerInterceptor> interceptors;
 
-    public void addInterceptor(HandlerInterceptor interceptor) {
-        interceptors.add(interceptor);
+    public HandlerInterceptorExecutor(final List<HandlerInterceptor> interceptors) {
+        this.interceptors = interceptors;
     }
 
     public boolean applyPreHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) throws Exception {
@@ -35,7 +34,7 @@ public class HandlerInterceptorRegistry {
         }
     }
 
-    public boolean hasInterceptor() {
+    public boolean isExecutable() {
         return !interceptors.isEmpty();
     }
 }
