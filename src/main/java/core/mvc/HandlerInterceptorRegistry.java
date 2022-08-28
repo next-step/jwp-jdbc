@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class HandlerInterceptorRegistry2 {
+public class HandlerInterceptorRegistry {
 
     private final List<HandlerInterceptorExecution> executions = new ArrayList<>();
 

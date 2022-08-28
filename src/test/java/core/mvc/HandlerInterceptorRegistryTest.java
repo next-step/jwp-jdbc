@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class HandlerInterceptorRegistry2Test {
+class HandlerInterceptorRegistryTest {
 
     private final MockChainHandlerInterceptor mockChainHandlerInterceptor = new MockChainHandlerInterceptor();
     private final MockNoChainHandlerInterceptor mockNoChainHandlerInterceptor = new MockNoChainHandlerInterceptor();
@@ -17,7 +17,7 @@ class HandlerInterceptorRegistry2Test {
     @DisplayName("인터셉터를 등록하면 Execution을 반환한다")
     @Test
     void return_execution() {
-        final HandlerInterceptorRegistry2 registry = new HandlerInterceptorRegistry2();
+        final HandlerInterceptorRegistry registry = new HandlerInterceptorRegistry();
 
         final HandlerInterceptorExecution actual = registry.addInterceptor(mockChainHandlerInterceptor);
 
@@ -29,7 +29,7 @@ class HandlerInterceptorRegistry2Test {
     @DisplayName("PathPattern이 일치하는 모든 Interceptor를 반환한다")
     @Test
     void pattern_matched_interceptors() {
-        final HandlerInterceptorRegistry2 registry = new HandlerInterceptorRegistry2();
+        final HandlerInterceptorRegistry registry = new HandlerInterceptorRegistry();
 
         registry.addInterceptor(mockChainHandlerInterceptor).addPathPatterns("/users/{id}");
         registry.addInterceptor(mockNoChainHandlerInterceptor);
@@ -44,7 +44,7 @@ class HandlerInterceptorRegistry2Test {
     @DisplayName("PathPattern이 일치하지 않으면 Interceptor를 반환하지 않는다")
     @Test
     void pattern_not_matched_interceptors() {
-        final HandlerInterceptorRegistry2 registry = new HandlerInterceptorRegistry2();
+        final HandlerInterceptorRegistry registry = new HandlerInterceptorRegistry();
 
         registry.addInterceptor(mockChainHandlerInterceptor).addPathPatterns("/users/{id}");
         registry.addInterceptor(mockNoChainHandlerInterceptor).addPathPatterns("/members/{id}");
