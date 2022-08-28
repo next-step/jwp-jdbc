@@ -23,7 +23,7 @@ public class UserService {
     public static void updateUser(String userId, UserUpdatedDto userUpdatedDto) throws SQLException {
         UserDao userDao = new UserDao();
         User selectedUser = userDao.findByUserId(userId);
-        selectedUser.update(new User(userId, null, userUpdatedDto.getName(), userUpdatedDto.getEmail()));
+        selectedUser.update(new User(selectedUser.getUserId(), selectedUser.getPassword(), userUpdatedDto.getName(), userUpdatedDto.getEmail()));
         userDao.update(selectedUser);
     }
 }
