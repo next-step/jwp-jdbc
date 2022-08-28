@@ -4,6 +4,7 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.mvc.tobe.interceptor.UpdateUserAuthenticationInterceptor;
 import core.mvc.tobe.interceptor.TimeTraceInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public class DispatcherServlet extends HttpServlet {
     private HandlerAdapterRegistry handlerAdapterRegistry;
 
     private HandlerInterceptorRegistry handlerInterceptorRegistry;
+    private HandlerInterceptorRegistry2 handlerInterceptorRegistry2;
 
     private HandlerExecutor handlerExecutor;
 
@@ -44,6 +46,11 @@ public class DispatcherServlet extends HttpServlet {
 
         handlerInterceptorRegistry = new HandlerInterceptorRegistry();
         handlerInterceptorRegistry.addInterceptor(new TimeTraceInterceptor());
+
+        handlerInterceptorRegistry2 = new HandlerInterceptorRegistry2();
+        handlerInterceptorRegistry2.addInterceptor(new TimeTraceInterceptor());
+        handlerInterceptorRegistry2.addInterceptor(new UpdateUserAuthenticationInterceptor()).addPathPatterns("/api/users");
+
     }
 
     @Override
@@ -71,11 +78,12 @@ public class DispatcherServlet extends HttpServlet {
 
             render(mav, req, resp);
 
-
+            applyAfterCompletion(req, resp, handler, null);
         } catch (Exception e) {
             applyAfterCompletion(req, resp, handler, e);
         } catch (Throwable e) {
             logger.error("Throwable : {}", e);
+            applyAfterCompletion(req, resp, handler, (Exception) e);
             throw new ServletException(e.getMessage());
         }
     }
