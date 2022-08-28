@@ -30,8 +30,8 @@ public class JsonViewTest {
     @Test
     void render_no_element() throws Exception {
         view.render(new HashMap<>(), request, response);
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
-        assertThat(response.getContentAsString()).isBlank();
+        assertThat(response.getContentType()).startsWith(MediaType.APPLICATION_JSON_VALUE);
+        assertThat(response.getContentAsString()).isEqualTo("");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class JsonViewTest {
         view.render(model, request, response);
 
         Car actual = JsonUtils.toObject(response.getContentAsString(), Car.class);
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        assertThat(response.getContentType()).startsWith(MediaType.APPLICATION_JSON_VALUE);
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -56,7 +56,7 @@ public class JsonViewTest {
 
         view.render(model, request, response);
 
-        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        assertThat(response.getContentType()).startsWith(MediaType.APPLICATION_JSON_VALUE);
         logger.debug("response body : {}", response.getContentAsString());
     }
 }
