@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RequestBodyArgumentResolverTest {
 
-    private RequestBodyArgumentResolver argumentResolver = new RequestBodyArgumentResolver();
+    private final RequestBodyArgumentResolver argumentResolver = new RequestBodyArgumentResolver();
 
     @DisplayName("RequestBody Argument Resolver Test")
     @Test
@@ -37,13 +37,10 @@ class RequestBodyArgumentResolverTest {
 
         MethodParameter mp = new MethodParameter(modelMethod, MockUser.class, new Annotation[]{requestBodyAnnotation}, "user");
 
-        MockUser user = (MockUser) argumentResolver.resolveArgument(mp, request, response);
+        MockUser actual = (MockUser) argumentResolver.resolveArgument(mp, request, response);
 
-        assertThat(user.getId()).isEqualTo("jun");
-        assertThat(user.getName()).isEqualTo("dong");
-        assertThat(user.getAddr()).isEqualTo("서울");
-        assertThat(user.getAge()).isEqualTo(20);
-        assertThat(user.getMoney()).isEqualTo(10000L);
+        assertThat(actual).usingRecursiveComparison()
+                .isEqualTo(mockUser);
     }
 
 }

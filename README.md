@@ -13,3 +13,13 @@
 * JSON으로 데이터를 요청하고 응답을 받도록 지원해야 한다.
   * core.mvc.JsonViewTest의 모든 테스트를 pass하도록 JsonView를 구현한다. 
   * next.controller.UserAcceptanceTest 테스트를 pass하도록 Controller를 추가한다. Controller는 애노테이션 기반 MVC를 사용한다.
+
+---
+## 2단계 요구사항
+* UserDto의 전체조회, 수정 기능을 구현한다.
+* JDBC 라이브러리를 만들어 개발자가 SQL 쿼리, 쿼리에 전달할 인자, SELECT 구문의 경우 조회한 데이터를 추출하는 3가지 구현에만 집중하도록 해야 한다.
+  * Connection 생성 및 close
+  * Statement 생성 및 close
+  * ResultSet 생성 및 close
+  * SQL 문에 인자 setting
+  * 트랜잭션 관리
