@@ -1,5 +1,6 @@
 package core.mvc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 
@@ -12,22 +13,25 @@ public class JsonView implements View {
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String value = null;
-        if (model.size() == ONE_MODEL_COUNT) {
-            for (String key : model.keySet()) {
-                Object modelValue = model.get(key);
-                value = objectMapper.writeValueAsString(modelValue);
-            }
-        }
-
-        if (model.size() > ONE_MODEL_COUNT) {
-            value = objectMapper.writeValueAsString(model);
-        }
-
+        String value = getValue(model, new ObjectMapper());
         if (value != null) {
             response.getWriter().write(value);
         }
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    }
+
+    private String getValue(Map<String, ?> model, ObjectMapper objectMapper) throws JsonProcessingException {
+        if (model.size() < ONE_MODEL_COUNT) {
+            return null;
+        }
+
+        if (model.size() == ONE_MODEL_COUNT) {
+            for (String key : model.keySet()) {
+                Object modelValue = model.get(key);
+                return objectMapper.writeValueAsString(modelValue);
+            }
+        }
+
+        return objectMapper.writeValueAsString(model);
     }
 }

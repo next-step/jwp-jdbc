@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class UserService {
 
-    public static void addUser(UserCreatedDto userCreatedDto) throws SQLException {
+    public static void addUser(UserCreatedDto userCreatedDto) {
         User user = new User(userCreatedDto.getUserId(), userCreatedDto.getPassword(), userCreatedDto.getName(), userCreatedDto.getEmail());
         UserDao userDao = new UserDao();
         userDao.insert(user);
@@ -21,8 +21,9 @@ public class UserService {
     }
 
     public static void updateUser(String userId, UserUpdatedDto userUpdatedDto) throws SQLException {
-        User user = new User(userId, null, userUpdatedDto.getName(), userUpdatedDto.getEmail());
         UserDao userDao = new UserDao();
-        userDao.update(user);
+        User selectedUser = userDao.findByUserId(userId);
+        selectedUser.update(new User(userId, null, userUpdatedDto.getName(), userUpdatedDto.getEmail()));
+        userDao.update(selectedUser);
     }
 }

@@ -6,6 +6,7 @@ import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.JsonView;
 import core.mvc.ModelAndView;
+import core.mvc.RequestBody;
 import core.service.UserService;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
@@ -16,18 +17,15 @@ import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.sql.SQLException;
 
 @Controller
 public class UserAcceptanceController {
     private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceController.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @RequestMapping(value = "/api/users", method = RequestMethod.POST)
-    public ModelAndView createUser(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
-        UserCreatedDto userCreatedDto = objectMapper.readValue(request.getReader(), UserCreatedDto.class);
+    public ModelAndView createUser(HttpServletRequest request, HttpServletResponse response,
+                                   @RequestBody UserCreatedDto userCreatedDto) throws SQLException {
         UserService.addUser(userCreatedDto);
 
         response.addHeader("location", "/api/users?userId=" + userCreatedDto.getUserId());
@@ -47,9 +45,9 @@ public class UserAcceptanceController {
     }
 
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
-    public ModelAndView updateUser(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public ModelAndView updateUser(HttpServletRequest request, HttpServletResponse response,
+                                   @RequestBody UserUpdatedDto userUpdatedDto) throws SQLException {
         String userId = request.getParameter("userId");
-        UserUpdatedDto userUpdatedDto = objectMapper.readValue(request.getReader(), UserUpdatedDto.class);
         UserService.updateUser(userId, userUpdatedDto);
 
         response.setStatus(HttpStatus.OK.value());
