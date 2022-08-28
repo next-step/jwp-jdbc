@@ -154,7 +154,7 @@
 ### 4단계 피드백
 - [ ] `addPathPatterns()` 와 같이 url 패턴이 매칭되는 경우 Interceptor 동작할 수 있도록 변경
   - [ ] Interceptor 구현체를 Registry에 등록할 때 url 패턴과 함께 등록
-  - [ ] url 패턴 별 interceptor들을 관리할 수 있도록 내부 필드 변경
+  - [x] url 패턴 별 interceptor들을 관리할 수 있도록 내부 필드 변경
     - [x] HandlerInterceptorExecution
       - [x] Interceptor를 주입 받아 생성한다
       - [x] Interceptor가 수행 될 PathPattern을 여러개 등록할 수 있다.
