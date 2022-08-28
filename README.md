@@ -112,3 +112,63 @@
 - [x] RowMapperFunction 테스트 코드 추가 
 - [x] JdbcTemplateTest에 DELETE DML 테스트 코드 추가
   - 요구사항에 fit하게 맞추기 보다 라이브러리를 만든다는 마인드!! 학습 목적!! 
+
+# 🚀 4단계 - Interceptor 구현
+
+### 3단계 피드백
+- [x] UserApiController 에 UserDao 적용
+  - 만들었으면 써먹어 봐야지
+- [x] RowMapperFunctionTest 에서 resultSet 의 결과를 확인하기 위한 if문 추가
+  - if 문으로 resultSet 의 결과를 한번 더 검증할 수 있어서 다양한 테스트 케이스 추가 가능  
+- [x] RowMapperFunctionTest 에서 Connection 과 PreparedStatement 없이 ResultSet 만 구현하여 테스트하도록 변경
+  - Connection 과 PreparedStatement 에 대한 의존을 없애면 조금 더 단위 테스트 답게 작성할 수 있을 것 같다!
+- [x] RequestParameterUtilsTest#re 메서드명 수정
+
+
+### 요구사항
+> Controller에도 공통으로 처리할 필요가 있는 로직이 발생한다.  
+> Controller 전/후에 로직을 추가할 수 있는 Interceptor를 구현해 본다.   
+> 각 Controller 메소드의 실행 속도를 측정한 후 debug level로 log를 출력하는 요구사항을 구현한다.  
+
+### 기능 목록
+- [x] Interceptor 인터페이스
+  - [x] 컨트롤러 실행 전 수행하는 메서드 (preHandle)
+  - [x] 컨트롤러 실행 후 수행하는 메서드 (postHandle)
+  - [x] 뷰 render 이후 수행하는 메서드 (afterCompletion)
+- [x] Interceptor 목록을 가지는 InterceptorRegistry 를 구현한다.
+  - [x] Interceptor 인터페이스의 구현체를 추가할 수 있는 메서드를 제공한다.
+  - [x] 추가된 Interceptor 의 구현체들의 preHandle 메서드를 등록된 순서대로 실행한다.
+    - [x] false 를 리턴 받으면 이후의 Interceptor 를 실행하지 않고 false 를 리턴한다.  
+  - [x] 추가된 Interceptor 의 구현체들의 postHandle 메서드를 등록된 순서대로 실행한다.
+- [x] 컨트롤러의 메서드의 수행 속도를 측정하는 TimeTraceInterceptor 구현체를 추가한다.
+- [x] DispatcherServlet 에서 InterceptorRegistry 를 생성한다.
+  - [x] InterceptorRegistry 에 적용할 Interceptor 구현체들을 추가한다.
+  - [x] 모든 인터셉터를 다 수행해야 한다.
+- [x] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 전에 interceptor#applyPreHandle 메서드를 수행한다 
+  - [x] preHandle 메서드에서 false 리턴이 발생한 경우 다음 인터셉터를 수행하지 않는다. 
+    - [x] 컨트롤러도 수행하지 않는다. (예외 페이지 출력?)
+- [x] DispatcherServlet 에서 HandlerExecutor#handle 메서드 수행 후 interceptor#applyPostHandle 메서드를 수행한다.
+  - [x] 모든 인터셉터를 다 수행해야 한다.
+- [x] View#render 수행 이후 Interceptor#applyAfterCompletion 수행한다. 
+
+### 4단계 피드백
+- [x] `addPathPatterns()` 와 같이 url 패턴이 매칭되는 경우 Interceptor 동작할 수 있도록 변경
+  - [x] Interceptor를 Registry에 등록할 때 url 패턴과 함께 등록
+  - [x] url 패턴 별 interceptor들을 관리할 수 있도록 내부 필드 변경
+    - [x] HandlerInterceptorExecution
+      - [x] Interceptor를 주입 받아 생성한다
+      - [x] Interceptor가 수행 될 PathPattern을 여러개 등록할 수 있다.
+      - [x] url을 입력받아 PathPattern이 일치하는 경우 Intercepter를 반환한다. 
+      - [x] 등록된 PathPattern이 없는 경우 무조건 Interceptor를 반환한다. 
+  - [x] 회원정보 수정에만 적용되는 UpdateUserAuthenticationInterceptor 추가 
+- [x] InterceptorRegistry에서 request를 인자로 받아 path pattern에 일치하는 interceptor 목록을 반환한다
+  - [x] 반환 받은 interceptor들을 HanderInterceptorExecutor에 주입한다
+- [x] InterceptorRegistry에서 수행하던 apply~ 메서드들을 HandlerInterceptorExecutor으로 이동
+  - [x] HandlerInterceptorExecutor 에서 인터셉터를 수행한다
+- [x] applyAfterCompletion 는 예외가 발생하더라도 수행될 수 있도록 변경
+  - [x] 개발자가 예외 등의 상황에서 후처리 가능하도록 예외 클래스를 인자로 추가  
+- [x] Interceptor 의 메서드들에 `throws Exception` 추가
+  - Interceptor 수행 중 예외가 발생할 수 있기 때문에 개발자가 try-catch 로 직접 예외를 처리하거나 interceptor 를 수행하는 클라이언트에서 
+예외를 처리할 수 있도록 유도(?)
+- [x] TimeTraceInterceptor 시간 측정 시 LocalDateTime 활용하도록 변경
+  - [x] ThreadLocal 적용: interceptor 는 1개의 인스턴스로 모두 동작하기 때문에 인스턴스 변수 사용을 조심해야하지 않을까?
