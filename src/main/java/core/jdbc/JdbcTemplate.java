@@ -19,7 +19,7 @@ public class JdbcTemplate {
     public List<Long> update(
             String sql,
             Object... parameters
-    ) throws SQLException {
+    ) {
         List<Long> generatedKeys = new ArrayList<>();
         try (
                 Connection con = ConnectionManager.getConnection();
@@ -31,6 +31,8 @@ public class JdbcTemplate {
             while (resultSet.next()) {
                 generatedKeys.add(resultSet.getLong(1));
             }
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
         }
         return generatedKeys;
     }
@@ -39,7 +41,7 @@ public class JdbcTemplate {
             String sql,
             RowMapper<T> rowMapper,
             Object... parameters
-    ) throws SQLException {
+    ) {
         return query(
                 sql,
                 rowMapper,
@@ -51,13 +53,15 @@ public class JdbcTemplate {
             String sql,
             RowMapper<T> rowMapper,
             Object... parameters
-    ) throws SQLException {
+    ) {
         try (
                 Connection con = ConnectionManager.getConnection();
                 PreparedStatement pstmt = con.prepareStatement(sql)
         ) {
             setParameters(pstmt, parameters);
             return mapResultSet(rowMapper, pstmt.executeQuery());
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
         }
     }
 

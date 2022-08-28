@@ -3,13 +3,12 @@ package next.dao;
 import core.jdbc.JdbcTemplate;
 import next.model.User;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
     private static final JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(
                 sql,
@@ -20,7 +19,7 @@ public class UserDao {
         );
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
         jdbcTemplate.update(
                 sql,
@@ -31,7 +30,7 @@ public class UserDao {
         );
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
         return jdbcTemplate.query(
                 sql,
@@ -44,7 +43,7 @@ public class UserDao {
         );
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         return jdbcTemplate.queryForObject(
                 sql,
