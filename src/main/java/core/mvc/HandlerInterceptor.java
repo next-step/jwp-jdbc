@@ -5,9 +5,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface HandlerInterceptor {
 
-    HandlerInterceptor DO_NOTHING_CHAIN_INTERCEPTOR = new HandlerInterceptor() {
-    };
-
     default boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         return true;
     }

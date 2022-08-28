@@ -3,6 +3,7 @@ package core.mvc;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import core.mvc.tobe.mock.MockChainHandlerInterceptor;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,26 +54,26 @@ class HandlerInterceptorExecutionTest {
     void returns_an_interceptor_that_matches_added_pattern() {
         execution.addPathPatterns("/users/{id}");
 
-        final HandlerInterceptor actual = execution.getHandlerInterceptor("/users/1");
+        final Optional<HandlerInterceptor> actual = execution.getHandlerInterceptor("/users/1");
 
-        assertThat(actual).isEqualTo(mockInterceptor);
+        assertThat(actual).isPresent().get().isEqualTo(mockInterceptor);
     }
 
-    @DisplayName("등록된 pattern이 없는 경우 무조건 Interceptor를 반환한다")
+    @DisplayName("pattern이 설정되지 않은 Interceptor는 모든 url에 반환된다")
     @Test
     void returns_an_interceptor() {
-        final HandlerInterceptor actual = execution.getHandlerInterceptor("/user/1");
+        final Optional<HandlerInterceptor> actual = execution.getHandlerInterceptor("/user/1");
 
-        assertThat(actual).isEqualTo(mockInterceptor);
+        assertThat(actual).isPresent().get().isEqualTo(mockInterceptor);
     }
 
-    @DisplayName("등록된 pattern과 일치하지 않는 경우 아무것도 수행하지 않는 Interceptor를 반환한다")
+    @DisplayName("등록된 pattern과 일치하지 않는 경우 Interceptor를 반환하지 않는다")
     @Test
     void do_nothing_interceptor() {
         execution.addPathPatterns("/users");
 
-        final HandlerInterceptor actual = execution.getHandlerInterceptor("/members");
+        final Optional<HandlerInterceptor> actual = execution.getHandlerInterceptor("/members");
 
-        assertThat(actual).isEqualTo(HandlerInterceptor.DO_NOTHING_CHAIN_INTERCEPTOR);
+        assertThat(actual).isNotPresent();
     }
 }

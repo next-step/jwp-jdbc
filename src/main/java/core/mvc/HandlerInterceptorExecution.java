@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class HandlerInterceptorExecution {
 
@@ -15,24 +16,29 @@ public class HandlerInterceptorExecution {
         this.handlerInterceptor = handlerInterceptor;
     }
 
+    public HandlerInterceptorExecution(final HandlerInterceptor handlerInterceptor, final String... pathPatterns) {
+        this.handlerInterceptor = handlerInterceptor;
+        this.pathPatterns.addAll(Arrays.asList(pathPatterns));
+    }
+
     public void addPathPatterns(String... pathPatterns) {
         this.pathPatterns.addAll(Arrays.asList(pathPatterns));
     }
 
-    public HandlerInterceptor getHandlerInterceptor(String url) {
+    public Optional<HandlerInterceptor> getHandlerInterceptor(String url) {
         if (pathPatterns.isEmpty()) {
-            return this.handlerInterceptor;
+            return Optional.of(this.handlerInterceptor);
         }
 
         return getHandlerInterceptorInternal(url);
     }
 
-    private HandlerInterceptor getHandlerInterceptorInternal(final String url) {
+    private Optional<HandlerInterceptor> getHandlerInterceptorInternal(final String url) {
         if (isUrlMatch(url)) {
-            return this.handlerInterceptor;
+            return Optional.of(this.handlerInterceptor);
         }
 
-        return HandlerInterceptor.DO_NOTHING_CHAIN_INTERCEPTOR;
+        return Optional.empty();
     }
 
     private boolean isUrlMatch(final String url) {
