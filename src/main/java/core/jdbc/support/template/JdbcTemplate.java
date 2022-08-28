@@ -20,11 +20,11 @@ public class JdbcTemplate {
     }
 
     public void update(String sql, Object... parameters) throws DataAccessException {
-        executeUpdateQuery(sql, parameters);
+        executeUpdateQuery(sql, createPreparedStatementSetter(parameters));
     }
 
     public void insert(String sql, Object... parameters) throws DataAccessException {
-        executeUpdateQuery(sql, parameters);
+        executeUpdateQuery(sql, createPreparedStatementSetter(parameters));
     }
 
     public void update(String sql, PreparedStatementSetter pss) throws DataAccessException {
@@ -36,11 +36,7 @@ public class JdbcTemplate {
     }
 
     public <T> T selectOne(String sql, RowMapper<T> rm, Object... parameters) throws DataAccessException {
-        List<T> list = executeSelectAllQuery(sql, rm, parameters);
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.get(0);
+        return selectOne(sql, rm, createPreparedStatementSetter(parameters));
     }
 
     public <T> T selectOne(String sql, RowMapper<T> rm, PreparedStatementSetter pss) throws DataAccessException {
@@ -55,17 +51,6 @@ public class JdbcTemplate {
         return executeSelectAllQuery(sql, rm);
     }
 
-    private void executeUpdateQuery(String sql, Object... parameters) throws DataAccessException {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)
-        ) {
-            setParameters(pstmt, parameters);
-            pstmt.execute();
-        } catch(SQLException e) {
-            throw new DataAccessException(e);
-        }
-    }
-
     private void executeUpdateQuery(String sql, PreparedStatementSetter pss) throws DataAccessException {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)
@@ -78,21 +63,7 @@ public class JdbcTemplate {
     }
 
     private <T> List<T> executeSelectAllQuery(String sql, RowMapper<T> rm, Object... parameters) throws DataAccessException {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)
-        ) {
-            setParameters(pstmt, parameters);
-            ResultSet rs = pstmt.executeQuery();
-
-            List<T> list = new ArrayList<T>();
-            while (rs.next()) {
-                list.add(rm.mapRow(rs));
-            }
-
-            return list;
-        } catch(SQLException e) {
-            throw new DataAccessException(e);
-        }
+        return executeSelectAllQuery(sql, rm, createPreparedStatementSetter(parameters));
     }
 
     private <T> List<T> executeSelectAllQuery(String sql, RowMapper<T> rm, PreparedStatementSetter pss) throws DataAccessException {
@@ -113,29 +84,11 @@ public class JdbcTemplate {
         }
     }
 
-    private <T> T executeSelectOneQuery(String sql, RowMapper<T> rm, Object... parameters) throws DataAccessException {
-        List<T> list = executeSelectAllQuery(sql, rm, parameters);
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.get(0);
-    }
-
-    private <T> T executeSelectOneQuery(String sql, RowMapper<T> rm, PreparedStatementSetter pss) throws DataAccessException {
-        List<T> list = executeSelectAllQuery(sql, rm, pss);
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.get(0);
-    }
-
-    private void setParameters(PreparedStatement pstmt, Object... parameters) {
-        try {
+    private PreparedStatementSetter createPreparedStatementSetter(Object... parameters) {
+        return pstmt -> {
             for (int i = 0; i < parameters.length; i++) {
                 pstmt.setString(i + 1, (String) parameters[i]);
             }
-        } catch (SQLException e) {
-            throw new DataAccessException(e);
-        }
+        };
     }
 }
