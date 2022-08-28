@@ -6,6 +6,7 @@ import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
 import core.mvc.tobe.interceptor.UpdateUserAuthenticationInterceptor;
 import core.mvc.tobe.interceptor.TimeTraceInterceptor;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerAdapterRegistry handlerAdapterRegistry;
 
+    private HandlerInterceptorExecutor handlerInterceptorExecutor;
     private HandlerInterceptorRegistry handlerInterceptorRegistry;
-    private HandlerInterceptorRegistry2 handlerInterceptorRegistry2;
 
     private HandlerExecutor handlerExecutor;
 
@@ -46,10 +47,7 @@ public class DispatcherServlet extends HttpServlet {
 
         handlerInterceptorRegistry = new HandlerInterceptorRegistry();
         handlerInterceptorRegistry.addInterceptor(new TimeTraceInterceptor());
-
-        handlerInterceptorRegistry2 = new HandlerInterceptorRegistry2();
-        handlerInterceptorRegistry2.addInterceptor(new TimeTraceInterceptor());
-        handlerInterceptorRegistry2.addInterceptor(new UpdateUserAuthenticationInterceptor()).addPathPatterns("/api/users");
+        handlerInterceptorRegistry.addInterceptor(new UpdateUserAuthenticationInterceptor()).addPathPatterns("/api/users");
 
     }
 
@@ -65,16 +63,19 @@ public class DispatcherServlet extends HttpServlet {
         }
 
         final Object handler = maybeHandler.get();
+        final List<HandlerInterceptor> handlerInterceptors = handlerInterceptorRegistry.urlMatchInterceptors(requestUri);
+
+        handlerInterceptorExecutor = new HandlerInterceptorExecutor(handlerInterceptors);
 
         try {
-            if (!handlerInterceptorRegistry.applyPreHandle(req, resp, handler)) {
+            if (!handlerInterceptorExecutor.applyPreHandle(req, resp, handler)) {
                 resp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
                 return;
             }
 
             ModelAndView mav = handlerExecutor.handle(req, resp, handler);
 
-            handlerInterceptorRegistry.applyPostHandle(req, resp, handler);
+            handlerInterceptorExecutor.applyPostHandle(req, resp, handler);
 
             render(mav, req, resp);
 
@@ -88,9 +89,10 @@ public class DispatcherServlet extends HttpServlet {
         }
     }
 
-    private void applyAfterCompletion(final HttpServletRequest req, final HttpServletResponse resp, final Object handler, final Exception e) throws ServletException {
+    private void applyAfterCompletion(final HttpServletRequest req, final HttpServletResponse resp,
+        final Object handler, final Exception e) throws ServletException {
         try {
-            handlerInterceptorRegistry.applyAfterCompletion(req, resp, handler, e);
+            handlerInterceptorExecutor.applyAfterCompletion(req, resp, handler, e);
         } catch (Exception ex) {
             logger.error("Exception : {}", e);
             logger.error("Throwable : {}", ex);

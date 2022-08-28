@@ -161,8 +161,8 @@
       - [x] url을 입력받아 PathPattern이 일치하는 경우 Intercepter를 반환한다. 
       - [x] 등록된 PathPattern이 없는 경우 무조건 Interceptor를 반환한다. 
   - [x] 회원정보 수정에만 적용되는 UpdateUserAuthenticationInterceptor 추가 
-- [ ] InterceptorRegistry에서 request를 인자로 받아 path pattern에 일치하는 interceptor 목록을 반환한다
-  - [ ] 반환 받은 interceptor들을 HanderExecutor에 주입한다
+- [x] InterceptorRegistry에서 request를 인자로 받아 path pattern에 일치하는 interceptor 목록을 반환한다
+  - [x] 반환 받은 interceptor들을 HanderInterceptorExecutor에 주입한다
 - [x] InterceptorRegistry에서 수행하던 apply~ 메서드들을 HandlerInterceptorExecutor으로 이동
   - [x] HandlerInterceptorExecutor 에서 인터셉터를 수행한다
 - [x] applyAfterCompletion 는 예외가 발생하더라도 수행될 수 있도록 변경
