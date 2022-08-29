@@ -16,10 +16,7 @@ public class JdbcTemplate {
     public void update(String sql, Object... params) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            for (int i = 0; i < params.length; i++) {
-                pstmt.setString(i + 1, String.valueOf(params[i]));
-            }
-
+            mapParams(pstmt, params);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("쿼리 실행을 실패하였습니다.", e);
@@ -30,10 +27,7 @@ public class JdbcTemplate {
         ResultSet rs = null;
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            for (int i = 0; i < params.length; i++) {
-                pstmt.setString(i + 1, String.valueOf(params[i]));
-            }
-
+            mapParams(pstmt, params);
             rs = pstmt.executeQuery();
             return extractObject(rs, returnType);
         } catch (SQLException e) {
@@ -66,12 +60,9 @@ public class JdbcTemplate {
         ResultSet rs = null;
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
-            for (int i = 0; i < params.length; i++) {
-                pstmt.setString(i + 1, String.valueOf(params[i]));
-            }
-
+            mapParams(pstmt, params);
             rs = pstmt.executeQuery();
-            return extractList(returnType, rs);
+            return extractList(rs, returnType);
         } catch (SQLException e) {
             throw new IllegalStateException("쿼리 실행을 실패하였습니다.", e);
         } catch (InvocationTargetException | NoSuchMethodException | InstantiationException |
@@ -82,7 +73,7 @@ public class JdbcTemplate {
         }
     }
 
-    private <T> List<T> extractList(Class<T> returnType, ResultSet rs)
+    private <T> List<T> extractList(ResultSet rs, Class<T> returnType)
             throws NoSuchMethodException, SQLException, InstantiationException, IllegalAccessException, InvocationTargetException {
         final Field[] fields = returnType.getDeclaredFields();
         final Constructor<T> constructor = returnType.getDeclaredConstructor();
@@ -98,6 +89,12 @@ public class JdbcTemplate {
             list.add(instance);
         }
         return list;
+    }
+
+    private void mapParams(PreparedStatement pstmt, Object[] params) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            pstmt.setString(i + 1, String.valueOf(params[i]));
+        }
     }
 
     private void close(ResultSet rs) {
