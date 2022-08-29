@@ -20,12 +20,16 @@ public class JsonView implements View {
             return;
         }
 
-        if (model.size() == SINGLE_MODEL) {
+        if (isSingleModel(model)) {
             renderSingleModel(model, response);
             return;
         }
 
         renderMultipleModels(model, response);
+    }
+
+    private boolean isSingleModel(Map<String, ?> model) {
+        return model.size() == SINGLE_MODEL;
     }
 
     private void renderSingleModel(Map<String, ?> model, HttpServletResponse response) throws IOException {
