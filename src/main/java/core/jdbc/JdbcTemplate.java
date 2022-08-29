@@ -15,12 +15,7 @@ public class JdbcTemplate {
     private static final String QUERY_EXECUTE_FAIL_EXCEPTION_MESSAGE_PREFIX = "Query 수행중 에러 발생 - ";
 
     public void update(String sql, Object... parameters) {
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, parameters)) {
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new QueryExecuteFailException(QUERY_EXECUTE_FAIL_EXCEPTION_MESSAGE_PREFIX + e.getCause().getMessage(), e);
-        }
+        update(sql, DefaultPreparedStatementSetter.from(parameters));
     }
 
     public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
