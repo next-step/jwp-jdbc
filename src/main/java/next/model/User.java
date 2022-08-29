@@ -1,10 +1,15 @@
 package next.model;
 
+import next.dto.UserUpdatedDto;
+
 public class User {
     private String userId;
     private String password;
     private String name;
     private String email;
+
+    public User() {
+    }
 
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
@@ -88,4 +93,10 @@ public class User {
     public String toString() {
         return "User [userId=" + userId + ", name=" + name + ", email=" + email + "]";
     }
+
+    public void updateWithUpdateDto(UserUpdatedDto userUpdatedDto) {
+        this.name = userUpdatedDto.getName();
+        this.email = userUpdatedDto.getEmail();
+    }
+
 }
