@@ -28,28 +28,30 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... parameters) {
-        try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, parameters);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            if (!resultSet.next()) {
-                throw new NotExistsResultException("Query 결과가 존재하지 않습니다.");
-            }
+        return queryForObject(sql, rowMapper, DefaultPreparedStatementSetter.from(parameters));
+    }
 
-            T object = rowMapper.mapRow(resultSet);
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
+        List<T> results = queryForList(sql, rowMapper, preparedStatementSetter);
 
-            if (resultSet.next()) {
-                throw new NotUniqueResultException("Query 결과가 1개보다 많습니다.");
-            }
-
-            return object;
-        } catch (SQLException e) {
-            throw new QueryExecuteFailException(QUERY_EXECUTE_FAIL_EXCEPTION_MESSAGE_PREFIX + e.getCause().getMessage(), e);
+        if (results.isEmpty()) {
+            throw new NotExistsResultException("Query 결과가 존재하지 않습니다.");
         }
+
+        if (results.size() != 1) {
+            throw new NotUniqueResultException("Query 결과가 1개보다 많습니다.");
+        }
+
+        return results.get(0);
     }
 
     public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, Object... parameters) {
+        return queryForList(sql, rowMapper, DefaultPreparedStatementSetter.from(parameters));
+    }
+
+    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
         try (Connection connection = ConnectionManager.getConnection();
-             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, parameters);
+             PreparedStatement preparedStatement = createPreparedStatement(connection, sql, preparedStatementSetter);
              ResultSet resultSet = preparedStatement.executeQuery()) {
             List<T> result = new ArrayList<>();
 
@@ -66,14 +68,6 @@ public class JdbcTemplate {
     private PreparedStatement createPreparedStatement(Connection connection, String sql, PreparedStatementSetter preparedStatementSetter) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatementSetter.setValues(preparedStatement);
-        return preparedStatement;
-    }
-
-    private PreparedStatement createPreparedStatement(Connection connection, String sql, Object... parameters) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        for (int i = 0; i < parameters.length; i++) {
-            preparedStatement.setObject(i + 1, parameters[i]);
-        }
         return preparedStatement;
     }
 }
