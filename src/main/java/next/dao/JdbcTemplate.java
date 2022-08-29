@@ -14,12 +14,8 @@ import java.util.List;
 
 public class JdbcTemplate {
     public void update(String sql, Object... params) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
-
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             for (int i = 0; i < params.length; i++) {
                 pstmt.setString(i + 1, String.valueOf(params[i]));
             }
@@ -27,19 +23,13 @@ public class JdbcTemplate {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("쿼리 실행을 실패하였습니다.", e);
-        } finally {
-            close(con, pstmt, null);
         }
     }
 
     public <T> T selectObject(String sql, Class<T> returnType, Object... params) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
         ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
-
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             for (int i = 0; i < params.length; i++) {
                 pstmt.setString(i + 1, String.valueOf(params[i]));
             }
@@ -52,7 +42,7 @@ public class JdbcTemplate {
                  IllegalAccessException e) {
             throw new IllegalStateException("쿼리 결과 변환을 실패하였습니다.", e);
         } finally {
-            close(con, pstmt, rs);
+            close(rs);
         }
     }
 
@@ -73,13 +63,9 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> selectList(String sql, Class<T> returnType, Object... params) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
         ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
-
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             for (int i = 0; i < params.length; i++) {
                 pstmt.setString(i + 1, String.valueOf(params[i]));
             }
@@ -92,7 +78,7 @@ public class JdbcTemplate {
                  IllegalAccessException e) {
             throw new IllegalStateException("쿼리 결과 변환을 실패하였습니다.", e);
         } finally {
-            close(con, pstmt, rs);
+            close(rs);
         }
     }
 
@@ -114,28 +100,12 @@ public class JdbcTemplate {
         return list;
     }
 
-    private void close(Connection con, PreparedStatement pstmt, ResultSet rs) {
+    private void close(ResultSet rs) {
         if (rs != null) {
             try {
                 rs.close();
             } catch (SQLException e) {
                 throw new IllegalStateException("ReseltSet 닫기를 실패하였습니다.", e);
-            }
-        }
-
-        if (pstmt != null) {
-            try {
-                pstmt.close();
-            } catch (SQLException e) {
-                throw new IllegalStateException("PreparedStatement 닫기를 실패하였습니다.", e);
-            }
-        }
-
-        if (con != null) {
-            try {
-                con.close();
-            } catch (SQLException e) {
-                throw new IllegalStateException("Connection 닫기를 실패하였습니다.", e);
             }
         }
     }
