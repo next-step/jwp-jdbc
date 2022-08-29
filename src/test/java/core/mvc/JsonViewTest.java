@@ -1,6 +1,7 @@
 package core.mvc;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public class JsonViewTest {
         view = new JsonView();
     }
 
+    @DisplayName("model이 비어있는 경우")
     @Test
     void render_no_element() throws Exception {
         view.render(new HashMap<>(), request, response);
@@ -34,6 +36,7 @@ public class JsonViewTest {
         assertThat(response.getContentAsString()).isBlank();
     }
 
+    @DisplayName("model이 1개인 경우")
     @Test
     void render_one_element() throws Exception {
         Map<String, Object> model = new HashMap<>();
@@ -47,6 +50,7 @@ public class JsonViewTest {
         assertThat(actual).isEqualTo(expected);
     }
 
+    @DisplayName("model이 2개 이상인 경우")
     @Test
     void render_over_two_element() throws Exception {
         Map<String, Object> model = new HashMap<>();
