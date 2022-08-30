@@ -7,3 +7,9 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+
+# 기능 요구사항 (JSON 응답)
+지금까지의 @MVC 프레임워크는 HTML 밖에 지원하지 않는다. HTML 이외의 JSON 으로 데이터를 요청하고 응답을 받도록 지원한다.
+- core.mvc.JsonViewTest 의 모든 테스트를 패스 하도록 JsonView 를 구현한다.
+- next.controller.UserAcceptanceTest 테스트를 패스 하도록 Controller 를 추가한다. Controller 는 애노테이션 기반 MVC 를 사용한다.
