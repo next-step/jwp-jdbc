@@ -13,3 +13,14 @@
 지금까지의 @MVC 프레임워크는 HTML 밖에 지원하지 않는다. HTML 이외의 JSON 으로 데이터를 요청하고 응답을 받도록 지원한다.
 - core.mvc.JsonViewTest 의 모든 테스트를 패스 하도록 JsonView 를 구현한다.
 - next.controller.UserAcceptanceTest 테스트를 패스 하도록 Controller 를 추가한다. Controller 는 애노테이션 기반 MVC 를 사용한다.
+
+# 기능 목록
+UserAcceptanceTest 를 위한 UserApiController 를 생성한다.
+- createUser
+  - user 에 대한 정보를 @RequestBody 로 받아서 DataBase 에 저장하고, userId 를 반환한다.
+- readUser
+  - userId 를 @RequestParam 으로 받아서 DataBase 에서 찾아서 user 정보를 반환한다.
+- updateUser
+  - userId 를 @RequestParam, 수정할 user 정보를 @RequestBody 로 받아서 DataBase 에서 기존의 user 를 찾고, 수정할 정보로 update 해 준다. 
+- RequestBodyArgumentResolver
+  - @RequestBody 애노테이션이 붙은 파라미터에 대한 resolver 를 지원한다.
