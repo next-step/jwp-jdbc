@@ -35,7 +35,7 @@ public class UserDaoTest {
     }
 
     @Test
-    @DisplayName("인터페이스를 통한 insert 테스트")
+    @DisplayName("PreparedStatementSetter 통한 insert 테스트")
     public void create_with_interface() {
         // given & when
         userDao.insertWithInterface(testUser);
@@ -59,7 +59,7 @@ public class UserDaoTest {
     }
 
     @Test
-    @DisplayName("인터페이스를 통한 update 테스트")
+    @DisplayName("PreparedStatementSetter 통한 update 테스트")
     public void update_with_interface() {
         // given
         userDao.insertWithInterface(testUser);
