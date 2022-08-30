@@ -7,16 +7,27 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import core.jdbc.ConnectionManager;
+import javax.sql.DataSource;
+
 import core.jdbc.support.exception.DataAccessException;
 
 public class JdbcTemplate {
+    private final DataSource dataSource;
 
-    private JdbcTemplate() {
+    private JdbcTemplate(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
-    public static JdbcTemplate getInstance() {
-        return new JdbcTemplate();
+    public static JdbcTemplate getInstance(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+
+    public Connection getConnection() {
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
     }
 
     public void update(String sql, Object... parameters) throws DataAccessException {
@@ -52,7 +63,7 @@ public class JdbcTemplate {
     }
 
     private void executeUpdateQuery(String sql, PreparedStatementSetter pss) throws DataAccessException {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)
         ) {
             pss.setParameters(pstmt);
@@ -67,7 +78,7 @@ public class JdbcTemplate {
     }
 
     private <T> List<T> executeSelectAllQuery(String sql, RowMapper<T> rm, PreparedStatementSetter pss) throws DataAccessException {
-        try (Connection con = ConnectionManager.getConnection();
+        try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)
         ) {
             pss.setParameters(pstmt);
