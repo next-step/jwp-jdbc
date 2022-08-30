@@ -2,12 +2,13 @@ package next.dao;
 
 import java.util.List;
 
+import core.jdbc.ConnectionManager;
 import core.jdbc.support.template.JdbcTemplate;
 import core.jdbc.support.template.RowMapper;
 import next.model.User;
 
 public class UserDao {
-    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance();
+    private JdbcTemplate jdbcTemplate = JdbcTemplate.getInstance(ConnectionManager.getDataSource());
 
     public void insert(User user) {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
