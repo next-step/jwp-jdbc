@@ -15,10 +15,6 @@ public class ModelAndView {
         this.view = view;
     }
 
-    public static ModelAndView JsonView() {
-        return new ModelAndView(new JsonView());
-    }
-
     public ModelAndView addObject(String attributeName, Object attributeValue) {
         model.put(attributeName, attributeValue);
         return this;
