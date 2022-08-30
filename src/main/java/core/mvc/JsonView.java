@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class JsonView implements View {
@@ -21,6 +22,7 @@ public class JsonView implements View {
         }
         try (PrintWriter responseWriter = response.getWriter()) {
             String jsonString = getJsonString(model);
+            response.setContentLength(jsonString.getBytes(StandardCharsets.UTF_8).length);
             responseWriter.write(jsonString);
         }
     }
