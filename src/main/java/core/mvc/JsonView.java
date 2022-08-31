@@ -12,24 +12,34 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class JsonView implements View {
 
+    private HttpServletResponse response;
+    private Map<String, ?> model;
+
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws
         Exception {
 
+        initialize(response, model);
+
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 
-        writeBody(model, response);
+        writeBody();
     }
 
-    private void writeBody(Map<String, ?> model, HttpServletResponse response) throws IOException {
-        String body = toJson(model);
+    private void initialize(HttpServletResponse response, Map<String, ?> model) {
+        this.response = response;
+        this.model = model;
+    }
+
+    private void writeBody() throws IOException {
+        String body = toJson();
 
         response.getWriter().write(body);
         response.getWriter().flush();
     }
 
-    private String toJson(Map<String, ?> model) throws JsonProcessingException {
+    private String toJson() throws JsonProcessingException {
         if (model == null || model.size() == 0) {
             return "";
         }

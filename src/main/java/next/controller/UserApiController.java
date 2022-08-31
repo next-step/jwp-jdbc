@@ -12,6 +12,7 @@ import core.annotation.web.RequestMapping;
 import core.annotation.web.RequestMethod;
 import core.mvc.JsonUtils;
 import core.mvc.ModelAndView;
+import core.mvc.ModelAndViews;
 import next.dto.UserCreatedDto;
 import next.dto.UserUpdatedDto;
 import next.model.User;
@@ -34,14 +35,14 @@ public class UserApiController {
         response.setStatus(HttpServletResponse.SC_CREATED);
         response.setHeader("Location", "/api/users/" + user.getUserId());
 
-        return ModelAndView.JsonView();
+        return ModelAndViews.createJsonView();
     }
 
     @RequestMapping(value = "/api/users/{id}", method = RequestMethod.GET)
     public ModelAndView get(@PathVariable String id) {
         var user = USERS.get(id);
 
-        var modelAndView = ModelAndView.JsonView();
+        var modelAndView = ModelAndViews.createJsonView();
         modelAndView.addObject("userId", user.getUserId());
         modelAndView.addObject("name", user.getName());
         modelAndView.addObject("email", user.getEmail());
@@ -57,6 +58,6 @@ public class UserApiController {
         var user = USERS.get(id);
         user.modify(userUpdatedDto.getName(), userUpdatedDto.getEmail());
 
-        return ModelAndView.JsonView();
+        return ModelAndViews.createJsonView();
     }
 }
