@@ -17,12 +17,6 @@ public class InterceptorRegistry {
         return registration;
     }
 
-    public List<HandlerInterceptor> getInterceptors() {
-        return this.registrations.stream()
-            .map(InterceptorRegistration::getInterceptor)
-            .collect(Collectors.toList());
-    }
-
     public void applyPreHandler(HttpServletRequest req, HttpServletResponse resp, Object handler) {
         registrations.stream()
             .filter(interceptorRegistration -> interceptorRegistration.matches(req.getServletPath()))

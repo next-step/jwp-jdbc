@@ -1,7 +1,5 @@
 package core.web.interceptor;
 
-import core.mvc.ModelAndView;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -17,11 +15,6 @@ public class ExecutionTimeCheckHandlerInterceptor implements HandlerInterceptor 
         request.setAttribute("startTime", currentTime);
 
         return HandlerInterceptor.super.preHandle(request, response, handler);
-    }
-
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable ModelAndView modelAndView) {
-        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
     }
 
     @Override
