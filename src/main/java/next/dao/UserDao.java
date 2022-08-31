@@ -19,10 +19,12 @@ public class UserDao {
 
     public void update(User user) {
         jdbcTemplate.update("UPDATE USERS SET password=?,name=?, email=? WHERE userId=?",
-                user.getPassword(),
-                user.getName(),
-                user.getEmail(),
-                user.getUserId()
+                preparedStatement -> {
+                    preparedStatement.setString(1, user.getPassword());
+                    preparedStatement.setString(2, user.getName());
+                    preparedStatement.setString(3, user.getEmail());
+                    preparedStatement.setString(4, user.getUserId());
+        }
         );
     }
 
