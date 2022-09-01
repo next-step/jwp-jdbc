@@ -4,6 +4,8 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.web.interceptor.ExecutionTimeCheckHandlerInterceptor;
+import core.web.interceptor.InterceptorRegistry;
 import java.util.Locale;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -28,6 +30,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerAdapterRegistry handlerAdapterRegistry;
 
+    private InterceptorRegistry interceptorRegistry;
+
     private ViewResolverComposite viewResolverComposite;
 
     private HandlerExecutor handlerExecutor;
@@ -42,6 +46,10 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
+        interceptorRegistry = new InterceptorRegistry();
+        interceptorRegistry.addInterceptor(new ExecutionTimeCheckHandlerInterceptor())
+            .addPathPatterns("/**");
+
         viewResolverComposite = new ViewResolverComposite();
         viewResolverComposite.addViewResolver(new JsonViewResolver());
 
@@ -53,20 +61,28 @@ public class DispatcherServlet extends HttpServlet {
         String requestUri = req.getRequestURI();
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
-        try {
-            Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(req);
-            if (!maybeHandler.isPresent()) {
-                resp.setStatus(HttpStatus.NOT_FOUND.value());
-                return;
+            Optional<Object> maybeHandler;
+            try {
+                // HandlerExecution
+                maybeHandler = handlerMappingRegistry.getHandler(req);
+                if (!maybeHandler.isPresent()) {
+                    resp.setStatus(HttpStatus.NOT_FOUND.value());
+                    return;
+                }
+
+                interceptorRegistry.applyPreHandler(req, resp, maybeHandler.get());
+
+                ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+
+                interceptorRegistry.applyPostHandler(req, resp, maybeHandler.get(), mav);
+
+                render(mav, req, resp);
+            } catch (Throwable e) {
+                logger.error("Exception : {}", e);
+                throw new ServletException(e.getMessage());
             }
 
-
-            ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
-            render(mav, req, resp);
-        } catch (Throwable e) {
-            logger.error("Exception : {}", e);
-            throw new ServletException(e.getMessage());
-        }
+            interceptorRegistry.triggerAfterCompletion(req, resp, maybeHandler.get());
     }
 
     private void render(ModelAndView mav, HttpServletRequest req, HttpServletResponse resp) throws Exception {
