@@ -7,3 +7,17 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+## 1단계 - REST API 및 테스트 리팩토링
+
+## 요구사항
+
+- HTML만 지원하는 현재의 @MVC 프레임워크에 `JSON` 데이터 요청 및 응답 기능 추가.
+  - `JsonViewTest`를 통과하는 `JsonView`를 구현.
+  - `UserAcceptanceTest`를 통과하는 `Controller`를 구현.
+
+- Java Object를 JSON 데이터로 변환하는 View 인터페이스에 대한 구현체 `JsonView`를 추가.
+  - JSON으로 응답할 때의 ContentType은 `MediaType.APPLICATION_JSON_UTF8_VALUE`로 변환.
+  - Map에 담긴 model 데이터가 
+    - 1개인 경우 value값을 반환.
+    - 2개 이상인 경우 Map 자체를 JSON으로 변환해 반환. 
