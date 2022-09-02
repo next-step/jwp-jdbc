@@ -39,17 +39,13 @@ public class JdbcTemplate {
     public Object querySingle(String sql, Class<?> resultClass, Object... parameters) {
         Connection connection = ConnectionManager.getConnection();
         ResultSet resultSet = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             this.setParameters(preparedStatement, parameters);
 
             resultSet = preparedStatement.executeQuery();
             List<Object> results = this.convertResultSetToObjects(resultSet, resultClass);
 
-            preparedStatement.close();
             connection.close();
-
             return this.getSingleObjectFromResults(results);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -59,15 +55,11 @@ public class JdbcTemplate {
     public List<Object> query(String sql, Class<?> resultClass) {
         Connection connection = ConnectionManager.getConnection();
         ResultSet resultSet = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             resultSet = preparedStatement.executeQuery();
             List<Object> results = this.convertResultSetToObjects(resultSet, resultClass);
 
-            preparedStatement.close();
             connection.close();
-
             return results;
         } catch (Exception e) {
             throw new RuntimeException(e);
