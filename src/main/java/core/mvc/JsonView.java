@@ -2,6 +2,8 @@ package core.mvc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +12,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 public class JsonView implements View {
+    private final Logger logger = LoggerFactory.getLogger(JsonView.class);
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -17,7 +20,7 @@ public class JsonView implements View {
         PrintWriter writer = response.getWriter();
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setContentLength(content.length());
+        logger.debug("Content-Length : {}", content.length());
         writer.write(content);
         writer.flush();
         writer.close();

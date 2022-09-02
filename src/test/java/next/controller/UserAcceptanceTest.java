@@ -15,11 +15,12 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisplayName("User 인수 테스트")
 public class UserAcceptanceTest {
     private static final Logger logger = LoggerFactory.getLogger(UserAcceptanceTest.class);
 
-    @Test
     @DisplayName("사용자 회원가입/조회/수정/삭제")
+    @Test
     void crud() {
         // 회원가입
         UserCreatedDto expected =
@@ -55,7 +56,6 @@ public class UserAcceptanceTest {
                 .body(Mono.just(updateUser), UserUpdatedDto.class)
                 .exchange()
                 .expectStatus().isOk();
-
 
         actual = client()
                 .get()
