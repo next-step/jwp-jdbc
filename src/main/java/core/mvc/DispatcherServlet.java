@@ -41,7 +41,7 @@ public class DispatcherServlet extends HttpServlet {
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
 
         handlerInterceptorRegistry = new HandlerInterceptorRegistry();
-        handlerInterceptorRegistry.addHandlerAdapter(new ElapsedTimeLoggerInterceptor());
+        handlerInterceptorRegistry.addHandlerInterceptor(new ElapsedTimeLoggerInterceptor());
     }
 
     @Override

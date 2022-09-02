@@ -8,7 +8,7 @@ import java.util.List;
 public class HandlerInterceptorRegistry {
     private final List<HandlerInterceptor> handlerInterceptors = new ArrayList<>();
 
-    public void addHandlerAdapter(HandlerInterceptor handlerInterceptor) {
+    public void addHandlerInterceptor(HandlerInterceptor handlerInterceptor) {
         handlerInterceptors.add(handlerInterceptor);
     }
 
