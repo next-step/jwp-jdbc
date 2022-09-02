@@ -39,10 +39,11 @@ public class UserApiController {
     @RequestMapping(value = "/api/users", method = RequestMethod.PUT)
     public ModelAndView update(@RequestParam String userId, @RequestBody UserUpdatedDto userUpdatedDto) {
         User user = DataBase.findUserById(userId);
-        user.updateWithUpdateDto(userUpdatedDto);
+        User updatedUser = userUpdatedDto.updateUser(user);
+        DataBase.addUser(updatedUser);
 
         ModelAndView modelAndView = new ModelAndView(new JsonView());
-        modelAndView.addObject("user", user);
+        modelAndView.addObject("user", updatedUser);
 
         return modelAndView;
     }
