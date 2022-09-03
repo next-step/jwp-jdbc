@@ -3,7 +3,6 @@ package core.jdbc;
 import support.exception.DuplicatedEntityException;
 import support.exception.ParameterClassNotFoundException;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,6 +14,7 @@ import java.util.List;
 public class JdbcTemplate {
 
     private static final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private final RowMapper rowMapper = new RowMapperImpl();
 
     private JdbcTemplate() {
 
@@ -107,35 +107,11 @@ public class JdbcTemplate {
     private <T> List<T> convertResultSetToObjects(ResultSet resultSet, Class<?> resultClazz) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         List<T> results = new ArrayList<>();
         while (resultSet.next()) {
-            T resultObject = this.getResultObject(resultClazz, resultSet);
+            T resultObject = this.rowMapper.getResultFromRow(resultClazz, resultSet);
             results.add(resultObject);
         }
 
         return results;
-    }
-
-    private <T> T getResultObject(Class<?> resultClazz, ResultSet resultSet) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
-        T result = (T) resultClazz.getConstructor().newInstance();
-        Field[] fields = resultClazz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            field.set(result, this.getValueFromResultSet(resultSet, field.getName(), field.getType()));
-        }
-
-        return result;
-    }
-
-    private Object getValueFromResultSet(ResultSet resultSet, String filedName, Class<?> fieldType) throws SQLException {
-        if (fieldType.equals(String.class)) {
-            return resultSet.getString(filedName);
-        }
-
-        if (fieldType.equals(int.class)) {
-            return resultSet.getInt(filedName);
-        }
-
-        // TODO 다른 종류 class 들에 대한 분기처리
-        return null;
     }
 
 }
