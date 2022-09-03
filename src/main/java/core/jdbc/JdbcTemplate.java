@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-    public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
+    public void update(String sql, PreparedStatementSetter pstmtSetter) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
@@ -16,6 +16,8 @@ public class JdbcTemplate {
             pstmt = con.prepareStatement(sql);
             pstmtSetter.setValues(pstmt);
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("update 실행을 실패하였습니다.", e);
         } finally {
             if (pstmt != null) {
                 pstmt.close();
@@ -26,7 +28,7 @@ public class JdbcTemplate {
             }
         }
     }
-    public List<Object> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper rowMapper) throws SQLException {
+    public List<Object> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper rowMapper) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -41,6 +43,8 @@ public class JdbcTemplate {
                 list.add(rowMapper.mapRow(rs));
             }
             return list;
+        } catch (SQLException e) {
+            throw new DataAccessException("query 실행을 실패하였습니다.", e);
         } finally {
             if (rs != null) {
                 rs.close();
@@ -54,7 +58,7 @@ public class JdbcTemplate {
         }
     }
 
-    public Object queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper rowMapper) throws SQLException {
+    public Object queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper rowMapper) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -70,6 +74,8 @@ public class JdbcTemplate {
             }
 
             return o;
+        } catch (SQLException e) {
+            throw new DataAccessException("queryForObject 실행을 실패하였습니다.", e);
         } finally {
             if (rs != null) {
                 rs.close();
