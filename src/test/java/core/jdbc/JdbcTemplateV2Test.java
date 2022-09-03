@@ -48,6 +48,20 @@ public class JdbcTemplateV2Test {
         Assertions.assertThat(actual.getEmail()).isEqualTo("kimkim@gmail.com");
     }
 
+    @DisplayName("delete & querySingle 검증")
+    @Test
+    void deleteAndQuerySingleTest() {
+        User user = new User("userId", "password", "name", "fistkim101@email.com");
+        JdbcTemplateV2.getInstance().execute("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+
+        JdbcTemplateV2.getInstance().execute("DELETE FROM USERS WHERE userId = ?", user.getUserId());
+        User actual = JdbcTemplateV2.getInstance()
+                .querySingle("SELECT userId, password, name, email FROM USERS WHERE userId = ?", this.rowMapper(), user.getUserId());
+
+        Assertions.assertThat(actual).isNull();
+    }
+
+
     @DisplayName("리스트 조회 검증")
     @Test
     void query() {
