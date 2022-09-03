@@ -36,7 +36,7 @@ public class JdbcTemplate {
         }
     }
 
-    public Object querySingle(String sql, Class<?> resultClass, Object... parameters) {
+    public <T> T querySingle(String sql, Class<?> resultClass, Object... parameters) {
         Connection connection = ConnectionManager.getConnection();
         ResultSet resultSet = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -46,18 +46,18 @@ public class JdbcTemplate {
             List<Object> results = this.convertResultSetToObjects(resultSet, resultClass);
 
             connection.close();
-            return this.getSingleObjectFromResults(results);
+            return (T) this.getSingleObjectFromResults(results);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<Object> query(String sql, Class<?> resultClass) {
+    public <T> List<T> query(String sql, Class<?> resultClass) {
         Connection connection = ConnectionManager.getConnection();
         ResultSet resultSet = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             resultSet = preparedStatement.executeQuery();
-            List<Object> results = this.convertResultSetToObjects(resultSet, resultClass);
+            List<T> results = this.convertResultSetToObjects(resultSet, resultClass);
 
             connection.close();
             return results;
@@ -104,18 +104,18 @@ public class JdbcTemplate {
         throw new ParameterClassNotFoundException();
     }
 
-    private List<Object> convertResultSetToObjects(ResultSet resultSet, Class<?> resultClazz) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        List<Object> results = new ArrayList<>();
+    private <T> List<T> convertResultSetToObjects(ResultSet resultSet, Class<?> resultClazz) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        List<T> results = new ArrayList<>();
         while (resultSet.next()) {
-            Object resultObject = this.getResultObject(resultClazz, resultSet);
+            T resultObject = this.getResultObject(resultClazz, resultSet);
             results.add(resultObject);
         }
 
         return results;
     }
 
-    private Object getResultObject(Class<?> resultClazz, ResultSet resultSet) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
-        Object result = resultClazz.getConstructor().newInstance();
+    private <T> T getResultObject(Class<?> resultClazz, ResultSet resultSet) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
+        T result = (T) resultClazz.getConstructor().newInstance();
         Field[] fields = resultClazz.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
