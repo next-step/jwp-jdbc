@@ -21,19 +21,28 @@ class JdbcTemplateTest {
         DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
     }
 
-    @DisplayName("insert & update & querySingle 검증")
+    @DisplayName("insert & querySingle 검증")
     @Test
-    void executeAndQuerySingleTest() {
+    void insertAndQuerySingleTest() {
         User expected = new User("userId", "password", "name", "fistkim101@email.com");
         JdbcTemplate.getInstance().execute("INSERT INTO USERS VALUES (?, ?, ?, ?)", expected.getUserId(), expected.getPassword(), expected.getName(), expected.getEmail());
 
         User actual = JdbcTemplate.getInstance()
                 .querySingle("SELECT userId, password, name, email FROM USERS WHERE userId = ?", User.class, expected.getUserId());
-        Assertions.assertThat(actual).isEqualTo(expected);
 
-        JdbcTemplate.getInstance().execute("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?", "password2", "name2", "kimkim@gmail.com", expected.getUserId());
-        actual = JdbcTemplate.getInstance()
-                .querySingle("SELECT userId, password, name, email FROM USERS WHERE userId = ?", User.class, expected.getUserId());
+        Assertions.assertThat(actual).isEqualTo(expected);
+    }
+
+    @DisplayName("update & querySingle 검증")
+    @Test
+    void updateAndQuerySingleTest() {
+        User user = new User("userId", "password", "name", "fistkim101@email.com");
+        JdbcTemplate.getInstance().execute("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+
+        JdbcTemplate.getInstance().execute("UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?", "password2", "name2", "kimkim@gmail.com", user.getUserId());
+        User actual = JdbcTemplate.getInstance()
+                .querySingle("SELECT userId, password, name, email FROM USERS WHERE userId = ?", User.class, user.getUserId());
+
         Assertions.assertThat(actual.getPassword()).isEqualTo("password2");
         Assertions.assertThat(actual.getName()).isEqualTo("name2");
         Assertions.assertThat(actual.getEmail()).isEqualTo("kimkim@gmail.com");
