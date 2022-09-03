@@ -18,6 +18,10 @@ public class JdbcTemplate<T> {
         }
     }
 
+    public void update(String sql, Object... values) {
+        update(sql, createPreparedStatementSetter(values));
+    }
+
     public List<T> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -28,14 +32,8 @@ public class JdbcTemplate<T> {
         }
     }
 
-    private List<T> convertToList(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
-        List<T> list = new ArrayList<>();
-        try (ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                list.add(rowMapper.mapRow(rs));
-            }
-        }
-        return list;
+    public List<T> query(String sql, RowMapper<T> rowMapper, Object... values) {
+        return query(sql, createPreparedStatementSetter(values), rowMapper);
     }
 
     public T queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
@@ -48,6 +46,10 @@ public class JdbcTemplate<T> {
         }
     }
 
+    public T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
+        return queryForObject(sql, createPreparedStatementSetter(values), rowMapper);
+    }
+
     private T convertToObject(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
         T o = null;
         try (ResultSet rs = pstmt.executeQuery()) {
@@ -56,5 +58,23 @@ public class JdbcTemplate<T> {
             }
         }
         return o;
+    }
+
+    private PreparedStatementSetter createPreparedStatementSetter(Object... values) {
+        return pstmt -> {
+            for (int i = 0; i < values.length; i++) {
+                pstmt.setString(i + 1, (String) values[i]);
+            }
+        };
+    }
+
+    private List<T> convertToList(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+        List<T> list = new ArrayList<>();
+        try (ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(rowMapper.mapRow(rs));
+            }
+        }
+        return list;
     }
 }
