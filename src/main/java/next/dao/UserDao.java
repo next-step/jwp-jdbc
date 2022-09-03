@@ -25,7 +25,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) {
-        return (User) JdbcTemplate.getInstance()
+        return JdbcTemplate.getInstance()
                 .querySingle("SELECT userId, password, name, email FROM USERS WHERE userId = ?", User.class, userId);
     }
 
