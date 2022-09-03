@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate {
+public class JdbcTemplate<T> {
     public void update(String sql, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -18,7 +18,7 @@ public class JdbcTemplate {
         }
     }
 
-    public List<Object> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper rowMapper) {
+    public List<T> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
@@ -28,8 +28,8 @@ public class JdbcTemplate {
         }
     }
 
-    private List<Object> convertToList(RowMapper rowMapper, PreparedStatement pstmt) throws SQLException {
-        List<Object> list = new ArrayList<>();
+    private List<T> convertToList(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+        List<T> list = new ArrayList<>();
         try (ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 list.add(rowMapper.mapRow(rs));
@@ -38,7 +38,7 @@ public class JdbcTemplate {
         return list;
     }
 
-    public Object queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper rowMapper) {
+    public T queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
@@ -48,8 +48,8 @@ public class JdbcTemplate {
         }
     }
 
-    private Object convertToObject(RowMapper rowMapper, PreparedStatement pstmt) throws SQLException {
-        Object o = null;
+    private T convertToObject(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+        T o = null;
         try (ResultSet rs = pstmt.executeQuery()) {
             if (rs.next()) {
                 o = rowMapper.mapRow(rs);

@@ -3,18 +3,16 @@ package next.dao;
 import core.jdbc.JdbcTemplate;
 import next.model.User;
 
-import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserDao {
-    private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate<User> jdbcTemplate;
 
-    public UserDao(JdbcTemplate jdbcTemplate) {
+    public UserDao(JdbcTemplate<User> jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)",
                 pstmt -> {
                     pstmt.setString(1, user.getUserId());
@@ -24,7 +22,7 @@ public class UserDao {
                 });
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         jdbcTemplate.update("UPDATE USERS SET name = ?, email = ? WHERE userId = ?",
                 pstmt -> {
                     pstmt.setString(1, user.getName());
@@ -33,19 +31,16 @@ public class UserDao {
                 });
     }
 
-    public List<User> findAll() throws SQLException {
-        final List<Object> list = jdbcTemplate.query("SELECT userId, password, name, email FROM USERS",
+    public List<User> findAll() {
+        return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS",
                 pstmt -> {
                 },
                 rs -> new User(rs.getString("userId"), rs.getString("password"),
                         rs.getString("name"), rs.getString("email")));
-        return list.stream()
-                .map(o -> (User) o)
-                .collect(Collectors.toList());
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        return (User) jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid = ?",
+    public User findByUserId(String userId) {
+        return jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid = ?",
                 pstmt -> pstmt.setString(1, userId),
                 rs -> new User(rs.getString("userId"), rs.getString("password"),
                         rs.getString("name"), rs.getString("email")));
