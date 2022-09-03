@@ -31,34 +31,20 @@ public class UserDao {
     }
 
     public void update(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForUpdate();
-            pstmt = con.prepareStatement(sql);
-            setValuesForUpdate(user, pstmt);
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+        final UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate() {
+            @Override
+            protected String createQueryForUpdate() {
+                return "UPDATE USERS SET name = ?, email = ? WHERE userId = ?";
             }
 
-            if (con != null) {
-                con.close();
+            @Override
+            protected void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getName());
+                pstmt.setString(2, user.getEmail());
+                pstmt.setString(3, user.getUserId());
             }
-        }
-    }
-
-    private String createQueryForUpdate() {
-        return "UPDATE USERS SET name = ?, email = ? WHERE userId = ?";
-    }
-
-    private void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
-        pstmt.setString(1, user.getName());
-        pstmt.setString(2, user.getEmail());
-        pstmt.setString(3, user.getUserId());
+        };
+        updateJdbcTemplate.update(user);
     }
 
     public List<User> findAll() throws SQLException {
