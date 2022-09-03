@@ -82,6 +82,48 @@ public class JdbcTemplateV2Test {
         Assertions.assertThat(expected.size()).isEqualTo(3);
     }
 
+    @DisplayName("잘못된 parameter 에러 검증")
+    @Test
+    void wrongParameterTest() {
+        User expected = new User("userId", "password", "name", "fistkim101@email.com");
+
+        Assertions.assertThatThrownBy(() -> JdbcTemplateV2.getInstance()
+                        .execute("INSERT INTO USERS VALUES (?, ?, ?, ?)", expected.getEmail()))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @DisplayName("잘못된 insert sql 문 에러 검증")
+    @Test
+    void wrongInsertQueryTest() {
+        User expected = new User("userId", "password", "name", "fistkim101@email.com");
+
+        Assertions.assertThatThrownBy(() -> JdbcTemplateV2.getInstance()
+                        .execute("INT INTO USERS VALUES (?, ?, ?, ?)", expected.getUserId(), expected.getPassword(), expected.getName(), expected.getEmail()))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @DisplayName("잘못된 update sql 문 에러 검증")
+    @Test
+    void wrongUpdateQueryTest() {
+        User user = new User("userId", "password", "name", "fistkim101@email.com");
+        JdbcTemplateV2.getInstance().execute("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+
+        Assertions.assertThatThrownBy(() -> JdbcTemplateV2.getInstance()
+                        .execute("UE USERS SET password = ?, name = ?, email = ? WHERE userId = ?", "password2", "name2", "kimkim@gmail.com", user.getUserId()))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @DisplayName("잘못된 delete sql 문 에러 검증")
+    @Test
+    void wrongDeleteQueryTest() {
+        User user = new User("userId", "password", "name", "fistkim101@email.com");
+        JdbcTemplateV2.getInstance().execute("INSERT INTO USERS VALUES (?, ?, ?, ?)", user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
+
+        Assertions.assertThatThrownBy(() -> JdbcTemplateV2.getInstance()
+                        .execute("DTE FROM USERS WHERE userId = ?", user.getUserId()))
+                .isInstanceOf(RuntimeException.class);
+    }
+
     private RowMapperV2<User> rowMapper() {
         return resultSet -> new User(
                 resultSet.getString("userId"),
