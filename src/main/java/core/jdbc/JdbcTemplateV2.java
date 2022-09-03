@@ -3,6 +3,7 @@ package core.jdbc;
 import support.exception.DuplicatedEntityException;
 import support.exception.ParameterClassNotFoundException;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -65,6 +66,39 @@ public class JdbcTemplateV2 {
         }
     }
 
+    public <T> RowMapperV2<T> getRowMapper(Class<T> targetClazz) {
+        return resultSet -> {
+            try {
+                return this.getObjectFromRow(targetClazz, resultSet);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    private <T> T getObjectFromRow(Class<T> resultClazz, ResultSet resultSet) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
+        T result = (T) resultClazz.getConstructor().newInstance();
+        Field[] fields = resultClazz.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            field.set(result, this.getValueFromRow(resultSet, field.getName(), field.getType()));
+        }
+
+        return result;
+    }
+
+    private <T> T getValueFromRow(ResultSet resultSet, String filedName, Class<?> fieldType) throws SQLException {
+        if (fieldType.equals(String.class)) {
+            return (T) resultSet.getString(filedName);
+        }
+
+        if (fieldType.equals(int.class)) {
+            return (T) Integer.getInteger(String.valueOf(resultSet.getInt(filedName)));
+        }
+
+        // TODO 다른 종류 class 들에 대한 분기처리
+        return null;
+    }
 
     private void setParameters(PreparedStatement preparedStatement, Object... parameters) throws SQLException {
         int index = 0;

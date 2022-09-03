@@ -31,11 +31,7 @@ public class UserDaoV2 {
     }
 
     private RowMapperV2<User> rowMapper() {
-        return resultSet -> new User(
-                resultSet.getString("userId"),
-                resultSet.getString("password"),
-                resultSet.getString("name"),
-                resultSet.getString("email"));
+        return JdbcTemplateV2.getInstance().getRowMapper(User.class);
     }
 
 }
