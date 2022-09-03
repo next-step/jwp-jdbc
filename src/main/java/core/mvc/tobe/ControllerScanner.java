@@ -27,9 +27,9 @@ public class ControllerScanner {
             new HttpResponseArgumentResolver(),
             new RequestParamArgumentResolver(),
             new PathVariableArgumentResolver(),
-            // new ModelArgumentResolver(),
-            new RequestBodyArgumentResolver()
-    );
+            new RequestBodyArgumentResolver(),
+            new ModelArgumentResolver()
+            );
 
     private static final ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 

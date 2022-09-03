@@ -94,9 +94,4 @@ public class User {
         return "User [userId=" + userId + ", name=" + name + ", email=" + email + "]";
     }
 
-    public void updateWithUpdateDto(UserUpdatedDto userUpdatedDto) {
-        this.name = userUpdatedDto.getName();
-        this.email = userUpdatedDto.getEmail();
-    }
-
 }
