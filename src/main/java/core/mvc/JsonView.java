@@ -1,12 +1,12 @@
 package core.mvc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import next.support.mapper.ObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -16,14 +16,9 @@ import java.util.Set;
 public class JsonView implements View {
 
     private static final Logger logger = LoggerFactory.getLogger(JsonView.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    public static final String EMPTY_STRING = "";
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-        String content = content(model);
-        PrintWriter writer = response.getWriter();
 
         Set<String> keys = model.keySet();
         for (String key : keys) {
@@ -32,31 +27,27 @@ public class JsonView implements View {
         }
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setContentLength(content.length());
-
-        writer.write(content);
-        writer.flush();
-        writer.close();
+        jsonResponse(response.getOutputStream(), model);
 
     }
 
-    private String content(Map<String, ?> model) {
+    private void jsonResponse(ServletOutputStream outputStream, Map<String, ?> model) {
         if (CollectionUtils.isEmpty(model)) {
-            return EMPTY_STRING;
+            return ;
         }
 
         if (model.size() == 1) {
-            return objectToString(model.values().toArray()[0]);
+            objectToString(outputStream, model.values().toArray()[0]);
         }
 
-        return objectToString(model);
+        objectToString(outputStream, model);
     }
 
-    private String objectToString(Object model) {
+    private void objectToString(ServletOutputStream outputStream, Object model) {
         try {
-            return objectMapper.writeValueAsString(model);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException();
+            ObjectMapperFactory.getInstance().writeValue(outputStream, model);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
