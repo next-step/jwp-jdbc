@@ -1,5 +1,9 @@
 package next.dao;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -30,17 +34,11 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return jdbcTemplate.getAll("SELECT userId, password, name, email FROM USERS", userRowMapper());
+        return jdbcTemplate.getAll("SELECT userId, password, name, email FROM USERS", User.class);
     }
 
     public User findByUserId(String userId) {
         var query = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        return jdbcTemplate.getOne(query, userRowMapper(), userId);
-    }
-
-    private RowMapper<User> userRowMapper() {
-        return resultSet -> new User(resultSet.getString("userId"), resultSet.getString("password"),
-            resultSet.getString("name"),
-            resultSet.getString("email"));
+        return jdbcTemplate.getOne(query, User.class, userId);
     }
 }

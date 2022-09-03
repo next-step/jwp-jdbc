@@ -1,7 +1,11 @@
 package next.dao;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,4 +77,49 @@ public class JdbcTemplate {
         }
     }
 
+    public <T> T getOne(String query, Class<T> clazz, String userId) {
+        return getOne(query, createRowMapper(clazz), userId);
+    }
+
+    public <T> List<T> getAll(String query, Class<T> clazz, Object... params) {
+        return getAll(query, createRowMapper(clazz), params);
+    }
+
+    private <T> RowMapper<T> createRowMapper(Class<T> clazz) {
+        var declaredConstructor = getDeclaredConstructor(clazz);
+        var fields = clazz.getDeclaredFields();
+
+        return resultSet -> {
+            Object object = createObject(declaredConstructor);
+            for (Field field : fields) {
+                field.setAccessible(true);
+                setField(resultSet, object, field);
+            }
+            return (T)object;
+        };
+    }
+
+    private Constructor<?> getDeclaredConstructor(Class<?> clazz) {
+        try {
+            return clazz.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("기본생성자를 찾을 수 없습니다.");
+        }
+    }
+
+    private Object createObject(Constructor<?> constructor) {
+        try {
+            return constructor.newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalArgumentException("객체를 생성할 수 없습니다" + constructor);
+        }
+    }
+
+    private void setField(ResultSet resultSet, Object object, Field field) throws SQLException {
+        try {
+            field.set(object, resultSet.getString(field.getName()));
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException("field를 수정할 수 없습니다" + field);
+        }
+    }
 }
