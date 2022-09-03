@@ -1,6 +1,4 @@
-package next.dao;
-
-import core.jdbc.ConnectionManager;
+package core.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,14 +7,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class JdbcTemplate {
-    public void update(String sql) throws SQLException {
+public class JdbcTemplate {
+    public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
             pstmt = con.prepareStatement(sql);
-            setValues(pstmt);
+            pstmtSetter.setValues(pstmt);
             pstmt.executeUpdate();
         } finally {
             if (pstmt != null) {
@@ -28,19 +26,19 @@ public abstract class JdbcTemplate {
             }
         }
     }
-    public List<Object> query(String sql) throws SQLException {
+    public List<Object> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper rowMapper) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
             pstmt = con.prepareStatement(sql);
-            setValues(pstmt);
+            pstmtSetter.setValues(pstmt);
             rs = pstmt.executeQuery();
 
             List<Object> list = new ArrayList<>();
             while (rs.next()) {
-                list.add(mapRow(rs));
+                list.add(rowMapper.mapRow(rs));
             }
             return list;
         } finally {
@@ -56,19 +54,19 @@ public abstract class JdbcTemplate {
         }
     }
 
-    public Object queryForObject(String sql) throws SQLException {
+    public Object queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper rowMapper) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
             pstmt = con.prepareStatement(sql);
-            setValues(pstmt);
+            pstmtSetter.setValues(pstmt);
             rs = pstmt.executeQuery();
 
             Object o = null;
             if (rs.next()) {
-                o = mapRow(rs);
+                o = rowMapper.mapRow(rs);
             }
 
             return o;
@@ -84,8 +82,4 @@ public abstract class JdbcTemplate {
             }
         }
     }
-
-    protected abstract void setValues(PreparedStatement pstmt) throws SQLException;
-
-    protected abstract Object mapRow(ResultSet rs) throws SQLException;
 }
