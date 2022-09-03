@@ -23,13 +23,13 @@ public class RowMapperImpl implements RowMapper {
         return result;
     }
 
-    private Object getValueFromResultSet(ResultSet resultSet, String filedName, Class<?> fieldType) throws SQLException {
+    private <T> T getValueFromResultSet(ResultSet resultSet, String filedName, Class<?> fieldType) throws SQLException {
         if (fieldType.equals(String.class)) {
-            return resultSet.getString(filedName);
+            return (T) resultSet.getString(filedName);
         }
 
         if (fieldType.equals(int.class)) {
-            return resultSet.getInt(filedName);
+            return (T) Integer.getInteger(String.valueOf(resultSet.getInt(filedName)));
         }
 
         // TODO 다른 종류 class 들에 대한 분기처리

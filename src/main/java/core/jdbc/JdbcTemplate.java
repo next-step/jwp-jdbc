@@ -46,7 +46,7 @@ public class JdbcTemplate {
             List<Object> results = this.convertResultSetToObjects(resultSet, resultClass);
 
             connection.close();
-            return (T) this.getSingleObjectFromResults(results);
+            return this.getSingleObjectFromResults(results);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -66,13 +66,13 @@ public class JdbcTemplate {
         }
     }
 
-    private Object getSingleObjectFromResults(List<Object> results) {
+    private <T> T getSingleObjectFromResults(List<Object> results) {
         if (results.isEmpty()) {
             return null;
         }
 
         if (results.size() == 1) {
-            return results.stream()
+            return (T) results.stream()
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
         }
