@@ -10,16 +10,18 @@ import core.jdbc.ConnectionManager;
 
 public class JdbcTemplate {
 
-    public <T> T getOne(String query, RowMapper<T> function, Object... params) {
-        var t = query(query, function, params);
-        return t.get(0);
+    public <T> T getOne(String query, RowMapper<T> rowMapper, Object... params) {
+        var results = query(query, rowMapper, params);
+        validate(results);
+
+        return results.get(0);
     }
 
-    public <T> List<T> getAll(String query, RowMapper<T> function, Object... params) {
-        return query(query, function, params);
+    public <T> List<T> getAll(String query, RowMapper<T> rowMapper, Object... params) {
+        return query(query, rowMapper, params);
     }
 
-    private <T> List<T> query(String query, RowMapper<T> function, Object[] params) {
+    private <T> List<T> query(String query, RowMapper<T> rowMapper, Object[] params) {
         try (var connection = getConnection();
              var preparedStatement = createPreparedStatement(connection, query, params);
              var resultSet = preparedStatement.executeQuery();
@@ -27,12 +29,12 @@ public class JdbcTemplate {
             List<T> results = new ArrayList<>();
 
             while (resultSet.next()) {
-                results.add(function.mapping(resultSet));
+                results.add(rowMapper.mapping(resultSet));
             }
 
             return results;
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("SQL 예외가 발생했습니다. " + e.getMessage());
         }
     }
 
@@ -42,7 +44,7 @@ public class JdbcTemplate {
         ) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("SQL 예외가 발생했습니다. " + e.getMessage());
         }
     }
 
@@ -60,4 +62,15 @@ public class JdbcTemplate {
 
         return preparedStatement;
     }
+
+    private <T> void validate(List<T> results) {
+        if (results.size() == 0) {
+            throw new IllegalArgumentException("쿼리결과가 없습니다");
+        }
+
+        if (results.size() > 1) {
+            throw new IllegalArgumentException("쿼리결과가 2건 이상있습니다");
+        }
+    }
+
 }
