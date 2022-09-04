@@ -19,7 +19,7 @@ public class UserDao {
                 user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
-    public List<User> findALl() {
+    public List<User> findAll() {
         return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS",
                 new UserRowMapper());
     }
