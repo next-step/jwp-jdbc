@@ -39,7 +39,7 @@ JDBC 에 대한 공통 라이브러리를 만들어서 개발자가 SQL 쿼리, 
 | 트랜잭션 관리	              |  O |   X           |
 
 # 기능 목록
-UserAcceptanceTest 를 위한 UserApiController 를 생성한다.
+**UserAcceptanceTest 를 위한 UserApiController 를 생성한다.**
 - createUser
   - user 에 대한 정보를 @RequestBody 로 받아서 DataBase 에 저장하고, userId 를 반환한다.
 - readUser
@@ -48,3 +48,18 @@ UserAcceptanceTest 를 위한 UserApiController 를 생성한다.
   - userId 를 @RequestParam, 수정할 user 정보를 @RequestBody 로 받아서 DataBase 에서 기존의 user 를 찾고, 수정할 정보로 update 해 준다. 
 - RequestBodyArgumentResolver
   - @RequestBody 애노테이션이 붙은 파라미터에 대한 resolver 를 지원한다.
+
+**UserDao 의 클라이언트 코드 중복을 최소화 하기 위한 JDBC 라이브러리를 구현한다.**
+- JdbcTemplate 객체 (제네릭 이용)
+  - update 메서드
+    - insert, update 쿼리를 담당한다.
+    - SQL 문과 insert 혹은 update 에 필요한 가변 인자를 파라미터로 받는다.
+  - query 메서드
+    - select 쿼리 (multi) 를 담당한다.
+  - queryForObject 메서드
+    - select 쿼리 (single) 를 담당한다.
+
+- RowMapper 인터페이스
+  - jdbc 의 PreparedStatement 의 결과인 ResultSet 에서 우리가 얻고자 하는 Entity 를 매핑해주는 메서드를 제공한다.
+  - UserRowMapper 구현체
+    - User 엔티티를 매핑하도록 구현한다.
