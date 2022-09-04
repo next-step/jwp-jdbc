@@ -37,13 +37,13 @@ public class JsonView implements View {
         }
 
         if (model.size() == 1) {
-            objectToString(outputStream, model.values().toArray()[0]);
+            writeJsonValue(outputStream, model.values().toArray()[0]);
         }
 
-        objectToString(outputStream, model);
+        writeJsonValue(outputStream, model);
     }
 
-    private void objectToString(ServletOutputStream outputStream, Object model) {
+    private void writeJsonValue(ServletOutputStream outputStream, Object model) {
         try {
             ObjectMapperFactory.getInstance().writeValue(outputStream, model);
         } catch (IOException e) {
