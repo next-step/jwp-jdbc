@@ -4,7 +4,9 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import next.interceptor.FirstInterceptor;
 import next.interceptor.ResponseTimeInterceptor;
+import next.interceptor.SecondInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -40,6 +42,8 @@ public class DispatcherServlet extends HttpServlet {
 
         interceptorRegistry = new InterceptorRegistry();
         interceptorRegistry.addInterceptor(new ResponseTimeInterceptor());
+        interceptorRegistry.addInterceptor(new FirstInterceptor());
+        interceptorRegistry.addInterceptor(new SecondInterceptor());
     }
 
     @Override
