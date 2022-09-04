@@ -21,3 +21,41 @@
   - Map에 담긴 model 데이터가 
     - 1개인 경우 value값을 반환.
     - 2개 이상인 경우 Map 자체를 JSON으로 변환해 반환. 
+
+## 2단계 - JDBC 라이브러리 구현
+
+## 요구사항
+
+- JDBC에 대한 공통 라이브러리를 구현
+  - Connection 생성 및 close
+  - Statement 생성 및 close
+  - ResultSet 생성 및 close
+  - SQL문에 인자 setting
+  - 트랜잭션 관리
+
+구현된 라이브러리를 사용할 개발자가 다음의 3가지 구현에만 집중할 수 있도록 한다.
+ - SQL 쿼리
+ - 쿼리에 전달할 인자
+ - SELECT 구문의 경우 조회한 데이터를 추출
+
+ - SQL Exception을 런타임 Exception으로 변환
+
+ - `UserDaoTest`가 통과하도록 회원목록과 개인정보 수정 실습을 진행
+   - `UserDao`에 대한 리팩토링 진행
+     - `UserDao`의 JDBC를 사용하는 반복 코드를 `JdbcTemplate`을 구현하여 중복 제거.
+ 
+### Domain
+
+- `JdbcTemplate`
+  - `queryForObject()` - 단건 조회
+    하나의 로우를 조회
+  - `query()` - 목록 조회
+    여러 로우를 조회 (리스트로 반환)
+  - `update()` - 변경 (등록, 수정, 삭제)
+    데이터 변경. SQL 결과에 영향받은 로우 수 `int` 반환
+
+- `RowMapper`
+  - 데이터베이스의 반환 결과인 `ResultSet`을 객체로 변환(매핑).
+
+- `PreparedStatementSetter`
+  - PreparedStatement에 값을 저장.
