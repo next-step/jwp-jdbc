@@ -63,3 +63,6 @@ JDBC 에 대한 공통 라이브러리를 만들어서 개발자가 SQL 쿼리, 
   - jdbc 의 PreparedStatement 의 결과인 ResultSet 에서 우리가 얻고자 하는 Entity 를 매핑해주는 메서드를 제공한다.
   - UserRowMapper 구현체
     - User 엔티티를 매핑하도록 구현한다.
+
+- DataAccessException 예외
+  - SQLException 컴파일 예외를 런타임 예외로 변환하여 throw 한다. (RuntimeException 을 상속 받는다.)

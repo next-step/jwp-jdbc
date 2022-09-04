@@ -25,7 +25,7 @@ public class JdbcTemplate {
             setValues(ps, args);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
         }
     }
 
@@ -43,7 +43,7 @@ public class JdbcTemplate {
             ResultSet rs = ps.executeQuery();
             return mapToEntity(rs, rm);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
         }
     }
 
@@ -56,7 +56,7 @@ public class JdbcTemplate {
             ResultSet rs = ps.executeQuery();
             return mapToEntity(rs, rm).iterator().next();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
         }
     }
 
