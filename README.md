@@ -7,3 +7,8 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+### 구현 할 기능 리스트
+* HTML 대신 JSON으로 데이터를 요청하고 응답 받도록 변경한다.
+  * core.mvc.JsonViewTest의 모든 테스트를 pass하도록 JsonView를 구현.
+  * next.controller.UserAcceptanceTest 테스트를 pass하도록 Controller 추가.

@@ -43,6 +43,9 @@ dependencies {
     implementation 'org.apache.tomcat.embed:tomcat-embed-logging-juli:8.5.2'
     implementation "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
 
+    // netty m1 mac 오류 fix lib
+    implementation 'io.netty:netty-resolver-dns-native-macos:4.1.80.Final:osx-aarch_64'
+
     runtimeOnly 'com.h2database:h2:2.1.212'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'org.assertj:assertj-core:3.22.0'
