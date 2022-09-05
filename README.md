@@ -26,3 +26,11 @@
 ### 요구사항
 - 2단계와 요구사항 동일
 - 각 쿼리에 전달할 인자를 자바의 가변인자, PreparedStatementSetter 를 통해 전달
+
+<hr />
+
+## 4단계 - Interceptor 구현
+### 요구사항
+- Controller 전/후에 로직을 추가할 수 있는 Interceptor 구현
+- Interceptor 구현한 후 각 Controller 메소드의 실행 속도를 측정한 후 debug level로 log를 출력하는 요구사항을 구현
+
