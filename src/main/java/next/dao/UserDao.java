@@ -1,7 +1,7 @@
 package next.dao;
 
 import core.jdbc.JdbcTemplate;
-import core.jdbc.UserRowMapper;
+import core.jdbc.ObjectRowMapper;
 import next.model.User;
 
 import java.util.List;
@@ -21,11 +21,11 @@ public class UserDao {
 
     public List<User> findAll() {
         return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS",
-                new UserRowMapper());
+                new ObjectRowMapper<>(User.class));
     }
 
     public User findByUserId(String userId) {
         return jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userId = ?",
-                new UserRowMapper(), userId);
+                new ObjectRowMapper<>(User.class), userId);
     }
 }
