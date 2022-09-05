@@ -1,6 +1,7 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcManager;
 import next.model.User;
 
 import java.sql.Connection;
@@ -11,19 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) {
-        String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        try(Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    private final JdbcManager jdbcManager = new JdbcManager();
+
+    public void insert(User user) {
+        String sql = "INSERT INTO USERS VALUES (#{user.userId}, #{user.password}, #{user.name}, #{user.email})";
+        jdbcManager.insert(sql, user);
     }
 
     public void update(User user) {
