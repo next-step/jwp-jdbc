@@ -26,7 +26,7 @@ public class JdbcTemplate {
             pss.setValues(pstmt);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new DataAccessException(String.format("DB update sql 수행에 실패했습니다. sql = %s", sql), e);
         }
     }
 
@@ -58,7 +58,7 @@ public class JdbcTemplate {
             }
             return result;
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new DataAccessException(String.format("DB query sql 수행에 실패했습니다. sql = %s", sql), e);
         }
     }
 
