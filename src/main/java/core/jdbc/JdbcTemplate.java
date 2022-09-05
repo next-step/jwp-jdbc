@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate<T> {
+    public void update(String sql, Object... values) {
+        update(sql, createPreparedStatementSetter(values));
+    }
+
     public void update(String sql, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -18,8 +22,8 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public void update(String sql, Object... values) {
-        update(sql, createPreparedStatementSetter(values));
+    public List<T> query(String sql, RowMapper<T> rowMapper, Object... values) {
+        return query(sql, createPreparedStatementSetter(values), rowMapper);
     }
 
     public List<T> query(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
@@ -32,8 +36,8 @@ public class JdbcTemplate<T> {
         }
     }
 
-    public List<T> query(String sql, RowMapper<T> rowMapper, Object... values) {
-        return query(sql, createPreparedStatementSetter(values), rowMapper);
+    public T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
+        return queryForObject(sql, createPreparedStatementSetter(values), rowMapper);
     }
 
     public T queryForObject(String sql, PreparedStatementSetter pstmtSetter, RowMapper<T> rowMapper) {
@@ -44,10 +48,6 @@ public class JdbcTemplate<T> {
         } catch (SQLException e) {
             throw new DataAccessException("queryForObject 실행을 실패하였습니다.", e);
         }
-    }
-
-    public T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
-        return queryForObject(sql, createPreparedStatementSetter(values), rowMapper);
     }
 
     private T convertToObject(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
