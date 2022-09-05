@@ -53,17 +53,37 @@ JDBC 에 대한 공통 라이브러리를 만들어서 개발자가 SQL 쿼리, 
 - JdbcTemplate 객체 (제네릭 이용)
   - update 메서드
     - insert, update 쿼리를 담당한다.
-    - SQL 문과 insert 혹은 update 에 필요한 가변 인자를 파라미터로 받는다.
+    - SQL 문과 insert 혹은 update 에 필요한 가변 인자, 혹은 PreparedStatementSetter 를 파라미터로 받는다.
   - query 메서드
     - select 쿼리 (multi) 를 담당한다.
+    - SQL 문과 select 결과를 반환하기 위해 필요한 RowMapper, 그리고 필요하다면 select 에 필요한 가변 인자, 혹은 PreparedStatementSetter 를 파라미터로 받는다. 
   - queryForObject 메서드
     - select 쿼리 (single) 를 담당한다.
+    - SQL 문과 select 결과를 반환하기 위해 필요한 RowMapper, 그리고 select 에 필요한 가변 인자, 혹은 PreparedStatementSetter 를 파라미터로 받는다.
 
 - RowMapper 인터페이스
   - jdbc 의 PreparedStatement 의 결과인 ResultSet 에서 우리가 얻고자 하는 Entity 를 매핑해주는 메서드를 제공한다.
   - ObjectRowMapper (제네릭 이용)
     - 특정 엔티티를 매핑하도록 구현한다. (리플렉션 이용)
     - 해당 오브젝트의 기본 생성자가 존재해야 매핑할 수 있다.
+
+- ResultSetExtractor 인터페이스
+  - RowMapper 인터페이스와 메소드의 역할은 동일하나, Collection 데이터를 반환할 때 사용한다.
+  - RowMapperResultSetExtractor 구현체
+    - RowMapper 를 필드로 가진다.
+    - ResultSet 의 값을 iterate 하여 값을 반환한다.
+
+- PreparedStatementCreator 인터페이스
+  - Connection 으로 부터 PreparedStatement 를 만든다.
+  - SimplePreparedStatementCreator 인터페이스 
+    - String sql 을 필드로 가진다.
+    - String sql 을 통해 connection 과 함께 PreparedStatement 를 만든다.
+
+- PreparedStatementSetter 인터페이스
+  - PreparedStatement 에 값을 셋팅하도록 하는 메서드를 제공한다.
+  - SimplePreparedStatementSetter 구현체
+    - 가변 인자를 통해 PreparedStatement 에 값을 셋팅하도록 구현한다.
+
 
 - DataAccessException 예외
   - SQLException 컴파일 예외를 런타임 예외로 변환하여 throw 한다. (RuntimeException 을 상속 받는다.)
