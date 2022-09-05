@@ -30,7 +30,7 @@ public class JsonViewTest {
         view = new JsonView();
     }
 
-    @DisplayName("model 데이터가 0개인 경우")
+    @DisplayName("model 데이터가 0개인 경우, response의 content는 비어있어야 한다.")
     @Test
     void render_no_element() throws Exception {
         view.render(new HashMap<>(), request, response);
@@ -41,7 +41,7 @@ public class JsonViewTest {
         );
     }
 
-    @DisplayName("model 데이터가 1개인 경우")
+    @DisplayName("model 데이터가 1개인 경우, value 값을 반환 한다.")
     @Test
     void render_one_element() throws Exception {
         Map<String, Object> model = new HashMap<>();
@@ -57,7 +57,7 @@ public class JsonViewTest {
         );
     }
 
-    @DisplayName("model 데이터가 2개 이상인 경우")
+    @DisplayName("model 데이터가 2개 이상인 경우, Map 자체를 JSON으로 변환해 반환 한다.")
     @Test
     void render_over_two_element() throws Exception {
         Map<String, Object> model = new HashMap<>();

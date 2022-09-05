@@ -6,7 +6,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ConnectionManager {
+public abstract class ConnectionManager {
     private static final String DB_DRIVER = "org.h2.Driver";
     private static final String DB_URL = "jdbc:h2:mem://localhost/~/jwp-jdbc;MODE=MySQL;DB_CLOSE_DELAY=-1";
     private static final String DB_USERNAME = "sa";
