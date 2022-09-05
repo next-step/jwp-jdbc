@@ -19,6 +19,11 @@ public class JdbcManager {
         executeQuery(complySql(sql), parameters);
     }
 
+    public void update(String sql, Object obj) {
+        List<String> parameters = extractParameters(obj, setBindVariables(sql));
+        executeQuery(complySql(sql), parameters);
+    }
+
     private List<String> setBindVariables(String sql) {
         Matcher matcher = pattern.matcher(sql);
         List<String> bindVariables = new ArrayList<>();
