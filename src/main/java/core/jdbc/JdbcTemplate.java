@@ -30,33 +30,26 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... parameters) {
-        return queryForObject(sql, rowMapper, createPreparedStatementSetter(parameters));
+    public <T> T queryForObject(String sql, Class<T> type, Object... parameters) {
+        return queryForObject(sql, type, createPreparedStatementSetter(parameters));
     }
 
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
-        List<T> result = query(sql, rowMapper, pss);
+    public <T> T queryForObject(String sql, Class<T> type, PreparedStatementSetter pss) {
+        List<T> result = query(sql, type, pss);
         if (result.isEmpty()) {
             return null;
         }
         return result.get(0);
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... parameters) {
-        return query(sql, rowMapper, createPreparedStatementSetter(parameters));
+    public <T> List<T> query(String sql, Class<T> type, Object... parameters) {
+        return query(sql, type, createPreparedStatementSetter(parameters));
     }
 
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
-        ResultSet rs = null;
+    public <T> List<T> query(String sql, Class<T> type, PreparedStatementSetter pss) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql);) {
             pss.setValues(pstmt);
-            rs = pstmt.executeQuery();
-
-            List<T> result = new ArrayList<T>();
-            if (rs.next()) {
-                result.add(rowMapper.mapRow(rs));
-            }
-            return result;
+            return extractResults(pstmt, new RowMapper<>(type));
         } catch (SQLException e) {
             throw new DataAccessException(String.format("DB query sql 수행에 실패했습니다. sql = %s", sql), e);
         }
@@ -68,5 +61,15 @@ public class JdbcTemplate {
                 pstmt.setObject(i + 1, parameters[i]);
             }
         };
+    }
+
+    private <T> List<T> extractResults(PreparedStatement pstmt, RowMapper<T> rowMapper) throws SQLException{
+        List<T> results = new ArrayList<>();
+        try (ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                results.add(rowMapper.map(rs));
+            }
+        }
+        return results;
     }
 }
