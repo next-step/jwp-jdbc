@@ -3,7 +3,6 @@ package core.jdbc;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +10,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class JdbcManager {
     private static final String BIND_VARIABLE_REGEX = "[#{](.*?)[}]";
@@ -19,7 +19,6 @@ public class JdbcManager {
     private static final int ID_INDEX = 1;
     private static final int REMOVE_START_BRACKET = 2;
     private static final int REMOVE_END_BRACKET = 1;
-    private static final int VARIABLE_INDEX = 1;
 
     public void insert(String sql, Object obj) {
         List<String> parameters = extractParameters(obj, setBindVariables(sql));
@@ -53,34 +52,27 @@ public class JdbcManager {
 
     private List<String> extractParameters(Object obj, List<String> bindVariables) {
         Class<?> objClass = obj.getClass();
-        Method[] declaredMethods = objClass.getDeclaredMethods();
-
         List<String> parameters = new ArrayList<>();
-        for (String bindVariable : bindVariables) {
-            addParameters(obj, declaredMethods, parameters, getGetterName(bindVariable));
+
+        List<String> bindVariableList = bindVariables.stream().map(this::extractFieldName).collect(Collectors.toList());
+        for (String bindVariable : bindVariableList) {
+            parameters.add(findFieldValue(obj, objClass, bindVariable));
         }
         return parameters;
     }
 
-    private String getGetterName(String bindVariable) {
-        String substring = bindVariable.substring(REMOVE_START_BRACKET, bindVariable.length() - REMOVE_END_BRACKET);
-        return makeGetterFormat(substring.split("\\.")[VARIABLE_INDEX]);
-    }
-
-    private String makeGetterFormat(String target) {
-        return "get" + target.substring(0, 1).toUpperCase(Locale.ROOT) + target.substring(1);
-    }
-
-    private void addParameters(Object obj, Method[] declaredMethods, List<String> parameters, String getterName) {
+    private String findFieldValue(Object obj, Class<?> objClass, String bindVariable) {
         try {
-            for (Method declaredMethod : declaredMethods) {
-                if (declaredMethod.getName().equals(getterName)) {
-                    parameters.add(String.valueOf(declaredMethod.invoke(obj)));
-                }
-            }
-        } catch (IllegalAccessException | InvocationTargetException e) {
+            Field field = objClass.getDeclaredField(bindVariable);
+            field.setAccessible(true);
+            return String.valueOf(field.get(obj));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String extractFieldName(String bindVariable) {
+        return bindVariable.substring(REMOVE_START_BRACKET, bindVariable.length() - REMOVE_END_BRACKET);
     }
 
     public <T> List<T> findAll(String sql, Class<T> resultType) {
@@ -93,10 +85,7 @@ public class JdbcManager {
         return (pstmt) -> {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    T result = getResult(resultType, rs);
-                    if (result != null) {
-                        results.add(result);
-                    }
+                    results.add(getResult(resultType, rs));
                 }
             }
             return null;
@@ -126,13 +115,13 @@ public class JdbcManager {
     private <T> T getResult(Class<T> resultType, ResultSet rs) throws SQLException {
         try {
             return invokeReflectionMethod(resultType, rs);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
     }
 
     private <T> T invokeReflectionMethod(Class<T> resultType, ResultSet rs)
-            throws InstantiationException, IllegalAccessException, InvocationTargetException, SQLException {
+            throws InstantiationException, IllegalAccessException, InvocationTargetException, SQLException, NoSuchFieldException {
         Constructor<?>[] constructors = resultType.getConstructors();
         Field[] declaredFields = resultType.getDeclaredFields();
         Map<String, String> fieldMap = declaredFieldMap(rs, resultType.getDeclaredFields());
@@ -159,24 +148,19 @@ public class JdbcManager {
         return fieldMap;
     }
 
-    private <T> T invokeAsNoArgConstructor(Class<T> resultType, Map<String, String> fieldMap, Constructor<?> constructor) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+    private <T> T invokeAsNoArgConstructor(Class<T> resultType, Map<String, String> fieldMap, Constructor<?> constructor)
+            throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
         if (constructor.getParameterCount() != NO_ARG_CONSTRUCTOR_PARAMETER_COUNT) {
             return null;
         }
 
         Object obj = constructor.newInstance();
-        Method[] declaredMethods = resultType.getDeclaredMethods();
-        for (Method declaredMethod : declaredMethods) {
-            String fieldName = fieldMap.keySet().stream().filter(key -> same(declaredMethod, key)).findFirst().orElse("notExistFieldName");
-            if (declaredMethod.getName().startsWith("set") && same(declaredMethod, fieldName)) {
-                declaredMethod.invoke(obj, fieldMap.get(fieldName));
-            }
+        for (String key : fieldMap.keySet()) {
+            Field field = resultType.getDeclaredField(key);
+            field.setAccessible(true);
+            field.set(obj, fieldMap.get(key));
         }
         return resultType.cast(obj);
-    }
-
-    private boolean same(Method declaredMethod, String fieldName) {
-        return fieldName.toLowerCase(Locale.ROOT).equals(declaredMethod.getName().substring(3).toLowerCase());
     }
 
     private String complySql(String sql) {

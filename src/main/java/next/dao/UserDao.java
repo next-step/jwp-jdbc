@@ -10,12 +10,12 @@ public class UserDao {
     private final JdbcManager jdbcManager = new JdbcManager();
 
     public void insert(User user) {
-        String sql = "INSERT INTO USERS VALUES (#{user.userId}, #{user.password}, #{user.name}, #{user.email})";
+        String sql = "INSERT INTO USERS VALUES (#{userId}, #{password}, #{name}, #{email})";
         jdbcManager.insert(sql, user);
     }
 
     public void update(User user) {
-        String sql = "UPDATE USERS SET name = #{user.name}, email = #{user.email} WHERE userId = #{user.userId}";
+        String sql = "UPDATE USERS SET name = #{name}, email = #{email} WHERE userId = #{userId}";
         jdbcManager.update(sql, user);
     }
 

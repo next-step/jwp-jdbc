@@ -34,22 +34,6 @@ public class User {
         return email;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public void update(User updateUser) {
         this.password = Optional.ofNullable(updateUser.password).orElseGet(() -> password);
         this.name = Optional.ofNullable(updateUser.name).orElseGet(() -> name);
