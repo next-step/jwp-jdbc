@@ -59,3 +59,12 @@
 
 - `PreparedStatementSetter`
   - PreparedStatement에 값을 저장.
+
+## 3단계 - JDBC 라이브러리 구현 (힌트)
+
+## 요구사항
+
+- query, update 메서드에 대해서 `SQLException`을 커스텀 런타임 예외로 변환해 던지기
+- `UserDao`의 User 객체 생성 관련 중복 코드 제거
+  - Reflection 활용해서 객체를 생성
+    - `RowMapper` 구현
