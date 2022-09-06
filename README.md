@@ -21,3 +21,6 @@
 
 ## 🚀 3단계 - JDBC 라이브러리 구현(힌트)
 1. [X] 요구사항 1 : 자바 객체와 테이블 칼럼 이름이 같을 경우 자동으로 매팅해 주는 RowMapper를 추가해보기
+
+## 🚀 4단계 - Interceptor 구현
+1. [ ] 요구사항 1 : Interceptor를 구현한 후 각 Controller 메소드의 실행 속도를 측정한 후 debug level로 log를 출력하는 요구사항을 구현한다.
