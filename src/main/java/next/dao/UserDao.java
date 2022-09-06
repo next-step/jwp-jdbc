@@ -3,7 +3,6 @@ package next.dao;
 import core.jdbc.JdbcTemplate;
 import next.model.User;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
@@ -27,23 +26,14 @@ public class UserDao {
         String sql = "select userId, password, name, email " +
                 "from users";
 
-        return (List<User>) template.query(sql, rs -> new User(
-                rs.getString("userId"),
-                rs.getString("password"),
-                rs.getString("name"),
-                rs.getString("email")
-        ));
+        return (List<User>) template.query(sql, User.class);
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         String sql = "select userId, password, name, email " +
                 "from users " +
                 "where userId = ?";
 
-        return template.queryForObject(sql, rs -> new User(
-                rs.getString("userId"),
-                rs.getString("password"),
-                rs.getString("name"),
-                rs.getString("email")), userId);
+        return template.queryForObject(sql, User.class, userId);
     }
 }

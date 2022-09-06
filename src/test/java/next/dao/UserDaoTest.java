@@ -24,7 +24,7 @@ public class UserDaoTest {
 
     @DisplayName("회원 등록/수정/조회 검증")
     @Test
-    void crud() throws Exception {
+    void crud() {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
         userDao.insert(expected);
