@@ -22,8 +22,8 @@ public class DispatcherServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
     private HandlerMappingRegistry handlerMappingRegistry;
-
     private HandlerAdapterRegistry handlerAdapterRegistry;
+    private InterceptorRegistry interceptorRegistry;
 
     private HandlerExecutor handlerExecutor;
 
@@ -36,6 +36,9 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry = new HandlerAdapterRegistry();
         handlerAdapterRegistry.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
+
+        interceptorRegistry = new InterceptorRegistry();
+        interceptorRegistry.addInterceptor(new RuntimeInterceptor());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
     }
@@ -52,8 +55,10 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
-
+            interceptorRegistry.preHandle(req, resp);
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+            interceptorRegistry.postHandle(req, resp);
+
             render(mav, req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
