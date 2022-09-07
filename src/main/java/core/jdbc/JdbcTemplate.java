@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
+    private static final int FIRST_INDEX = 0;
+    private static final int LIMIT_COUNT = 2;
 
     public void update(String sql, Object... parameters) throws DataAccessException {
         update(sql, createPreparedStatementSetter(parameters));
@@ -35,21 +37,23 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) throws DataAccessException {
-        ResultSet rs = null;
         try (Connection con = ConnectionManager.getConnection();
             PreparedStatement pstmt = con.prepareStatement(sql);) {
             pss.setValues(pstmt);
-
-            rs = pstmt.executeQuery();
-
-            List<T> result = new ArrayList<T>();
-            if (rs.next()) {
-                result.add(rowMapper.mapRow(rs));
-            }
-            return result;
+            return ResultQuery(rowMapper, pstmt);
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
+    }
+
+    private <T> List<T> ResultQuery (RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+        List<T> result = new ArrayList<T>();
+        try (ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                result.add(rowMapper.mapRow(rs));
+            }
+        }
+        return result;
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... parameters) throws DataAccessException {
@@ -61,8 +65,15 @@ public class JdbcTemplate {
         if (result.isEmpty()) {
             return null;
         }
+        resultQueryException(result);
 
-        return result.get(0);
+        return result.get(FIRST_INDEX);
+    }
+
+    private void resultQueryException(List result) {
+        if (result.size() >= LIMIT_COUNT) {
+            throw new ManyResultQueryException("쿼리결과가 두개 이상입니다.");
+        }
     }
 
 }
