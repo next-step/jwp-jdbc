@@ -36,45 +36,45 @@ public class UserDao {
         updateJdbcTemplate.update("UPDATE USERS SET name = ?, email = ? WHERE userId = ?");
     }
 
-    public List<User> findAll() throws SQLException {
-        String sql = "SELECT userId, password, name, email FROM USERS";
-        List<User> users = new ArrayList<>();
-        try(Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery()) {
+    public List<User> findAll() {
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+            @Override
+            void setValues(PreparedStatement pstmt) {
 
-            while (rs.next()) {
-                User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-                users.add(user);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return users;
+
+            @Override
+            Object mapRow(ResultSet rs) throws SQLException {
+                List<User> users = new ArrayList<>();
+                while (rs.next()) {
+                    User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                            rs.getString("email"));
+                    users.add(user);
+                }
+                return users;
+            }
+        };
+
+        return selectJdbcTemplate.query("SELECT userId, password, name, email FROM USERS");
     }
 
     public User findByUserId(String userId) throws SQLException {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        ResultSet rs = null;
-        User user = null;
-        try(Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            pstmt.setString(1, userId);
-            rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+            @Override
+            void setValues(PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, userId);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (rs != null) {
-                rs.close();
+
+            @Override
+            Object mapRow(ResultSet rs) throws SQLException {
+                if (rs.next()) {
+                    return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                            rs.getString("email"));
+                }
+                return null;
             }
-        }
-        return user;
+        };
+
+        return (User) selectJdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?");
     }
 }
