@@ -7,16 +7,20 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class UpdateJdbcTemplate {
+public abstract class UpdateJdbcTemplate {
 
-    void update(User user, UserDao userDao) {
+    void update(User user) {
         try(Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(userDao.createQueryForUpdate())) {
+            PreparedStatement pstmt = con.prepareStatement(createQueryForUpdate())) {
 
-            userDao.setValuesForUpdate(user, pstmt);
+            setValuesForUpdate(user, pstmt);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
+    abstract void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException;
+
+    abstract String createQueryForUpdate();
 }
