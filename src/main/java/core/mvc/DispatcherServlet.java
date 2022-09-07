@@ -4,6 +4,8 @@ import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
 import core.mvc.tobe.AnnotationHandlerMapping;
 import core.mvc.tobe.HandlerExecutionHandlerAdapter;
+import core.mvc.tobe.InterceptorRegistry;
+import core.mvc.tobe.ProcessingTimeCheckInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerExecutor handlerExecutor;
 
+    private InterceptorRegistry interceptorRegistry;
+
     @Override
     public void init() {
         handlerMappingRegistry = new HandlerMappingRegistry();
@@ -38,6 +42,9 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        interceptorRegistry = new InterceptorRegistry();
+        interceptorRegistry.addInterceptor(new ProcessingTimeCheckInterceptor());
     }
 
     @Override
@@ -52,8 +59,10 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
-
+            this.interceptorRegistry.preHandle(req, resp);
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+            this.interceptorRegistry.postHandle(req, resp);
+
             render(mav, req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
