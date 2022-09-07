@@ -40,3 +40,17 @@
       1. \<T> T findById(String sql, String id, Class\<T> resultType) 로 받아서 실행한다.
       2. SELECT userId, password, name, email FROM USERS WHERE userid = #{user.userId} 형태로 전달 받는다.
       3. ResultSet 을 찾아 리턴하는 부분을 리플렉션으로 T의 생성자를 찾고 파라미터를 매핑해서 가져오며, 빈생성자와 setter 또는 모든 생성자 유무를 판단해서 데이터를 넣는다.
+
+## 3단계 - JDBC 라이브러리 구현 (힌트)
+1. INSERT, UPDATE 쿼리를 가지는 메소드의 중복을 제거한다.
+2. 분리한 메소드 중에서 변화가 발생하지 않는 부분을 새로운 클래스로 추가한 후 이동한다.
+3. InsertJdbcTemplate, UpdateJdbcTemplate이 UserDao에 대한 의존관계를 끊는다.
+4. InsertJdbcTemplate, UpdateJdbcTemplate의 구현 부분이 같기 때문에 하나를 사용하도록 리팩토링 한다.
+5. JdbcTemplate은 User와 의존관계를 가지기 때문에 재사용이 불가능하다. User와의 연관관계를 끊는다.
+6. JdbcTemplate은 특정 DAO 클래스에 종속적이지 않다. 같은 방법으로 SelectJdbcTemplate를 생성한다.
+7. JdbcTemplate, SelectJdbcTemplate간의 중복코드를 제거하여 하나만 사용하도록 리팩토링한다.
+8. 통합하였을 때의 문제점을 찾고, 이를 해결하기 위한 방법을 찾는다.
+9. SQLException을 runtimeException으로 변환하여 throw한다. try-with-resources 구문을 사용한다.
+10. 제네릭을 적용해 캐스팅 부분을 제거한다.
+11. preparedStatementSetter 대신 가변인자를 통해 인자를 받을 수 있도록 한다.
+12. UserDao에서 PreparedStatementSetter, RowMapper 인터페이스 구현하는 부분을 람다표현식을 활용해 리팩토링한다.
