@@ -1,9 +1,7 @@
 package core.jdbc;
 
 import support.exception.DuplicatedEntityException;
-import support.exception.ParameterClassNotFoundException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,9 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
-
     private static final JdbcTemplate jdbcTemplate = new JdbcTemplate();
-    private final RowMapper rowMapper = new RowMapperImpl();
 
     private JdbcTemplate() {
 
@@ -24,10 +20,14 @@ public class JdbcTemplate {
         return jdbcTemplate;
     }
 
-    public void execute(String sql, Object... parameters) {
+    public void update(String sql, Object... parameters) {
+        this.update(sql, getPreparedStatementSetter(parameters));
+    }
+
+    public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
         Connection connection = ConnectionManager.getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            this.setParameters(preparedStatement, parameters);
+            preparedStatementSetter.setValues(preparedStatement);
             preparedStatement.executeUpdate();
             preparedStatement.close();
             connection.close();
@@ -36,82 +36,74 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T querySingle(String sql, Class<?> resultClass, Object... parameters) {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... parameters) {
+        return this.queryForObject(sql, rowMapper, getPreparedStatementSetter(parameters));
+    }
+
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
         Connection connection = ConnectionManager.getConnection();
         ResultSet resultSet = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            this.setParameters(preparedStatement, parameters);
-
+            preparedStatementSetter.setValues(preparedStatement);
             resultSet = preparedStatement.executeQuery();
-            List<Object> results = this.convertResultSetToObjects(resultSet, resultClass);
-
+            List<T> results = this.mapRows(resultSet, rowMapper);
             connection.close();
-            return (T) this.getSingleObjectFromResults(results);
+
+            return this.getSingleObject(results);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public <T> List<T> query(String sql, Class<?> resultClass) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... parameters) {
+        return this.query(sql, rowMapper, getPreparedStatementSetter(parameters));
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
         Connection connection = ConnectionManager.getConnection();
         ResultSet resultSet = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatementSetter.setValues(preparedStatement);
             resultSet = preparedStatement.executeQuery();
-            List<T> results = this.convertResultSetToObjects(resultSet, resultClass);
-
+            List<T> results = this.mapRows(resultSet, rowMapper);
             connection.close();
+
             return results;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Object getSingleObjectFromResults(List<Object> results) {
-        if (results.isEmpty()) {
-            return null;
-        }
-
-        if (results.size() == 1) {
-            return results.stream()
-                    .findFirst()
-                    .orElseThrow(IllegalArgumentException::new);
-        }
-
-        throw new DuplicatedEntityException();
+    private PreparedStatementSetter getPreparedStatementSetter(Object... parameters) {
+        return preparedStatement -> {
+            int index = 0;
+            for (Object parameter : parameters) {
+                preparedStatement.setObject(index + 1, parameter);
+                index++;
+            }
+        };
     }
 
-    private void setParameters(PreparedStatement preparedStatement, Object... parameters) throws SQLException {
-        int index = 0;
-        for (Object parameter : parameters) {
-            this.setParameter(index, parameter, preparedStatement);
-            index++;
-        }
-    }
-
-    private void setParameter(int index, Object parameter, PreparedStatement preparedStatement) throws SQLException {
-        Class<?> parameterClass = parameter.getClass();
-        if (parameterClass.equals(int.class)) {
-            preparedStatement.setInt(index + 1, Integer.parseInt((String) parameter));
-            return;
-        }
-
-        if (parameterClass.equals(String.class)) {
-            preparedStatement.setString(index + 1, String.valueOf(parameter));
-            return;
-        }
-
-        // TODO 다른 종류 class 들에 대한 분기처리
-        throw new ParameterClassNotFoundException();
-    }
-
-    private <T> List<T> convertResultSetToObjects(ResultSet resultSet, Class<?> resultClazz) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    private <T> List<T> mapRows(ResultSet resultSet, RowMapper<T> rowMapper) throws SQLException {
         List<T> results = new ArrayList<>();
         while (resultSet.next()) {
-            T resultObject = this.rowMapper.getResultFromRow(resultClazz, resultSet);
-            results.add(resultObject);
+            results.add(rowMapper.mapRow(resultSet));
         }
 
         return results;
     }
 
+    private <T> T getSingleObject(List<T> results) {
+        if (results.isEmpty()) {
+            return null;
+        }
+
+        if (results.size() != 1) {
+            throw new DuplicatedEntityException();
+        }
+
+        return results.stream()
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+    }
 }

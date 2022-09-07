@@ -1,12 +1,11 @@
 package core.jdbc;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @FunctionalInterface
-public interface RowMapper {
+public interface RowMapper<T> {
 
-    <T> T getResultFromRow(Class<?> resultClazz, ResultSet resultSet) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException;
+    T mapRow(ResultSet resultSet) throws SQLException;
 
 }
