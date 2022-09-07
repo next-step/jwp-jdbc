@@ -38,7 +38,7 @@ public class UserDao {
         return selectJdbcTemplate.query("SELECT userId, password, name, email FROM USERS", this::mapRowForFindAll);
     }
 
-    private Object mapRowForFindAll(ResultSet rs) throws SQLException {
+    private <T> List<User> mapRowForFindAll(ResultSet rs) throws SQLException {
         List<User> users = new ArrayList<>();
         while (rs.next()) {
             User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
@@ -50,7 +50,7 @@ public class UserDao {
 
     public User findByUserId(String userId) throws SQLException {
         JdbcTemplate selectJdbcTemplate = new JdbcTemplate();
-        return (User) selectJdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?",
+        return selectJdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?",
                 pstmt -> setValuesForFindById(userId, pstmt), this::mapRowForFindById);
     }
 
@@ -58,7 +58,7 @@ public class UserDao {
         pstmt.setString(1, userId);
     }
 
-    private Object mapRowForFindById(ResultSet rs) throws SQLException {
+    private <T> User mapRowForFindById(ResultSet rs) throws SQLException {
         if (rs.next()) {
             return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                     rs.getString("email"));

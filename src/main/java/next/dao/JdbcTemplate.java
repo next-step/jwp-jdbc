@@ -21,18 +21,18 @@ public class JdbcTemplate {
         }
     }
 
-    public List query(String sql, RowMapper rowMapper) {
+    public <T> T query(String sql, RowMapper<T> rowMapper) {
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement pstmt = con.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery()) {
 
-            return (List) rowMapper.mapRow(rs);
+            return rowMapper.mapRow(rs);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Object queryForObject(String sql, PreparedStatementSetter statementSetter, RowMapper rowMapper) throws SQLException {
+    public <T> T queryForObject(String sql, PreparedStatementSetter statementSetter, RowMapper<T> rowMapper) throws SQLException {
         ResultSet rs = null;
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement pstmt = con.prepareStatement(sql)) {
