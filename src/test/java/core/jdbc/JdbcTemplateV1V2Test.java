@@ -12,7 +12,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class JdbcTemplateV2Test {
+public class JdbcTemplateV1V2Test {
 
     @BeforeEach
     public void setup() {

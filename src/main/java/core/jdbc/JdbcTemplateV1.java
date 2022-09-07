@@ -11,17 +11,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate {
+public class JdbcTemplateV1 {
 
-    private static final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private static final JdbcTemplateV1 JDBC_TEMPLATE_V_1 = new JdbcTemplateV1();
     private final RowMapper rowMapper = new RowMapperImpl();
 
-    private JdbcTemplate() {
+    private JdbcTemplateV1() {
 
     }
 
-    public static JdbcTemplate getInstance() {
-        return jdbcTemplate;
+    public static JdbcTemplateV1 getInstance() {
+        return JDBC_TEMPLATE_V_1;
     }
 
     public void execute(String sql, Object... parameters) {
