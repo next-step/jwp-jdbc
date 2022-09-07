@@ -14,36 +14,26 @@ public class UserDao {
     public void insert(User user) {
         JdbcTemplate insertJdbcTemplate = new JdbcTemplate() {
             @Override
-            void setValues(User user, PreparedStatement pstmt) throws SQLException {
+            void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getUserId());
                 pstmt.setString(2, user.getPassword());
                 pstmt.setString(3, user.getName());
                 pstmt.setString(4, user.getEmail());
             }
-
-            @Override
-            String createQuery() {
-                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            }
         };
-        insertJdbcTemplate.update(user);
+        insertJdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)");
     }
 
     public void update(User user) {
         JdbcTemplate updateJdbcTemplate = new JdbcTemplate() {
             @Override
-            void setValues(User user, PreparedStatement pstmt) throws SQLException {
+            void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getName());
                 pstmt.setString(2, user.getEmail());
                 pstmt.setString(3, user.getUserId());
             }
-
-            @Override
-            String createQuery() {
-                return "UPDATE USERS SET name = ?, email = ? WHERE userId = ?";
-            }
         };
-        updateJdbcTemplate.update(user);
+        updateJdbcTemplate.update("UPDATE USERS SET name = ?, email = ? WHERE userId = ?");
     }
 
     public List<User> findAll() throws SQLException {

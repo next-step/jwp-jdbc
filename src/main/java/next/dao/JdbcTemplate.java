@@ -9,18 +9,16 @@ import java.sql.SQLException;
 
 public abstract class JdbcTemplate {
 
-    void update(User user) {
+    void update(String sql) {
         try(Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(createQuery())) {
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-            setValues(user, pstmt);
+            setValues(pstmt);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    abstract void setValues(User user, PreparedStatement pstmt) throws SQLException;
-
-    abstract String createQuery();
+    abstract void setValues(PreparedStatement pstmt) throws SQLException;
 }
