@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate {
@@ -18,53 +17,71 @@ public class JdbcTemplate {
     }
 
     public void update(String sql, Object... args) {
-        try (
-                Connection con = ConnectionManager.getConnection();
-                PreparedStatement ps = con.prepareStatement(sql)
-        ) {
-            setValues(ps, args);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        update(new SimplePreparedStatementCreator(sql), new SimplePreparedStatementSetter(args));
     }
 
-    private void setValues(PreparedStatement ps, Object[] args) throws SQLException {
-        for (int idx = 1; idx <= args.length; idx++) {
-            ps.setObject(idx, args[idx-1]);
+    public void update(String sql, PreparedStatementSetter pss) {
+        update(new SimplePreparedStatementCreator(sql), pss);
+    }
+
+    private void update(PreparedStatementCreator psc, PreparedStatementSetter pss) {
+        try (
+                Connection con = ConnectionManager.getConnection();
+                PreparedStatement ps = psc.createPreparedStatement(con)
+        ) {
+            pss.setValues(ps);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
         }
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rm) {
+        return query(new SimplePreparedStatementCreator(sql), new RowMapperResultSetExtractor<>(rm));
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rm, Object... args) {
+        return query(new SimplePreparedStatementCreator(sql), new RowMapperResultSetExtractor<>(rm), new SimplePreparedStatementSetter(args));
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rm, PreparedStatementSetter pss) {
+        return query(new SimplePreparedStatementCreator(sql), new RowMapperResultSetExtractor<>(rm), pss);
+    }
+
+    private <T> T query(PreparedStatementCreator psc, ResultSetExtractor<T> rse) {
         try (
                 Connection con = ConnectionManager.getConnection();
-                PreparedStatement ps = con.prepareStatement(sql)
+                PreparedStatement ps = psc.createPreparedStatement(con)
         ) {
             ResultSet rs = ps.executeQuery();
-            return mapToEntity(rs, rm);
+            return rse.extractData(rs);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e);
+        }
+    }
+
+    private <T> T query(PreparedStatementCreator psc, ResultSetExtractor<T> rse, PreparedStatementSetter pss) {
+        try (
+                Connection con = ConnectionManager.getConnection();
+                PreparedStatement ps = psc.createPreparedStatement(con)
+        ) {
+            pss.setValues(ps);
+            ResultSet rs = ps.executeQuery();
+            return rse.extractData(rs);
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
         }
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rm, Object... args) {
-        try (
-                Connection con = ConnectionManager.getConnection();
-                PreparedStatement ps = con.prepareStatement(sql);
-        ) {
-            setValues(ps, args);
-            ResultSet rs = ps.executeQuery();
-            return mapToEntity(rs, rm).iterator().next();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return queryForObject(new SimplePreparedStatementCreator(sql), rm, new SimplePreparedStatementSetter(args));
     }
 
-    private static <T> List<T> mapToEntity(ResultSet rs, RowMapper<T> rm) throws SQLException {
-        List<T> results = new ArrayList<>();
-        while (rs.next()) {
-            results.add(rm.mapRow(rs));
-        }
-        return results;
+    public <T> T queryForObject(String sql, RowMapper<T> rm, PreparedStatementSetter pss) {
+        return queryForObject(new SimplePreparedStatementCreator(sql), rm, pss);
+    }
+
+    private <T> T queryForObject(PreparedStatementCreator psc, RowMapper<T> rm, PreparedStatementSetter pss) {
+        return query(psc, new RowMapperResultSetExtractor<>(rm), pss).iterator().next();
     }
 }
