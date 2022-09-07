@@ -14,7 +14,7 @@ import java.util.List;
 public class JdbcTemplateV1 {
 
     private static final JdbcTemplateV1 JDBC_TEMPLATE_V_1 = new JdbcTemplateV1();
-    private final RowMapper rowMapper = new RowMapperImpl();
+    private final RowMapperV1 rowMapperV1 = new RowMapperV1Impl();
 
     private JdbcTemplateV1() {
 
@@ -107,7 +107,7 @@ public class JdbcTemplateV1 {
     private <T> List<T> convertResultSetToObjects(ResultSet resultSet, Class<?> resultClazz) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         List<T> results = new ArrayList<>();
         while (resultSet.next()) {
-            T resultObject = this.rowMapper.getResultFromRow(resultClazz, resultSet);
+            T resultObject = this.rowMapperV1.getResultFromRow(resultClazz, resultSet);
             results.add(resultObject);
         }
 

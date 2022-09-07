@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class RowMapperImpl implements RowMapper {
+public class RowMapperV1Impl implements RowMapperV1 {
 
     @Override
     public <T> T getResultFromRow(Class<?> resultClazz, ResultSet resultSet) throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
