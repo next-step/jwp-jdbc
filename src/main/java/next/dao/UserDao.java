@@ -20,6 +20,11 @@ public class UserDao {
                 pstmt.setString(3, user.getName());
                 pstmt.setString(4, user.getEmail());
             }
+
+            @Override
+            Object mapRow(ResultSet rs) {
+                return null;
+            }
         };
         insertJdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)");
     }
@@ -32,12 +37,17 @@ public class UserDao {
                 pstmt.setString(2, user.getEmail());
                 pstmt.setString(3, user.getUserId());
             }
+
+            @Override
+            Object mapRow(ResultSet rs) {
+                return null;
+            }
         };
         updateJdbcTemplate.update("UPDATE USERS SET name = ?, email = ? WHERE userId = ?");
     }
 
     public List<User> findAll() {
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+        JdbcTemplate selectJdbcTemplate = new JdbcTemplate() {
             @Override
             void setValues(PreparedStatement pstmt) {
 
@@ -59,7 +69,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) throws SQLException {
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+        JdbcTemplate selectJdbcTemplate = new JdbcTemplate() {
             @Override
             void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, userId);
