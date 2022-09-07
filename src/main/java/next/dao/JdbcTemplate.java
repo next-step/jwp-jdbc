@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 public class JdbcTemplate {
 
@@ -19,6 +18,23 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    void update(String sql, Object... values) {
+        try(Connection con = ConnectionManager.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            for (int i = 0; i < values.length; i++) {
+                pstmt.setObject(i + 1, values[i]);
+            }
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public PreparedStatementSetter createPreparedStatementSetter(Object...) {
+
     }
 
     public <T> T query(String sql, RowMapper<T> rowMapper) {
