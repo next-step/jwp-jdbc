@@ -8,39 +8,39 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public abstract class JdbcTemplate {
+public class JdbcTemplate {
 
-    void update(String sql) {
+    void update(String sql, PreparedStatementSetter statementSetter) {
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-            setValues(pstmt);
+            statementSetter.setValues(pstmt);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List query(String sql) {
+    public List query(String sql, RowMapper rowMapper) {
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement pstmt = con.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery()) {
 
-            return (List) mapRow(rs);
+            return (List) rowMapper.mapRow(rs);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Object queryForObject(String sql) throws SQLException {
+    public Object queryForObject(String sql, PreparedStatementSetter statementSetter, RowMapper rowMapper) throws SQLException {
         ResultSet rs = null;
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-            setValues(pstmt);
+            statementSetter.setValues(pstmt);
             rs = pstmt.executeQuery();
 
-            return mapRow(rs);
+            return rowMapper.mapRow(rs);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -49,7 +49,4 @@ public abstract class JdbcTemplate {
             }
         }
     }
-    abstract void setValues(PreparedStatement pstmt) throws SQLException;
-
-    abstract Object mapRow(ResultSet rs) throws SQLException;
 }
