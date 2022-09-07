@@ -4,8 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @FunctionalInterface
-public interface RowMapperV2<T> {
+public interface RowMapper<T> {
 
-    T map(ResultSet resultSet) throws SQLException;
+    T mapRow(ResultSet resultSet) throws SQLException;
 
 }
