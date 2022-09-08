@@ -21,7 +21,27 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T query(String sql, RowMapper<T> rowMapper) {
+    void update(String sql, Object... values) {
+        try(Connection con = ConnectionManager.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            createPreparedStatementSetter(values).setValues(pstmt);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private PreparedStatementSetter createPreparedStatementSetter(Object... values) {
+        return pstmt -> {
+            for (int i = 0; i < values.length; i++) {
+                pstmt.setObject(i + 1, values[i]);
+            }
+        };
+    }
+
+
+    public <T> List<T> query(String sql, RowMapper<List<T>> rowMapper) {
         try(Connection con = ConnectionManager.getConnection();
             PreparedStatement pstmt = con.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery()) {
@@ -40,6 +60,23 @@ public class JdbcTemplate {
             statementSetter.setValues(pstmt);
             rs = pstmt.executeQuery();
 
+            return rowMapper.mapRow(rs);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+        }
+    }
+
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) throws SQLException {
+        ResultSet rs = null;
+        try(Connection con = ConnectionManager.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            createPreparedStatementSetter(values).setValues(pstmt);
+            rs = pstmt.executeQuery();
             return rowMapper.mapRow(rs);
         } catch (SQLException e) {
             throw new RuntimeException(e);
