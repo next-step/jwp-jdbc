@@ -1,6 +1,7 @@
 package next.mapper;
 
 import core.jdbc.RowMapper;
+import next.model.User;
 import support.exception.ParameterClassNotFoundException;
 
 import java.lang.reflect.Field;
@@ -8,27 +9,21 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UserRowMapper<T> implements RowMapper<T> {
-
-    private final Class<T> resultClass;
-
-    public UserRowMapper(Class<T> resultClass) {
-        this.resultClass = resultClass;
-    }
+public class UserRowMapper implements RowMapper<User> {
 
     @Override
-    public T mapRow(ResultSet resultSet) {
+    public User mapRow(ResultSet resultSet) {
         try {
-            return getObjectFromRow(resultClass, resultSet);
+            return getObjectFromRow(resultSet);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
     }
 
-    private T getObjectFromRow(Class<T> resultClass, ResultSet resultSet) throws
+    private User getObjectFromRow(ResultSet resultSet) throws
             NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
-        T result = resultClass.getConstructor().newInstance();
-        Field[] fields = resultClass.getDeclaredFields();
+        User result = User.class.getConstructor().newInstance();
+        Field[] fields = User.class.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             field.set(result, this.getValueFromRow(resultSet, field.getName(), field.getType()));

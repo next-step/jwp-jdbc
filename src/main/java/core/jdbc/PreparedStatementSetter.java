@@ -1,10 +1,9 @@
 package core.jdbc;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public interface PreparedStatementSetter {
+public interface PreparedStatementSetter<T> {
 
-    void setValues(PreparedStatement preparedStatement) throws SQLException;
+    void setValues(T preparedStatement) throws SQLException;
 
 }

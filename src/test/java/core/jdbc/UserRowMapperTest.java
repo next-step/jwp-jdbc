@@ -27,7 +27,7 @@ class UserRowMapperTest {
         User expected = new User("userId", "password", "name", "fistkim101@email.com");
         JdbcTemplate.getInstance().update("INSERT INTO USERS VALUES (?, ?, ?, ?)", expected.getUserId(), expected.getPassword(), expected.getName(), expected.getEmail());
 
-        UserRowMapper<User> userRowMapper = new UserRowMapper<>(User.class);
+        UserRowMapper userRowMapper = new UserRowMapper();
         User actual = null;
 
         Connection connection = ConnectionManager.getConnection();

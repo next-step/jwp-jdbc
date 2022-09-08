@@ -32,7 +32,7 @@ public class UserDao {
     }
 
     private RowMapper<User> rowMapper() {
-        return new UserRowMapper<User>(User.class);
+        return new UserRowMapper();
     }
 
 }
