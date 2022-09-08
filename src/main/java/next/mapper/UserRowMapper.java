@@ -1,5 +1,6 @@
-package core.jdbc;
+package next.mapper;
 
+import core.jdbc.RowMapper;
 import support.exception.ParameterClassNotFoundException;
 
 import java.lang.reflect.Field;
@@ -7,11 +8,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ObjectRowMapper<T> implements RowMapper<T> {
+public class UserRowMapper<T> implements RowMapper<T> {
 
     private final Class<T> resultClass;
 
-    public ObjectRowMapper(Class<T> resultClass) {
+    public UserRowMapper(Class<T> resultClass) {
         this.resultClass = resultClass;
     }
 

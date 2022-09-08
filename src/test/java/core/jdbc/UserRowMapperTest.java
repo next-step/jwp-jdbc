@@ -1,5 +1,6 @@
 package core.jdbc;
 
+import next.mapper.UserRowMapper;
 import next.model.User;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-class ObjectRowMapperTest {
+class UserRowMapperTest {
 
     @BeforeEach
     public void setup() {
@@ -26,7 +27,7 @@ class ObjectRowMapperTest {
         User expected = new User("userId", "password", "name", "fistkim101@email.com");
         JdbcTemplate.getInstance().update("INSERT INTO USERS VALUES (?, ?, ?, ?)", expected.getUserId(), expected.getPassword(), expected.getName(), expected.getEmail());
 
-        ObjectRowMapper<User> objectRowMapper = new ObjectRowMapper<>(User.class);
+        UserRowMapper<User> userRowMapper = new UserRowMapper<>(User.class);
         User actual = null;
 
         Connection connection = ConnectionManager.getConnection();
@@ -34,7 +35,7 @@ class ObjectRowMapperTest {
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM USERS")) {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                actual = objectRowMapper.mapRow(resultSet);
+                actual = userRowMapper.mapRow(resultSet);
             }
             connection.close();
         } catch (Exception e) {
