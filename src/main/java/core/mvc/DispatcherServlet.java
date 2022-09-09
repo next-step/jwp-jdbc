@@ -21,10 +21,10 @@ public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
+    private final HandlerInterceptor handlerInterceptor = HandlerInterceptorRegistry.defaults();
+
     private HandlerMappingRegistry handlerMappingRegistry;
-
     private HandlerAdapterRegistry handlerAdapterRegistry;
-
     private HandlerExecutor handlerExecutor;
 
     @Override
@@ -41,28 +41,29 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String requestUri = req.getRequestURI();
-        logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        String requestUri = request.getRequestURI();
+        logger.debug("Method : {}, Request URI : {}", request.getMethod(), requestUri);
 
         try {
-            Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(req);
+            Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(request);
             if (!maybeHandler.isPresent()) {
-                resp.setStatus(HttpStatus.NOT_FOUND.value());
+                response.setStatus(HttpStatus.NOT_FOUND.value());
                 return;
             }
 
-
-            ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
-            render(mav, req, resp);
+            handlerInterceptor.preHandle(request, response, maybeHandler);
+            ModelAndView mav = handlerExecutor.handle(request, response, maybeHandler.get());
+            render(mav, request, response);
+            handlerInterceptor.postHandle(request, response, maybeHandler, mav);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
             throw new ServletException(e.getMessage());
         }
     }
 
-    private void render(ModelAndView mav, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    private void render(ModelAndView mav, HttpServletRequest request, HttpServletResponse response) throws Exception {
         View view = mav.getView();
-        view.render(mav.getModel(), req, resp);
+        view.render(mav.getModel(), request, response);
     }
 }
