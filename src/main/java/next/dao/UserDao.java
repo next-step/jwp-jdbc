@@ -1,31 +1,50 @@
 package next.dao;
 
-import core.jdbc.JdbcManager;
 import next.model.User;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-
-    private final JdbcManager jdbcManager = new JdbcManager();
-
     public void insert(User user) {
-        String sql = "INSERT INTO USERS VALUES (#{userId}, #{password}, #{name}, #{email})";
-        jdbcManager.insert(sql, user);
+        JdbcTemplate insertJdbcTemplate = new JdbcTemplate();
+        insertJdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)",
+                                  user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
-        String sql = "UPDATE USERS SET name = #{name}, email = #{email} WHERE userId = #{userId}";
-        jdbcManager.update(sql, user);
+        JdbcTemplate updateJdbcTemplate = new JdbcTemplate();
+        updateJdbcTemplate.update("UPDATE USERS SET name = ?, email = ? WHERE userId = ?", user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() {
-        String sql = "SELECT userId, password, name, email FROM USERS";
-        return jdbcManager.findAll(sql, User.class);
+        JdbcTemplate selectJdbcTemplate = new JdbcTemplate();
+        return selectJdbcTemplate.query("SELECT userId, password, name, email FROM USERS", this::mapRowForFindAll);
     }
 
-    public User findByUserId(String userId) {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid = #{userId}";
-        return jdbcManager.findById(sql, userId, User.class);
+    private <T> List<User> mapRowForFindAll(ResultSet rs) throws SQLException {
+        List<User> users = new ArrayList<>();
+        while (rs.next()) {
+            User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                    rs.getString("email"));
+            users.add(user);
+        }
+        return users;
+    }
+
+    public User findByUserId(String userId) throws SQLException {
+        JdbcTemplate selectJdbcTemplate = new JdbcTemplate();
+        return selectJdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?",
+                this::mapRowForFindById, userId);
+    }
+
+    private <T> User mapRowForFindById(ResultSet rs) throws SQLException {
+        if (rs.next()) {
+            return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                    rs.getString("email"));
+        }
+        return null;
     }
 }

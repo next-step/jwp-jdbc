@@ -8,6 +8,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +22,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void crud() {
+    public void crud() throws SQLException {
         User expected = new User("userId", "password", "name", "javajigi@email.com");
         UserDao userDao = new UserDao();
         userDao.insert(expected);
@@ -35,7 +36,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void findAll() {
+    public void findAll() throws SQLException {
         UserDao userDao = new UserDao();
         List<User> users = userDao.findAll();
         assertThat(users).hasSize(1);
