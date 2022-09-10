@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 
 import core.mvc.asis.ControllerHandlerAdapter;
 import core.mvc.asis.RequestMapping;
+import core.mvc.interceptor.InterceptorExecutor;
 import core.mvc.interceptor.InterceptorRegistry;
 import core.mvc.interceptor.LoggerInterceptor;
 import core.mvc.tobe.AnnotationHandlerMapping;
@@ -33,6 +34,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private InterceptorRegistry interceptorRegistry;
 
+    private InterceptorExecutor interceptorExecutor;
+
     @Override
     public void init() {
         handlerMappingRegistry = new HandlerMappingRegistry();
@@ -47,6 +50,7 @@ public class DispatcherServlet extends HttpServlet {
         interceptorRegistry.addInterceptor(new LoggerInterceptor());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+        interceptorExecutor = new InterceptorExecutor(interceptorRegistry);
     }
 
     @Override
@@ -63,13 +67,11 @@ public class DispatcherServlet extends HttpServlet {
 
             var handler = maybeHandler.get();
 
-            interceptorRegistry.handle(
-                () -> {
-                    ModelAndView mav = requestHandle(req, resp, handler);
-                    render(req, resp, mav);
-                }, req, resp, handler
+            var modelAndView = interceptorExecutor.handle(
+                () -> requestHandle(req, resp, handler), req, resp, handler
             );
 
+            render(req, resp, modelAndView);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
             throw new ServletException(e.getMessage());
@@ -84,12 +86,8 @@ public class DispatcherServlet extends HttpServlet {
         }
     }
 
-    private void render(HttpServletRequest req, HttpServletResponse resp, ModelAndView mav) {
-        try {
-            View view = mav.getView();
-            view.render(mav.getModel(), req, resp);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("mav render exception >>> " + e.getMessage());
-        }
+    private void render(HttpServletRequest req, HttpServletResponse resp, ModelAndView mav) throws Exception {
+        View view = mav.getView();
+        view.render(mav.getModel(), req, resp);
     }
 }
