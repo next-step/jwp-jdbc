@@ -22,14 +22,7 @@ public class JdbcTemplate {
     }
 
     void update(String sql, Object... values) {
-        try(Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            createPreparedStatementSetter(values).setValues(pstmt);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        update(sql, createPreparedStatementSetter(values));
     }
 
     private PreparedStatementSetter createPreparedStatementSetter(Object... values) {
@@ -86,5 +79,4 @@ public class JdbcTemplate {
             }
         }
     }
->>>>>>> 365c9b6cbe815ead97dc0021c63832ae34a38f51
 }

@@ -27,11 +27,14 @@ public class UserDao {
     private <T> List<User> mapRowForFindAll(ResultSet rs) throws SQLException {
         List<User> users = new ArrayList<>();
         while (rs.next()) {
-            User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                    rs.getString("email"));
-            users.add(user);
+            users.add(findUser(rs));
         }
         return users;
+    }
+
+    private User findUser(ResultSet rs) throws SQLException {
+        return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                rs.getString("email"));
     }
 
     public User findByUserId(String userId) throws SQLException {
@@ -42,8 +45,7 @@ public class UserDao {
 
     private <T> User mapRowForFindById(ResultSet rs) throws SQLException {
         if (rs.next()) {
-            return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                    rs.getString("email"));
+            return findUser(rs);
         }
         return null;
     }
