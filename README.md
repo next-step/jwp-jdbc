@@ -54,3 +54,7 @@
 10. 제네릭을 적용해 캐스팅 부분을 제거한다.
 11. preparedStatementSetter 대신 가변인자를 통해 인자를 받을 수 있도록 한다.
 12. UserDao에서 PreparedStatementSetter, RowMapper 인터페이스 구현하는 부분을 람다표현식을 활용해 리팩토링한다.
+
+## 4단계 - Interceptor 구현
+1. Controller 전/후에 로직을 수행할 수 있는 Interceptor를 구현한다.
+2. Interceptor를 구현한 후 Controller 메소드의 실행속도를 debug level로 출력한다.
