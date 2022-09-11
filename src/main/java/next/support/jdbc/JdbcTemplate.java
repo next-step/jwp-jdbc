@@ -1,6 +1,7 @@
 package next.support.jdbc;
 
 import core.jdbc.ConnectionManager;
+import next.exception.DataAccessException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,7 +20,7 @@ public class JdbcTemplate {
         try (PreparedStatement pstmt = createPreParedStatement(sql, queryParameters)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("객체 생성 / 수정에 실패 하였습니다. Error Message : " + e);
         }
     }
 
@@ -31,10 +32,10 @@ public class JdbcTemplate {
                 return rowMapper.mapRow(rs);
             }
 
-            throw new RuntimeException();
+            throw new DataAccessException("객체 조회에 실패 하였습니다.");
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
         }
     }
 
@@ -49,7 +50,7 @@ public class JdbcTemplate {
             return result;
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
         }
     }
 
