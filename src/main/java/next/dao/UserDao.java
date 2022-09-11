@@ -23,7 +23,7 @@ public class UserDao {
 
     public List<User> findAll() {
         String sql = "SELECT userId, password, name, email FROM USERS";
-        return jdbcTemplate.queryForList(sql, UserDao::user);
+        return jdbcTemplate.query(sql, UserDao::user);
     }
 
     public User findByUserId(String userId) {

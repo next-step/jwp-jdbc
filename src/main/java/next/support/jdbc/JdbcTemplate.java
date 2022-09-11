@@ -16,6 +16,14 @@ public class JdbcTemplate {
         return jdbcTemplate;
     }
 
+    public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
+        try (PreparedStatement pstmt = createPreParedStatementSetter(sql, preparedStatementSetter);) {
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("객체 생성 / 수정에 실패 하였습니다. Error Message : " + e);
+        }
+    }
+
     public void update(String sql, Object... queryParameters) {
         try (PreparedStatement pstmt = createPreParedStatement(sql, queryParameters)) {
             pstmt.executeUpdate();
@@ -39,7 +47,22 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, Object... queryParameters) {
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
+        try (PreparedStatement pstmt = createPreParedStatementSetter(sql, preparedStatementSetter);
+             ResultSet rs = pstmt.executeQuery()){
+
+            if (rs.next()) {
+                return rowMapper.mapRow(rs);
+            }
+
+            throw new DataAccessException("객체 조회에 실패 하였습니다.");
+
+        } catch (SQLException e) {
+            throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
+        }
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... queryParameters) {
         try (PreparedStatement pstmt = createPreParedStatement(sql, queryParameters);
              ResultSet rs = pstmt.executeQuery()){
 
@@ -52,6 +75,27 @@ public class JdbcTemplate {
         } catch (SQLException e) {
             throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
         }
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
+        try (PreparedStatement pstmt = createPreParedStatementSetter(sql, preparedStatementSetter);
+             ResultSet rs = pstmt.executeQuery()){
+
+            List<T> result = new ArrayList<>();
+            while (rs.next()) {
+                result.add(rowMapper.mapRow(rs));
+            }
+            return result;
+
+        } catch (SQLException e) {
+            throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
+        }
+    }
+
+    private PreparedStatement createPreParedStatementSetter(String sql, PreparedStatementSetter preparedStatementSetter) throws SQLException {
+        PreparedStatement pstmt = ConnectionManager.getConnection().prepareStatement(sql);
+        preparedStatementSetter.setValues(pstmt);
+        return pstmt;
     }
 
     private PreparedStatement createPreParedStatement(String sql, Object... queryParameters) throws SQLException {
