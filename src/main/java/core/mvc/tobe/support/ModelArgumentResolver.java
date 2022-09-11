@@ -1,5 +1,6 @@
 package core.mvc.tobe.support;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.mvc.tobe.MethodParameter;
 import core.util.ReflectionUtils;
 import org.apache.commons.lang3.ClassUtils;
@@ -15,10 +16,14 @@ import java.lang.reflect.Method;
 
 import static core.util.ReflectionUtils.hasFieldMethod;
 import static core.util.StringUtil.upperFirstChar;
+import static java.lang.System.lineSeparator;
+import static java.util.stream.Collectors.joining;
 
 public class ModelArgumentResolver implements ArgumentResolver {
 
     private ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public boolean supports(MethodParameter methodParameter) {
@@ -47,6 +52,11 @@ public class ModelArgumentResolver implements ArgumentResolver {
 
     private Object resolveArgumentInternal(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         Class<?> clazz = methodParameter.getType();
+
+        if (!request.getMethod().equals("GET")) {
+            return readArgumentFromRequestBody(clazz, request);
+        }
+
         Object argument = getDefaultInstance(clazz, request);
 
         for (Field field : clazz.getDeclaredFields()) {
@@ -82,6 +92,18 @@ public class ModelArgumentResolver implements ArgumentResolver {
         }
 
         throw new IllegalStateException("[" + clazz.getName() + "] supported constructor is empty");
+    }
+
+    private <T> T readArgumentFromRequestBody(Class<T> clazz, HttpServletRequest request) {
+        try {
+            String requestBody = request.getReader()
+                    .lines()
+                    .collect(joining(lineSeparator()));
+
+            return objectMapper.readValue(requestBody, clazz);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
 }
