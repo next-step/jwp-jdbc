@@ -38,6 +38,13 @@ JDBC 에 대한 공통 라이브러리를 만들어서 개발자가 SQL 쿼리, 
 | SQL 문에 인자 setting	    |  O |     X         |
 | 트랜잭션 관리	              |  O |   X           |
 
+# 기능 요구사항 (Interceptor 구현)
+- 여러 Servlet 에서 공통으로 처리해야하는 중복 로직이 있는 경우는 Servlet Filter 를 통해 해결할 수 있다.
+- Servlet Filter 를 활용하면 Servlet 을 실행하기 전/후에 공통적인 작업을 추가할 수 있다.
+- MVC 프레임워크를 구현하면서 Servlet 이 담당하던 역할을 Controller 가 담당하고 있다. 이 Controller 에도 공통으로 처리할 필요가 있는 로직이 필요하다.
+- Controller 전/후에 로직을 추가할 수 있는 Interceptor 를 구현해 본다.
+- Interceptor 를 구현한 후 각 Controller 메소드의 실행 속도를 측정한 후 debug level 로 log 를 출력한다.
+
 # 기능 목록
 **UserAcceptanceTest 를 위한 UserApiController 를 생성한다.**
 - createUser
@@ -87,3 +94,24 @@ JDBC 에 대한 공통 라이브러리를 만들어서 개발자가 SQL 쿼리, 
 
 - DataAccessException 예외
   - SQLException 컴파일 예외를 런타임 예외로 변환하여 throw 한다. (RuntimeException 을 상속 받는다.)
+
+**Interceptor 를 이용하여 각 Controller 의 실행 속도를 측정한다.**
+- HandlerInterceptor 인터페이스
+  - preHandle 메서드
+    - handler 실행 전에 이 메서드를 호출한다. 만약 return 값이 false 라면 이후 동작은 하지 않는다.
+  - PostHandle 메서드
+    - handler 실행 후에 이 메서드를 호출한다.
+  - afterCompletion 메서드
+    - handler 실행 후, view 가 render 가 된 후에 이 메서드를 호출한다.
+  - TimeMeasuringInterceptor 구현체
+    - StopWatch 를 이용하여 핸들러의 preHandle 메서드에서 해당 스탑 워치를 시작하고, HttpServletRequest (thread-safe) attribute 로 저장한다.
+    - postHandle 에서 HttpServletRequest 의 attribute 로 스탑 워치를 가져와서 실행 속도를 debug level 로 출력한다.
+- InterceptorRegistration 객체
+  - 하나의 인터셉터와 해당 인터셉터가 적용 혹은 적용되지 않아야할 include/exclude patterns 를 관리한다.
+  - InterceptorRegistry 에 인터셉트를 셋팅하는 시점에 함께 적용 patterns 를 셋팅한다.
+  - requestUri 와 해당 인터셉터 uri 조건과 비교하여 인터셉터 조건과 매칭될 경우, 해당 인터셉터를 반환한다.
+- InterceptorRegistry 객체
+  - InterceptorRegistration 을 리스트로 관리한다.
+  - interceptor 를 등록하거나, requestUri 에 맞는 인터셉터 리스트를 반환한다.
+- HandlerInterceptorExecutor 객체
+  - 등록된 인터셉터들의 preHandle, postHandle, applyCompletion 메서드를 차례로 실행한다. 
