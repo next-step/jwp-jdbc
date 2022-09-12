@@ -18,3 +18,7 @@
   * UserDaoTest를 통하여 구현을 확인한다.
   * 리팩토링을 통하여 소스의 가독성을 높인다.
   * 공통 라이브러리를 만들어 SQL쿼리, 인자, 데이터 추출에 집중 할 수 있게 한다.
+* step3
+  * JdbcTemplate을 생성하여 UserDao의 공통 부분을 분리한다.
+  * 분리 후 의존관계를 끊는다. (User, UserDao)
+  * SQLException을 런타임 Exception으로 변환하여 throw 한다.
