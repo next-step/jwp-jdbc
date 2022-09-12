@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import org.springframework.http.MediaType;
-import static core.mvc.JsonUtils.objectToJson;
 
 public class JsonView implements View {
     @Override
@@ -36,9 +35,9 @@ public class JsonView implements View {
 
         if (model.size() == 1) {
             Object data = model.values().iterator().next();
-            return objectToJson(data);
+            return JsonUtils.objectToJson(data);
         }
 
-        return objectToJson(model);
+        return JsonUtils.objectToJson(model);
     }
 }
