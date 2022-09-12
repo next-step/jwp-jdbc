@@ -2,9 +2,13 @@ package core.mvc.tobe;
 
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
-import core.mvc.tobe.HandlerExecution;
-import core.mvc.tobe.HandlerKey;
-import core.mvc.tobe.support.*;
+import core.mvc.tobe.support.ArgumentResolver;
+import core.mvc.tobe.support.HttpRequestArgumentResolver;
+import core.mvc.tobe.support.HttpResponseArgumentResolver;
+import core.mvc.tobe.support.ModelArgumentResolver;
+import core.mvc.tobe.support.PathVariableArgumentResolver;
+import core.mvc.tobe.support.RequestBodyArgumentResolver;
+import core.mvc.tobe.support.RequestParamArgumentResolver;
 import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
@@ -29,6 +33,7 @@ public class ControllerScanner {
                 new HttpResponseArgumentResolver(),
                 new RequestParamArgumentResolver(),
                 new PathVariableArgumentResolver(),
+                new RequestBodyArgumentResolver(),
                 new ModelArgumentResolver()
         );
 
