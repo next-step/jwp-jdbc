@@ -7,8 +7,8 @@ import org.springframework.util.StopWatch;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class HandlerInterceptorImpl implements HandlerInterceptor {
-    private static final Logger logger = LoggerFactory.getLogger(HandlerInterceptorImpl.class);
+public class TimerInterceptor implements HandlerInterceptor {
+    private static final Logger logger = LoggerFactory.getLogger(TimerInterceptor.class);
 
     private final ThreadLocal<StopWatch> stopWatchThreadLocal = new ThreadLocal<>();
 

@@ -15,16 +15,16 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("각 Controller 메서드의 실행 속도 측정 인터셉터")
-class HandlerInterceptorImplTest {
+class TimerInterceptorTest {
 
     private final MockHttpServletRequest request = new MockHttpServletRequest();
     private final MockHttpServletResponse response = new MockHttpServletResponse();
-    private HandlerInterceptorImpl interceptor;
+    private TimerInterceptor interceptor;
     private ListAppender<ILoggingEvent> logEvents;
 
     @BeforeEach
     void before() {
-        interceptor = new HandlerInterceptorImpl();
+        interceptor = new TimerInterceptor();
         logEvents = logEvents();
     }
 
@@ -55,7 +55,7 @@ class HandlerInterceptorImplTest {
     }
 
     private ListAppender<ILoggingEvent> logEvents() {
-        Logger logger = (Logger) LoggerFactory.getLogger(HandlerInterceptorImpl.class);
+        Logger logger = (Logger) LoggerFactory.getLogger(TimerInterceptor.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
         logger.addAppender(listAppender);

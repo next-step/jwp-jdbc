@@ -9,7 +9,7 @@ import java.util.List;
 
 public class HandlerInterceptorRegistry implements HandlerInterceptor {
 
-    private static final List<HandlerInterceptor> INTERCEPTORS = List.of(new HandlerInterceptorImpl());
+    private static final List<HandlerInterceptor> INTERCEPTORS = List.of(new TimerInterceptor());
 
     private final Collection<HandlerInterceptor> interceptors;
 
