@@ -5,13 +5,13 @@ import next.model.User;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 class UserRowMapperTest {
 
@@ -23,25 +23,22 @@ class UserRowMapperTest {
     }
 
     @Test
-    void mapRow() {
-        User expected = new User("userId", "password", "name", "fistkim101@email.com");
-        JdbcTemplate.getInstance().update("INSERT INTO USERS VALUES (?, ?, ?, ?)", expected.getUserId(), expected.getPassword(), expected.getName(), expected.getEmail());
+    void mapRow() throws SQLException {
+
+        ResultSet mockResultSet = Mockito.mock(ResultSet.class);
+        Mockito.when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+        Mockito.when(mockResultSet.getString("userId")).thenReturn("fistkim101");
+        Mockito.when(mockResultSet.getString("password")).thenReturn("12345");
+        Mockito.when(mockResultSet.getString("name")).thenReturn("fistkim");
+        Mockito.when(mockResultSet.getString("email")).thenReturn("fistkim101@gmail.com");
 
         UserRowMapper userRowMapper = new UserRowMapper();
-        User actual = null;
+        User actual = userRowMapper.mapRow(mockResultSet);
 
-        Connection connection = ConnectionManager.getConnection();
-        ResultSet resultSet = null;
-        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM USERS")) {
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                actual = userRowMapper.mapRow(resultSet);
-            }
-            connection.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        Assertions.assertThat(actual).isEqualTo(expected);
+        Assertions.assertThat(actual).isNotNull();
+        Assertions.assertThat(actual.getUserId()).isEqualTo("fistkim101");
+        Assertions.assertThat(actual.getPassword()).isEqualTo("12345");
+        Assertions.assertThat(actual.getName()).isEqualTo("fistkim");
+        Assertions.assertThat(actual.getEmail()).isEqualTo("fistkim101@gmail.com");
     }
 }

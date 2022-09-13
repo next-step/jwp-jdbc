@@ -1,8 +1,10 @@
 package core.mvc.tobe;
 
+import core.mvc.ModelAndView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,16 +14,22 @@ public class ProcessingTimeCheckInterceptor implements Interceptor {
     private final String START_TIME = "startTime";
 
     @Override
-    public void preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        httpServletRequest.setAttribute(START_TIME, System.currentTimeMillis());
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        request.setAttribute(START_TIME, System.currentTimeMillis());
+        return true;
     }
 
     @Override
-    public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        long startTime = (long) httpServletRequest.getAttribute(START_TIME);
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable ModelAndView modelAndView) {
+        long startTime = (long) request.getAttribute(START_TIME);
         long processingTime = System.currentTimeMillis() - startTime;
 
-        logger.debug("[{}] 소요시간 : {}ms", httpServletRequest.getRequestURI(), processingTime);
+        logger.debug("[{}] 소요시간 : {}ms", request.getRequestURI(), processingTime);
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception exception) {
+
     }
 
 }

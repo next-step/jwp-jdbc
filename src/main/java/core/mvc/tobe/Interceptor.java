@@ -1,12 +1,17 @@
 package core.mvc.tobe;
 
+import core.mvc.ModelAndView;
+
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface Interceptor {
 
-    void preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
+    boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler);
 
-    void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
-    
+    void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable ModelAndView modelAndView);
+
+    void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception exception);
+
 }
