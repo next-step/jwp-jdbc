@@ -21,7 +21,7 @@ public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
-    private final HandlerInterceptor handlerInterceptor = HandlerInterceptorRegistry.defaults();
+    private final HandlerInterceptorRegistry handlerInterceptors = HandlerInterceptorRegistry.defaults();
 
     private HandlerMappingRegistry handlerMappingRegistry;
     private HandlerAdapterRegistry handlerAdapterRegistry;
@@ -47,15 +47,15 @@ public class DispatcherServlet extends HttpServlet {
 
         try {
             Optional<Object> maybeHandler = handlerMappingRegistry.getHandler(request);
-            if (!maybeHandler.isPresent()) {
+            if (maybeHandler.isEmpty()) {
                 response.setStatus(HttpStatus.NOT_FOUND.value());
                 return;
             }
 
-            handlerInterceptor.preHandle(request, response, maybeHandler);
+            handlerInterceptors.preHandle(request, response, maybeHandler);
             ModelAndView mav = handlerExecutor.handle(request, response, maybeHandler.get());
             render(mav, request, response);
-            handlerInterceptor.postHandle(request, response, maybeHandler, mav);
+            handlerInterceptors.postHandle(request, response, maybeHandler, mav);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
             throw new ServletException(e.getMessage());
