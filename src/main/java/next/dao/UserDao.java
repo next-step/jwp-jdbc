@@ -1,7 +1,7 @@
 package next.dao;
 
 import core.jdbc.JdbcTemplate;
-import core.jdbc.ObjectRowMapper;
+import next.mapper.UserRowMapper;
 import core.jdbc.RowMapper;
 import next.model.User;
 
@@ -32,7 +32,7 @@ public class UserDao {
     }
 
     private RowMapper<User> rowMapper() {
-        return new ObjectRowMapper<>(User.class);
+        return new UserRowMapper();
     }
 
 }

@@ -6,6 +6,8 @@ import org.springframework.http.MediaType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public class JsonView implements View {
 
@@ -26,9 +28,10 @@ public class JsonView implements View {
     }
 
     private Object getSingleData(Map<String, ?> model) {
-        return model.values().stream()
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+        Optional<?> result = model.values().stream()
+                .filter(Objects::nonNull)
+                .findFirst();
+        return result.orElse(null);
     }
 
 }

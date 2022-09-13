@@ -21,7 +21,7 @@ public class JdbcTemplate {
     }
 
     public void update(String sql, Object... parameters) {
-        this.update(sql, getPreparedStatementSetter(parameters));
+        this.update(sql, new DefaultPreparedStatementSetter<Object>(parameters));
     }
 
     public void update(String sql, PreparedStatementSetter preparedStatementSetter) {
@@ -37,7 +37,7 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... parameters) {
-        return this.queryForObject(sql, rowMapper, getPreparedStatementSetter(parameters));
+        return this.queryForObject(sql, rowMapper, new DefaultPreparedStatementSetter<Object>(parameters));
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
@@ -56,7 +56,7 @@ public class JdbcTemplate {
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... parameters) {
-        return this.query(sql, rowMapper, getPreparedStatementSetter(parameters));
+        return this.query(sql, rowMapper, new DefaultPreparedStatementSetter<Object>(parameters));
     }
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
@@ -72,16 +72,6 @@ public class JdbcTemplate {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private PreparedStatementSetter getPreparedStatementSetter(Object... parameters) {
-        return preparedStatement -> {
-            int index = 0;
-            for (Object parameter : parameters) {
-                preparedStatement.setObject(index + 1, parameter);
-                index++;
-            }
-        };
     }
 
     private <T> List<T> mapRows(ResultSet resultSet, RowMapper<T> rowMapper) throws SQLException {
