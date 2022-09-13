@@ -2,7 +2,8 @@
 ## 1단계 : REST API 및 테스트 리팩토링
 ### 요구사항 
 - JSON으로 데이터를 요청하고 응답을 받도록 지원해야 한다.
-  - [ ] JsonView 구현
+  - [x] JsonView 구현
+    - ~~JsonViewTest 통과~~
   - [ ] Controller 구현
 
 
