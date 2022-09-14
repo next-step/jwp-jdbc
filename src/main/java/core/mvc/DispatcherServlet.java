@@ -27,7 +27,7 @@ public class DispatcherServlet extends HttpServlet {
 
     private HandlerExecutor handlerExecutor;
 
-    private HandlerInterceptor handlerInterceptor;
+    private HandlerInterceptorRegistry handlerInterceptorRegistry;
 
     @Override
     public void init() {
@@ -41,11 +41,12 @@ public class DispatcherServlet extends HttpServlet {
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
 
-        handlerInterceptor = new CustomInterceptor();
+        handlerInterceptorRegistry = new HandlerInterceptorRegistry();
+        handlerInterceptorRegistry.addInterceptor(new CustomInterceptor());
     }
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         String requestUri = req.getRequestURI();
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
@@ -56,9 +57,9 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
-            handlerInterceptor.preHandle(req, resp, maybeHandler.get());
+            handlerInterceptorRegistry.preHandle(req, resp, maybeHandler.get());
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
-            handlerInterceptor.postHandle(req, resp, maybeHandler.get());
+            handlerInterceptorRegistry.postHandle(req, resp, maybeHandler.get());
             render(mav, req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
