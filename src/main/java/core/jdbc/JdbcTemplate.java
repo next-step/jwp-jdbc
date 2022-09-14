@@ -49,7 +49,7 @@ public class JdbcTemplate {
     public <T> List<T> query(String sql, Class<T> type, PreparedStatementSetter pss) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql);) {
             pss.setValues(pstmt);
-            return extractResults(pstmt, new RowMapper<>(type));
+            return extractResults(pstmt, new ObjectMapper<>(type));
         } catch (SQLException e) {
             throw new DataAccessException(String.format("DB query sql 수행에 실패했습니다. sql = %s", sql), e);
         }
@@ -63,11 +63,11 @@ public class JdbcTemplate {
         };
     }
 
-    private <T> List<T> extractResults(PreparedStatement pstmt, RowMapper<T> rowMapper) throws SQLException{
+    private <T> List<T> extractResults(PreparedStatement pstmt, ObjectMapper<T> objectMapper) throws SQLException{
         List<T> results = new ArrayList<>();
         try (ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
-                results.add(rowMapper.map(rs));
+                results.add(objectMapper.mapRow(rs));
             }
         }
         return results;

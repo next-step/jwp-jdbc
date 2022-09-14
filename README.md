@@ -68,3 +68,12 @@
 - `UserDao`의 User 객체 생성 관련 중복 코드 제거
   - Reflection 활용해서 객체를 생성
     - `RowMapper` 구현
+
+## 4단계 - Interceptor 구현
+
+## 요구사항
+
+- MVC 패턴의 각각의 `Controller`들의 공통 로직을 처리해주는 `Interceptor`를 구현.
+  - Controller 전/후에 로직을 추가할 수 있어야 한다.
+- `Interceptor`를 활용하여 각 Controller 메서드의 실행 속도를 측정.
+  - 측정한 속도를 로그를 사용하여 debug level로 출력.
