@@ -22,14 +22,7 @@ public class JdbcTemplate {
     }
 
     void update(String sql, Object... values) {
-        try(Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql)) {
-
-            createPreparedStatementSetter(values).setValues(pstmt);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        update(sql, createPreparedStatementSetter(values));
     }
 
     private PreparedStatementSetter createPreparedStatementSetter(Object... values) {
