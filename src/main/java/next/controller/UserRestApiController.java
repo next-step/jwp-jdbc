@@ -28,7 +28,7 @@ public class UserRestApiController {
         mv.addObject("user", dto);
 
         response.setStatus(201);
-        response.setHeader("location", "/api/users?userId=" + user.getUserId());
+        response.setHeader("location", "/api/users/" + user.getUserId());
 
         return mv;
     }
@@ -48,7 +48,7 @@ public class UserRestApiController {
         ModelAndView mv = new ModelAndView(new JsonView());
 
         User user = DataBase.findUserById(userId);
-        user.update(new User(userId, user.getPassword(), user.getName(), user.getEmail()));
+        user.update(new User(userId, user.getPassword(), updatedDto.getName(), updatedDto.getEmail()));
 
         return mv;
     }
