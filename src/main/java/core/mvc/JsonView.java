@@ -20,9 +20,7 @@ public class JsonView implements View {
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         if (!model.isEmpty()) {
             String content = extractContent(model);
-            PrintWriter writer = response.getWriter();
-            writer.write(content);
-            writer.close();
+            objectMapper.writeValue(response.getOutputStream(), content);
         }
     }
 
