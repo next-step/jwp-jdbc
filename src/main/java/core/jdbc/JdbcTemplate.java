@@ -53,12 +53,10 @@ public class JdbcTemplate {
     }
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
-        try (Connection conn = ConnectionManager.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            pss.setValues(ps);
-            ResultSet rs = ps.executeQuery();
-            return rowMapper.mapRow(rs);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        List<T> result = query(sql, rowMapper, pss);
+        if (result.isEmpty()) {
+            return null;
         }
+        return result.get(0);
     }
 }
