@@ -6,6 +6,24 @@
     - ~~JsonViewTest 통과~~
   - [ ] Controller 구현
 
+## 2단계 : JDBC 라이브러리 구현
+- 클린코드로 구현하기!!!
+  - 익명 클래스
+  - 함수형 인터페이스
+  - generic
+  - 가변 인자
+  - try-with-resources
+  - compiletime exception vs runtime exception
+  - 람다
+### 요구사항
+- JDBC 라이브러리 구현
+  - SQL 쿼리문 전달
+  - 쿼리에 전달할 인자
+  - SELECT 구문의 경우 조회한 데이터
+- 리팩토링 - 점진적 리팩토링
+  - SQLException -> RuntimeException (try/catch으로 가독성 헤치지 않게)
+
+
 
 
 
