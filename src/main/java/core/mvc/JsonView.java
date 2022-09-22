@@ -36,7 +36,7 @@ public class JsonView implements View {
         return objectToString(model);
     }
 
-    private String objectToString(Object object){
+    private String objectToString(Object object) {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
