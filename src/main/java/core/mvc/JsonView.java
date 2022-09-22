@@ -6,23 +6,23 @@ import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.util.Map;
 
 public class JsonView implements View {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String DEFAULT_CONTENT_TYPE = MediaType.APPLICATION_JSON_VALUE;
     private static final String BLANK = "";
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String content = extractContent(model);
+        PrintWriter writer = response.getWriter();
 
         response.setContentType(DEFAULT_CONTENT_TYPE);
-        response.setContentLength(content.length());
-        response.getWriter().write(content);
-        response.getWriter().flush();
-        response.getWriter().close();
+        writer.write(content);
+        writer.flush();
+        writer.close();
     }
 
     private String extractContent(Map<String, ?> model) {
@@ -38,7 +38,7 @@ public class JsonView implements View {
 
     private String objectToString(Object object) {
         try {
-            return objectMapper.writeValueAsString(object);
+            return new ObjectMapper().writeValueAsString(object);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException(String.format("fail to convert %s to string", object));
         }

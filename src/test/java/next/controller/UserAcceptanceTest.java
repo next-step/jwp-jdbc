@@ -71,7 +71,7 @@ public class UserAcceptanceTest {
     private WebTestClient client() {
         return WebTestClient
                 .bindToServer()
-                .baseUrl("http://localhost:8888")
+                .baseUrl("http://localhost:8080")
                 .build();
     }
 }
