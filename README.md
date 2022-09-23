@@ -7,3 +7,8 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+ 
+### STEP 1. REST API 및 테스트 리팩토링
+- [X] Jackson에 대한 학습 테스트 작성
+- [X] Java Object를 JSON 데이터로 변환하는 JsonView 구현
+- [X] RequestBodyArgumentResolver 구현
