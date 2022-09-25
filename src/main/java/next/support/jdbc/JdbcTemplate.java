@@ -12,6 +12,7 @@ import java.util.List;
 public class JdbcTemplate {
 
     private static final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+
     public static JdbcTemplate getInstance() {
         return jdbcTemplate;
     }
@@ -34,14 +35,8 @@ public class JdbcTemplate {
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... queryParameters) {
         try (PreparedStatement pstmt = createPreParedStatement(sql, queryParameters);
-             ResultSet rs = pstmt.executeQuery()){
-
-            if (rs.next()) {
-                return rowMapper.mapRow(rs);
-            }
-
-            throw new DataAccessException("객체 조회에 실패 하였습니다.");
-
+             ResultSet rs = pstmt.executeQuery()) {
+            return queryForObject(rs, rowMapper);
         } catch (SQLException e) {
             throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
         }
@@ -49,12 +44,18 @@ public class JdbcTemplate {
 
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
         try (PreparedStatement pstmt = createPreParedStatementSetter(sql, preparedStatementSetter);
-             ResultSet rs = pstmt.executeQuery()){
+             ResultSet rs = pstmt.executeQuery()) {
+            return queryForObject(rs, rowMapper);
+        } catch (SQLException e) {
+            throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
+        }
+    }
 
+    private <T> T queryForObject(ResultSet rs, RowMapper<T> rowMapper) {
+        try {
             if (rs.next()) {
                 return rowMapper.mapRow(rs);
             }
-
             throw new DataAccessException("객체 조회에 실패 하였습니다.");
 
         } catch (SQLException e) {
@@ -64,14 +65,8 @@ public class JdbcTemplate {
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... queryParameters) {
         try (PreparedStatement pstmt = createPreParedStatement(sql, queryParameters);
-             ResultSet rs = pstmt.executeQuery()){
-
-            List<T> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(rowMapper.mapRow(rs));
-            }
-            return result;
-
+             ResultSet rs = pstmt.executeQuery()) {
+            return queryResult(pstmt, rowMapper, rs);
         } catch (SQLException e) {
             throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
         }
@@ -79,14 +74,20 @@ public class JdbcTemplate {
 
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) {
         try (PreparedStatement pstmt = createPreParedStatementSetter(sql, preparedStatementSetter);
-             ResultSet rs = pstmt.executeQuery()){
+             ResultSet rs = pstmt.executeQuery()) {
+            return queryResult(pstmt, rowMapper, rs);
+        } catch (SQLException e) {
+            throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
+        }
+    }
 
+    private <T> List<T> queryResult(PreparedStatement pstmt, RowMapper<T> rowMapper, ResultSet rs) {
+        try {
             List<T> result = new ArrayList<>();
             while (rs.next()) {
                 result.add(rowMapper.mapRow(rs));
             }
             return result;
-
         } catch (SQLException e) {
             throw new DataAccessException("객체 조회에 실패 하였습니다. Error Message : " + e);
         }

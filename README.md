@@ -22,3 +22,8 @@
   * JdbcTemplate을 생성하여 UserDao의 공통 부분을 분리한다.
   * 분리 후 의존관계를 끊는다. (User, UserDao)
   * SQLException을 런타임 Exception으로 변환하여 throw 한다.
+* step4
+  * Interceptor 구현
+    * Controller 전에 로직 추가하는 Interceptor
+    * Controller 후에 로직 추가하는 Interceptor
+    * 각 Controller 메소드의 실행 속도를 측정한 후 debug log를 출력
