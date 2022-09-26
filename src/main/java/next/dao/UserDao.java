@@ -24,6 +24,11 @@ public class UserDao {
                     throw new RuntimeException("fail to set value to preparedstatement");
                 }
             }
+
+            @Override
+            Object mapRow(ResultSet resultSet) {
+                return null;
+            }
         };
         jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)");
     }
@@ -41,12 +46,17 @@ public class UserDao {
                     throw new RuntimeException("fail to set value to preparedstatement");
                 }
             }
+
+            @Override
+            Object mapRow(ResultSet resultSet) {
+                return null;
+            }
         };
         jdbcTemplate.update("UPDATE USERS SET password = ?, name = ? , email = ? WHERE userId = ?");
     }
 
     public List<User> findAll() throws SQLException {
-        final SelectJdbcTemplate jdbcTemplate = new SelectJdbcTemplate() {
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate<>() {
             @Override
             void setValues(PreparedStatement pstmt) {}
 
@@ -65,7 +75,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) throws SQLException {
-        final SelectJdbcTemplate<Object> jdbcTemplate = new SelectJdbcTemplate<>() {
+        final JdbcTemplate<Object> jdbcTemplate = new JdbcTemplate<>() {
             @Override
             void setValues(PreparedStatement pstmt) {
                 try {
