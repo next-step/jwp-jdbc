@@ -46,64 +46,46 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS";
+        final SelectJdbcTemplate jdbcTemplate = new SelectJdbcTemplate() {
+            @Override
+            void setValues(PreparedStatement pstmt) {}
 
-            pstmt = con.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            final ArrayList<User> users = new ArrayList<>();
+            @Override
+            Object mapRow(ResultSet rs) {
+                try {
+                    return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                            rs.getString("email"));
+                } catch (SQLException e) {
+                    throw new RuntimeException("fail to conver resultSet to dao list");
+                }
+            }
+        };
 
-            while(rs.next()) {
-                users.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email")));
-            }
-            return users;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        return jdbcTemplate.query("SELECT userId, password, name, email FROM USERS");
     }
 
     public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
-
-            rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+        final SelectJdbcTemplate<Object> jdbcTemplate = new SelectJdbcTemplate<>() {
+            @Override
+            void setValues(PreparedStatement pstmt) {
+                try {
+                    pstmt.setString(1, userId);
+                } catch (SQLException e) {
+                    throw new RuntimeException("fail to set preparedstatement");
+                }
             }
 
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
+            @Override
+            Object mapRow(ResultSet rs) {
+                try {
+                    return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                            rs.getString("email"));
+                } catch (SQLException e) {
+                    throw new RuntimeException("fail to convert resultset to dao");
+                }
             }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        };
+
+        return (User) jdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?");
     }
 }
