@@ -12,27 +12,11 @@ import java.util.List;
 
 public class UserDao {
     public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForInsert();
-            pstmt = con.prepareStatement(sql);
-            setValuesForInsert(user, pstmt);
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+        final InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
+        insertJdbcTemplate.insert(user, this);
     }
 
-    private void setValuesForInsert(User user, PreparedStatement pstmt) {
+    void setValuesForInsert(User user, PreparedStatement pstmt) {
         try {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
@@ -43,32 +27,16 @@ public class UserDao {
         }
     }
 
-    private String createQueryForInsert() {
+    String createQueryForInsert() {
         return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
     }
 
     public void update(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForUpdate();
-            pstmt = con.prepareStatement(sql);
-            setValuesForUpdate(user, pstmt);
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
-            if (con != null) {
-                con.close();
-            }
-        }
+        final UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
+        updateJdbcTemplate.update(user, this);
     }
 
-    private void setValuesForUpdate(User user, PreparedStatement pstmt) {
+    void setValuesForUpdate(User user, PreparedStatement pstmt) {
         try {
             pstmt.setString(1, user.getPassword());
             pstmt.setString(2, user.getName());
@@ -79,7 +47,7 @@ public class UserDao {
         }
     }
 
-    private String createQueryForUpdate() {
+    String createQueryForUpdate() {
         return "UPDATE USERS SET password = ?, name = ? , email = ? WHERE userId = ?";
     }
 
