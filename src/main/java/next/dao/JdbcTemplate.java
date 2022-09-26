@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcTemplate<T> {
-
     public void update(String sql, PreparedStatementSetter setter) {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -21,7 +20,7 @@ public class JdbcTemplate<T> {
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("fail to update");
         } finally {
             if (pstmt != null) {
                 try {
@@ -41,14 +40,9 @@ public class JdbcTemplate<T> {
     }
 
     public List<T> query(String sql, RowMapper<T> mapper) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
+        try(Connection con = ConnectionManager.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery()) {
             List<T> list = new ArrayList<>();
             try {
                 while(rs.next()) {
@@ -59,43 +53,15 @@ public class JdbcTemplate<T> {
             }
             return list;
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException("fail to close resultset");
-                }
-            }
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException("fail to close preparedstatement");
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException("fail to close connection");
-                }
-            }
+            throw new RuntimeException("fail to query");
         }
-        throw new RuntimeException("fail to execute select all query");
     }
 
     public T queryForObject(String sql, RowMapper<T> mapper, PreparedStatementSetter setter) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
+        try(Connection con = ConnectionManager.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery()) {
             setter.setValues(pstmt);
-            rs = pstmt.executeQuery();
-
             try {
                 if (rs.next()) {
                     return mapper.mapRow(rs);
@@ -104,29 +70,7 @@ public class JdbcTemplate<T> {
                 throw new RuntimeException("fail to convert resultset to dao");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException("fail to close resultset");
-                }
-            }
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException("fail to close preparedstatement");
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException("fail to close connection");
-                }
-            }
+            throw new RuntimeException("fail to query for object");
         }
         throw new RuntimeException("fail to execute select query");
     }
