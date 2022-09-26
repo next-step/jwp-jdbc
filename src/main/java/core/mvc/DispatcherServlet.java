@@ -26,6 +26,7 @@ public class DispatcherServlet extends HttpServlet {
     private HandlerAdapterRegistry handlerAdapterRegistry;
 
     private HandlerExecutor handlerExecutor;
+    private InterceptorHandler interceptorHandler;
 
     @Override
     public void init() {
@@ -38,6 +39,12 @@ public class DispatcherServlet extends HttpServlet {
         handlerAdapterRegistry.addHandlerAdapter(new ControllerHandlerAdapter());
 
         handlerExecutor = new HandlerExecutor(handlerAdapterRegistry);
+
+        InterceptorConfig interceptorConfig = new InterceptorConfig()
+                .addInterceptor(new TimeLoggingInterceptor())
+                .addPathPattern("/**");
+
+        interceptorHandler = new InterceptorHandler(interceptorConfig);
     }
 
     @Override
@@ -52,13 +59,25 @@ public class DispatcherServlet extends HttpServlet {
                 return;
             }
 
+            boolean preHandlePassed = interceptorHandler.preHandle(req, resp, maybeHandler.get());
+
+            if (!preHandlePassed) {
+                redirect(req, resp, maybeHandler.get());
+                return;
+            }
 
             ModelAndView mav = handlerExecutor.handle(req, resp, maybeHandler.get());
+            interceptorHandler.postHandle(req, resp, maybeHandler.get(), mav);
             render(mav, req, resp);
         } catch (Throwable e) {
             logger.error("Exception : {}", e);
             throw new ServletException(e.getMessage());
         }
+    }
+
+    private void redirect(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
+        JspView jspView = new JspView("redirect:home.jsp");
+        render(new ModelAndView(jspView), req, resp);
     }
 
     private void render(ModelAndView mav, HttpServletRequest req, HttpServletResponse resp) throws Exception {

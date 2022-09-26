@@ -23,3 +23,5 @@
     - 쿼리에 전달할 파라미터 객체 `PreparedStatementSetter` 정의
     - UserDao가 JdbcTemplate을 사용하도록 로직 변경
     - next.dao.UserDaoTes 테스트 케이스 성공
+
+- Interceptor를 구현한 후 각 Controller 메소드의 실행 속도를 측정한 후 debug level로 log를 출력하는 요구사항을 구현한다.
