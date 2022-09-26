@@ -1,6 +1,6 @@
-package next.dao;
+package core.jdbc;
 
-import core.jdbc.ConnectionManager;
+import core.jdbc.exception.DataAccessException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,31 +11,13 @@ import java.util.List;
 
 public class JdbcTemplate<T> {
     public void update(String sql, PreparedStatementSetter setter) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
+        try(Connection con = ConnectionManager.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.setValues(pstmt);
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("fail to update");
-        } finally {
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException("fail to close preparedstatement");
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException("fail to close connection");
-                }
-            }
+            throw new DataAccessException("fail to update");
         }
     }
 
@@ -49,11 +31,11 @@ public class JdbcTemplate<T> {
                     list.add(mapper.mapRow(rs));
                 }
             } catch (SQLException e) {
-                throw new RuntimeException("fail to convert resultSet to dao list");
+                throw new DataAccessException("fail to convert resultSet");
             }
             return list;
         } catch (SQLException e) {
-            throw new RuntimeException("fail to query");
+            throw new DataAccessException("fail to query");
         }
     }
 
@@ -67,11 +49,11 @@ public class JdbcTemplate<T> {
                     return mapper.mapRow(rs);
                 }
             } catch (SQLException e) {
-                throw new RuntimeException("fail to convert resultset to dao");
+                throw new DataAccessException("fail to convert resultSet");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("fail to query for object");
+            throw new DataAccessException("fail to query for object");
         }
-        throw new RuntimeException("fail to execute select query");
+        return null;
     }
 }
