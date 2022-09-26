@@ -16,12 +16,9 @@ public class UserDao {
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+            String sql = createQueryForInsert();
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
+            setValuesForInsert(user, pstmt);
 
             pstmt.executeUpdate();
         } finally {
@@ -35,17 +32,29 @@ public class UserDao {
         }
     }
 
+    private void setValuesForInsert(User user, PreparedStatement pstmt) {
+        try {
+            pstmt.setString(1, user.getUserId());
+            pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getName());
+            pstmt.setString(4, user.getEmail());
+        } catch (SQLException e) {
+            throw new RuntimeException("fail to set value to preparedstatement");
+        }
+    }
+
+    private String createQueryForInsert() {
+        return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+    }
+
     public void update(User user) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = "UPDATE USERS SET password = ?, name = ? , email = ? WHERE userId = ?";
+            String sql = createQueryForUpdate();
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
+            setValuesForUpdate(user, pstmt);
 
             pstmt.executeUpdate();
         } finally {
@@ -57,6 +66,21 @@ public class UserDao {
                 con.close();
             }
         }
+    }
+
+    private void setValuesForUpdate(User user, PreparedStatement pstmt) {
+        try {
+            pstmt.setString(1, user.getPassword());
+            pstmt.setString(2, user.getName());
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, user.getUserId());
+        } catch (SQLException e) {
+            throw new RuntimeException("fail to set value to preparedstatement");
+        }
+    }
+
+    private String createQueryForUpdate() {
+        return "UPDATE USERS SET password = ?, name = ? , email = ? WHERE userId = ?";
     }
 
     public List<User> findAll() throws SQLException {
