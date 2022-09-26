@@ -14,7 +14,7 @@ public class UserDao {
     public void insert(User user) {
         final JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
-            void setValues(User user, PreparedStatement pstmt) {
+            void setValues(PreparedStatement pstmt) {
                 try {
                     pstmt.setString(1, user.getUserId());
                     pstmt.setString(2, user.getPassword());
@@ -24,19 +24,14 @@ public class UserDao {
                     throw new RuntimeException("fail to set value to preparedstatement");
                 }
             }
-
-            @Override
-            String createQuery() {
-                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            }
         };
-        jdbcTemplate.update(user);
+        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?)");
     }
 
     public void update(User user) {
         final JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
-            void setValues(User user, PreparedStatement pstmt) {
+            void setValues(PreparedStatement pstmt) {
                 try {
                     pstmt.setString(1, user.getPassword());
                     pstmt.setString(2, user.getName());
@@ -46,13 +41,8 @@ public class UserDao {
                     throw new RuntimeException("fail to set value to preparedstatement");
                 }
             }
-
-            @Override
-            String createQuery() {
-                return "UPDATE USERS SET password = ?, name = ? , email = ? WHERE userId = ?";
-            }
         };
-        jdbcTemplate.update(user);
+        jdbcTemplate.update("UPDATE USERS SET password = ?, name = ? , email = ? WHERE userId = ?");
     }
 
     public List<User> findAll() throws SQLException {
