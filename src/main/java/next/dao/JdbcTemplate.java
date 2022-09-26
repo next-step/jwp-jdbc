@@ -9,15 +9,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class JdbcTemplate<T> {
+public class JdbcTemplate<T> {
 
-    public void update(String sql) {
+    public void update(String sql, PreparedStatementSetter setter) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
             pstmt = con.prepareStatement(sql);
-            setValues(pstmt);
+            setter.setValues(pstmt);
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -40,7 +40,7 @@ public abstract class JdbcTemplate<T> {
         }
     }
 
-    public List<T> query(String sql) {
+    public List<T> query(String sql, RowMapper<T> mapper) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -52,7 +52,7 @@ public abstract class JdbcTemplate<T> {
             List<T> list = new ArrayList<>();
             try {
                 while(rs.next()) {
-                    list.add(mapRow(rs));
+                    list.add(mapper.mapRow(rs));
                 }
             } catch (SQLException e) {
                 throw new RuntimeException("fail to convert resultSet to dao list");
@@ -86,19 +86,19 @@ public abstract class JdbcTemplate<T> {
         throw new RuntimeException("fail to execute select all query");
     }
 
-    public T queryForObject(String sql) {
+    public T queryForObject(String sql, RowMapper<T> mapper, PreparedStatementSetter setter) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
             pstmt = con.prepareStatement(sql);
-            setValues(pstmt);
+            setter.setValues(pstmt);
             rs = pstmt.executeQuery();
 
             try {
                 if (rs.next()) {
-                    return mapRow(rs);
+                    return mapper.mapRow(rs);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException("fail to convert resultset to dao");
@@ -130,8 +130,4 @@ public abstract class JdbcTemplate<T> {
         }
         throw new RuntimeException("fail to execute select query");
     }
-
-    abstract void setValues(PreparedStatement pstmt);
-
-    abstract T mapRow(ResultSet resultSet);
 }
