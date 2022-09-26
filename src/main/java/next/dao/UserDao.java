@@ -11,44 +11,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        final InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
+    public void insert(User user) {
+        final InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate() {
+            @Override
+            void setValuesForInsert(User user, PreparedStatement pstmt) {
+                try {
+                    pstmt.setString(1, user.getUserId());
+                    pstmt.setString(2, user.getPassword());
+                    pstmt.setString(3, user.getName());
+                    pstmt.setString(4, user.getEmail());
+                } catch (SQLException e) {
+                    throw new RuntimeException("fail to set value to preparedstatement");
+                }
+            }
+
+            @Override
+            String createQueryForInsert() {
+                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+            }
+        };
         insertJdbcTemplate.insert(user, this);
     }
 
-    void setValuesForInsert(User user, PreparedStatement pstmt) {
-        try {
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-        } catch (SQLException e) {
-            throw new RuntimeException("fail to set value to preparedstatement");
-        }
-    }
+    public void update(User user) {
+        final UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate() {
+            @Override
+            void setValuesForUpdate(User user, PreparedStatement pstmt) {
+                try {
+                    pstmt.setString(1, user.getPassword());
+                    pstmt.setString(2, user.getName());
+                    pstmt.setString(3, user.getEmail());
+                    pstmt.setString(4, user.getUserId());
+                } catch (SQLException e) {
+                    throw new RuntimeException("fail to set value to preparedstatement");
+                }
+            }
 
-    String createQueryForInsert() {
-        return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-    }
-
-    public void update(User user) throws SQLException {
-        final UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
+            @Override
+            String createQueryForUpdate() {
+                return "UPDATE USERS SET password = ?, name = ? , email = ? WHERE userId = ?";
+            }
+        };
         updateJdbcTemplate.update(user, this);
-    }
-
-    void setValuesForUpdate(User user, PreparedStatement pstmt) {
-        try {
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
-        } catch (SQLException e) {
-            throw new RuntimeException("fail to set value to preparedstatement");
-        }
-    }
-
-    String createQueryForUpdate() {
-        return "UPDATE USERS SET password = ?, name = ? , email = ? WHERE userId = ?";
     }
 
     public List<User> findAll() throws SQLException {

@@ -7,7 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class UpdateJdbcTemplate {
+public abstract class UpdateJdbcTemplate {
 
     public void update(User user, UserDao userDao) {
         Connection con = null;
@@ -38,4 +38,8 @@ public class UpdateJdbcTemplate {
             }
         }
     }
+
+    abstract void setValuesForUpdate(User user, PreparedStatement pstmt);
+
+    abstract String createQueryForUpdate();
 }

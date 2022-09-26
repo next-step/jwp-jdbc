@@ -7,16 +7,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class InsertJdbcTemplate {
+public abstract class InsertJdbcTemplate {
 
     public void insert(User user, UserDao userDao) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = userDao.createQueryForInsert();
+            String sql = createQueryForInsert();
             pstmt = con.prepareStatement(sql);
-            userDao.setValuesForInsert(user, pstmt);
+            setValuesForInsert(user, pstmt);
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -39,4 +39,8 @@ public class InsertJdbcTemplate {
             }
         }
     }
+
+    abstract void setValuesForInsert(User user, PreparedStatement pstmt);
+
+    abstract String createQueryForInsert();
 }
