@@ -14,5 +14,7 @@
 - [X] RequestBodyArgumentResolver 구현
 ### STEP 2-3. JDBC 라이브러리 구현
 - [X] JDBC 템플릿 구현
-  - [X] insert, update -> update
-  - [X] findAll, findById -> query, queryForObject
+  - [X] insert, update 쿼리를 실행할 수 있는 `update` 메서드 구현
+  - [X] findAll, findById 쿼리를 실행할 수 있는 `query`, `queryForObject` 구현
+  - [X] 커스텀 예외 선언하여 JdbcTemplate 내에서 Runtime 예외로 활용
+  - [X] `PreparedStatementSetter`, `RowMapper` 함수형 인터페이스 선언하여 의존관계를 분리하고, 람다로 적절한 기능 주입
