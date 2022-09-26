@@ -12,3 +12,4 @@
 - [X] Jackson에 대한 학습 테스트 작성
 - [X] Java Object를 JSON 데이터로 변환하는 JsonView 구현
 - [X] RequestBodyArgumentResolver 구현
+### STEP 2. JDBC 라이브러리 구현
