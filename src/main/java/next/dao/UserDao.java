@@ -16,8 +16,12 @@ public class UserDao {
     }
 
     public void insert(User user) throws SQLException {
-        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?);",
-                user.getUserId(),user.getPassword(), user.getName(), user.getEmail());
+        jdbcTemplate.update("INSERT INTO USERS VALUES (?, ?, ?, ?);", preparedStatementSetter -> {
+            preparedStatementSetter.setString(1, user.getUserId());
+            preparedStatementSetter.setString(1, user.getPassword());
+            preparedStatementSetter.setString(1, user.getName());
+            preparedStatementSetter.setString(1, user.getEmail());
+        });
     }
 
     public void update(User user) throws SQLException {
