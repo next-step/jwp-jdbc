@@ -7,3 +7,6 @@
 
 ## 온라인 코드 리뷰 과정
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
+
+### 1단계 - REST API 및 테스트 리팩토링
+- [ ] 지금까지 구현한 @MVC 프레임워크는 HTML 밖에 지원하지 않는다. HTML 이외에 JSON으로 데이터를 요청하고 응답을 받도록 지원해야 한다.
