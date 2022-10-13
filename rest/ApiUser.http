@@ -1,0 +1,22 @@
+### 회원가입
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "userId": "aaaa",
+  "password": "aaaa",
+  "name": "aaaa",
+  "email": "aaaa@nextstep.com"
+}
+
+### 조회
+GET http://localhost:8080/api/users?userId=aaaa
+
+### 수정
+PUT http://localhost:8080/api/users?userId=aaaa
+Content-Type: application/json
+
+{
+  "name": "bbbb",
+  "email": "bbbb@nextstep.com"
+}
