@@ -9,7 +9,6 @@ import java.util.List;
 public class JdbcTemplate {
     private static final JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
-
     public static JdbcTemplate getInstance() {
         return jdbcTemplate;
     }
@@ -51,7 +50,6 @@ public class JdbcTemplate {
             throw new DataAccessException(e);
         }
     }
-
 
     private PreparedStatement toPreparedStatementByObjects(String sql, Object... parameters) throws SQLException {
         PreparedStatement pstmt = ConnectionManager.getConnection().prepareStatement(sql);
