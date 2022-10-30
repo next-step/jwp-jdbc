@@ -1,17 +1,15 @@
 package core.mvc.tobe.support;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import core.mvc.JsonUtils;
 import core.mvc.tobe.MethodParameter;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResolver {
 
@@ -29,26 +27,15 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
 
     private String parseBodyJson(HttpServletRequest request) {
         String bodyJson = "";
+        ServletInputStream inputStream;
 
-        StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader br = null;
-
-        String line = "";
         try {
-            InputStream inputStream = request.getInputStream();
-            if (inputStream != null) {
-                br = new BufferedReader(new InputStreamReader(inputStream));
-
-                while ((line = br.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-            }else {
-            }
+            inputStream = request.getInputStream();
+            bodyJson = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        bodyJson = stringBuilder.toString();
         return bodyJson;
     }
 }
