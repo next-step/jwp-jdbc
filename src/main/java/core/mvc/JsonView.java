@@ -2,6 +2,7 @@ package core.mvc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,33 +12,36 @@ import java.util.Map;
 
 public class JsonView implements View {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String result = convertObjectToJson(model);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        if(result != null) {
+        if(!Strings.isNullOrEmpty(result)) {
             response.getWriter().write(result);
         }
     }
 
     private static String convertObjectToJson(Map<String, ?> model) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-
-        String result = null;
-        if(isSingleModel(model)) {
-            Iterator<String> keys = model.keySet().iterator();
-            result = mapper.writeValueAsString(model.get(keys.next()));
-        } else if(isMultipleModels(model)){
-            result = mapper.writeValueAsString(model);
+        if(model.isEmpty()) {
+            return null;
         }
 
-        return result;
+        if(isSingleModel(model)) {
+            String firstKey = getFirstKey(model);
+            return objectMapper.writeValueAsString(model.get(firstKey));
+        }
+
+        return objectMapper.writeValueAsString(model);
     }
 
-    private static boolean isMultipleModels(Map<String, ?> model) {
-        return model.size() > 1;
+    private static String getFirstKey(Map<String, ?> model) {
+        return model.keySet().stream()
+                .findFirst()
+                .get();
     }
 
     private static boolean isSingleModel(Map<String, ?> model) {
