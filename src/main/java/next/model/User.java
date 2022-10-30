@@ -1,16 +1,31 @@
 package next.model;
 
+import next.dto.UserCreatedDto;
+import next.dto.UserUpdatedDto;
+
 public class User {
     private String userId;
     private String password;
     private String name;
     private String email;
 
+    public User() {
+    }
+
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
         this.password = password;
         this.name = name;
         this.email = email;
+    }
+
+    public static User from(UserCreatedDto userCreatedDto) {
+        return new User(
+                userCreatedDto.getUserId(),
+                userCreatedDto.getPassword(),
+                userCreatedDto.getName(),
+                userCreatedDto.getEmail()
+        );
     }
 
     public String getUserId() {
