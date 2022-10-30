@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 public class JsonView implements View {
 
@@ -20,7 +21,7 @@ public class JsonView implements View {
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        if(!Strings.isNullOrEmpty(result)) {
+        if(!Objects.isNull(result)) {
             response.getWriter().write(result);
         }
     }
