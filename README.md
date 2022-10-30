@@ -9,6 +9,9 @@
 * [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
 
 ## step1
-- jsonView 구현
+- JsonViewTest 를 위한 jsonView 구현
   - contentType 설정
   - model 이 1개 또는 2개 이상일 경우 로직 구현
+- UserAcceptanceTest 를 위한 Controller 구현
+  - Controller 구현
+  - RequestBody 처리할 수 있는 Resolver 구현
