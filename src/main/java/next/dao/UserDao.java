@@ -22,7 +22,7 @@ public class UserDao {
 
     public List<User> findAll() {
         final String sql = "SELECT userId, password, name, email FROM USERS";
-        return jdbcTemplate.queryForList(sql, resultSet -> getResultSetByUsers(resultSet));
+        return jdbcTemplate.query(sql, resultSet -> getResultSetByUsers(resultSet));
     }
 
     public User findByUserId(String userId) throws SQLException {
