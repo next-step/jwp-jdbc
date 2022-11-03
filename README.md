@@ -15,3 +15,8 @@
 - UserAcceptanceTest 를 위한 Controller 구현
   - Controller 구현
   - RequestBody 처리할 수 있는 Resolver 구현
+
+## step2
+- UserDaoTest 를 위한 UserDao 내 로직 구현
+  - update
+  - findAll
