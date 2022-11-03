@@ -19,22 +19,20 @@ public class RequestBodyArgumentResolver extends AbstractAnnotationArgumentResol
     }
 
     @Override
-    public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
+    public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) throws IOException {
         String bodyJson = parseBodyJson(request);
 
         return JsonUtils.toObject(bodyJson, methodParameter.getType());
     }
 
-    private String parseBodyJson(HttpServletRequest request) {
+    private String parseBodyJson(HttpServletRequest request) throws IOException {
         String bodyJson = "";
         ServletInputStream inputStream;
 
-        try {
+
             inputStream = request.getInputStream();
             bodyJson = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
         return bodyJson;
     }
