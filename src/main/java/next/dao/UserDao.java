@@ -12,13 +12,13 @@ import java.util.List;
 
 public class UserDao {
     public void insert(User user) throws SQLException {
-        final InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate() {
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate()  {
             @Override
-            public String createQueryForInsert() {
+            public String createQuery() {
                 return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
             }
             @Override
-            public void setValuesForInsert(User user, PreparedStatement pstmt) throws SQLException {
+            public void setValues(User user, PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getUserId());
                 pstmt.setString(2, user.getPassword());
                 pstmt.setString(3, user.getName());
@@ -28,17 +28,17 @@ public class UserDao {
             }
         };
 
-        insertJdbcTemplate.insert(user);
+        jdbcTemplate.insertOrUpdate(user);
     }
 
     public void update(User user) throws SQLException {
-        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate() {
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
-            public String createQueryForUpdate() {
+            public String createQuery() {
                 return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
             }
             @Override
-            public void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
+            public void setValues(User user, PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getPassword());
                 pstmt.setString(2, user.getName());
                 pstmt.setString(3, user.getEmail());
@@ -47,7 +47,7 @@ public class UserDao {
                 pstmt.executeUpdate();
             }
         };
-        updateJdbcTemplate.update(user);
+        jdbcTemplate.insertOrUpdate(user);
     }
 
     public List<User> findAll() throws SQLException {
