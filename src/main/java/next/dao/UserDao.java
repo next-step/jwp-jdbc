@@ -12,39 +12,42 @@ import java.util.List;
 
 public class UserDao {
     public void insert(User user) throws SQLException {
-        InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
-        insertJdbcTemplate.insert(user, this);
-    }
+        final InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate() {
+            @Override
+            public String createQueryForInsert() {
+                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+            }
+            @Override
+            public void setValuesForInsert(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getUserId());
+                pstmt.setString(2, user.getPassword());
+                pstmt.setString(3, user.getName());
+                pstmt.setString(4, user.getEmail());
 
-    public String createQueryForInsert() {
-        return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-    }
+                pstmt.executeUpdate();
+            }
+        };
 
-    public void setValuesForInsert(User user, PreparedStatement pstmt) throws SQLException {
-        pstmt.setString(1, user.getUserId());
-        pstmt.setString(2, user.getPassword());
-        pstmt.setString(3, user.getName());
-        pstmt.setString(4, user.getEmail());
-
-        pstmt.executeUpdate();
+        insertJdbcTemplate.insert(user);
     }
 
     public void update(User user) throws SQLException {
-        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
-        updateJdbcTemplate.update(user, this);
-    }
+        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate() {
+            @Override
+            public String createQueryForUpdate() {
+                return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
+            }
+            @Override
+            public void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getPassword());
+                pstmt.setString(2, user.getName());
+                pstmt.setString(3, user.getEmail());
+                pstmt.setString(4, user.getUserId());
 
-    public static String createQueryForUpdate() {
-        return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-    }
-
-    public void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
-        pstmt.setString(1, user.getPassword());
-        pstmt.setString(2, user.getName());
-        pstmt.setString(3, user.getEmail());
-        pstmt.setString(4, user.getUserId());
-
-        pstmt.executeUpdate();
+                pstmt.executeUpdate();
+            }
+        };
+        updateJdbcTemplate.update(user);
     }
 
     public List<User> findAll() throws SQLException {
