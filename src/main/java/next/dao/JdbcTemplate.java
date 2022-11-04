@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 abstract public class JdbcTemplate {
 
-    public void insertOrUpdate(User user) throws SQLException {
+    public void insertOrUpdate() throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
 
@@ -19,7 +19,7 @@ abstract public class JdbcTemplate {
 
             pstmt = con.prepareStatement(sql);
 
-            setValues(user, pstmt);
+            setValues(pstmt);
         } finally {
             if (pstmt != null) {
                 pstmt.close();
@@ -31,6 +31,6 @@ abstract public class JdbcTemplate {
     }
 
     abstract public String createQuery();
-    abstract public void setValues(User user, PreparedStatement pstmt) throws SQLException;
+    abstract public void setValues(PreparedStatement pstmt) throws SQLException;
 
 }
