@@ -46,7 +46,7 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
             public String createQuery() {
                 return "SELECT userId, password, name, email FROM USERS";
@@ -66,7 +66,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) throws SQLException {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
             public String createQuery() {
                 return "SELECT userId, password, name, email FROM USERS WHERE userid=?";

@@ -13,37 +13,22 @@ import java.util.List;
 abstract public class JdbcTemplate {
 
     public void insertOrUpdate(PreparedStatementSetter preparedStatementSetter) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
 
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQuery();
-
-            pstmt = con.prepareStatement(sql);
-
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(createQuery());
+            )
+        {
             preparedStatementSetter.values(pstmt);
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
     }
     public User queryForObject(RowMapper rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQuery();
-            pstmt = con.prepareStatement(sql);
-
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(createQuery());
+        )
+        {
             preparedStatementSetter.values(pstmt);
 
-            rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
 
             User user = null;
             if (rs.next()) {
@@ -51,44 +36,20 @@ abstract public class JdbcTemplate {
             }
 
             return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
     }
 
     public List<User> query(RowMapper rowMapper) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
         List<User> userList = new ArrayList<>();
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQuery();
-            pstmt = con.prepareStatement(sql);
-
-            rs = pstmt.executeQuery();
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(createQuery());
+        )
+        {
+            ResultSet rs = pstmt.executeQuery();
 
             while(rs.next()) {
                 User findUser = (User) rowMapper.mapRow(rs);
                 userList.add(findUser);
-            }
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
             }
         }
 
