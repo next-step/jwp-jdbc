@@ -16,43 +16,52 @@ abstract public class JdbcTemplate {
 
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(createQuery());
-            )
+             )
         {
             preparedStatementSetter.values(pstmt);
         }
     }
+
     public User queryForObject(RowMapper rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(createQuery());
-        )
+             )
         {
             preparedStatementSetter.values(pstmt);
 
-            ResultSet rs = pstmt.executeQuery();
-
-            User user = null;
-            if (rs.next()) {
-                user = (User) rowMapper.mapRow(rs);
-            }
-
-            return user;
+            return convertToObj(rowMapper, pstmt);
         }
     }
 
-    public List<User> query(RowMapper rowMapper) throws SQLException {
-        List<User> userList = new ArrayList<>();
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery());
-        )
+    public User convertToObj(RowMapper rowMapper, PreparedStatement pstmt) throws SQLException {
+        User user = null;
+        try (ResultSet rs = pstmt.executeQuery())
         {
-            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                user = (User) rowMapper.mapRow(rs);
+            }
+        }
+        return user;
+    }
 
-            while(rs.next()) {
+    public List<User> query(RowMapper rowMapper) throws SQLException {
+
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(createQuery());)
+        {
+            return convertToList(rowMapper, pstmt);
+        }
+    }
+
+    public List<User> convertToList(RowMapper rowMapper, PreparedStatement pstmt) throws SQLException {
+        List<User> userList = new ArrayList<>();
+        try (ResultSet rs = pstmt.executeQuery())
+        {
+            while (rs.next()) {
                 User findUser = (User) rowMapper.mapRow(rs);
                 userList.add(findUser);
             }
         }
-
         return userList;
     }
 
