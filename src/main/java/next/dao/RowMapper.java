@@ -2,7 +2,7 @@ package next.dao;
 
 import java.sql.ResultSet;
 
-public interface RowMapper {
+public interface RowMapper<T> {
 
-    Object mapRow(ResultSet rs);
+    T mapRow(ResultSet rs);
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class UserDao {
     public void insert(User user) throws SQLException {
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+        final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate() {
             @Override
             public String createQuery() {
                 return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
@@ -26,7 +26,7 @@ public class UserDao {
     }
 
     public void update(User user) throws SQLException {
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+        final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate() {
             @Override
             public String createQuery() {
                 return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
@@ -45,7 +45,7 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
 
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+        final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate() {
             @Override
             public String createQuery() {
                 return "SELECT userId, password, name, email FROM USERS";
@@ -65,7 +65,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) throws SQLException {
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+        final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate() {
             @Override
             public String createQuery() {
                 return "SELECT userId, password, name, email FROM USERS WHERE userid=?";

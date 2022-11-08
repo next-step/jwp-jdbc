@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract public class JdbcTemplate {
+abstract public class JdbcTemplate<T> {
 
     public void insertOrUpdate(PreparedStatementSetter preparedStatementSetter) throws SQLException {
 
@@ -22,7 +22,7 @@ abstract public class JdbcTemplate {
         }
     }
 
-    public User queryForObject(RowMapper rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
+    public T queryForObject(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(createQuery());
              )
@@ -33,18 +33,18 @@ abstract public class JdbcTemplate {
         }
     }
 
-    public User convertToObj(RowMapper rowMapper, PreparedStatement pstmt) throws SQLException {
-        User user = null;
+    public T convertToObj(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+        T obj = null;
         try (ResultSet rs = pstmt.executeQuery())
         {
             if (rs.next()) {
-                user = (User) rowMapper.mapRow(rs);
+                obj = rowMapper.mapRow(rs);
             }
         }
-        return user;
+        return obj;
     }
 
-    public List<User> query(RowMapper rowMapper) throws SQLException {
+    public List<T> query(RowMapper<T> rowMapper) throws SQLException {
 
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(createQuery());)
@@ -53,16 +53,16 @@ abstract public class JdbcTemplate {
         }
     }
 
-    public List<User> convertToList(RowMapper rowMapper, PreparedStatement pstmt) throws SQLException {
-        List<User> userList = new ArrayList<>();
+    public List<T> convertToList(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+        List<T> list = new ArrayList<>();
         try (ResultSet rs = pstmt.executeQuery())
         {
             while (rs.next()) {
-                User findUser = (User) rowMapper.mapRow(rs);
-                userList.add(findUser);
+                T findUser = rowMapper.mapRow(rs);
+                list.add(findUser);
             }
         }
-        return userList;
+        return list;
     }
 
     abstract public String createQuery();
