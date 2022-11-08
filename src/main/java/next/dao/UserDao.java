@@ -56,7 +56,7 @@ public class UserDao {
             try {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
             } catch (SQLException e) {
-                throw new DataAccessException("findAll 을 실패하였습니다" , e);
+                throw new DataAccessException("findAll 을 실패하였습니다", e);
             }
             return user;
         });
