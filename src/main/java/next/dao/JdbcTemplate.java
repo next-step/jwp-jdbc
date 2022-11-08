@@ -1,7 +1,6 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
-import next.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,13 +11,27 @@ import java.util.List;
 
 abstract public class JdbcTemplate<T> {
 
-    public void insertOrUpdate(PreparedStatementSetter preparedStatementSetter) throws SQLException {
+    public void update(PreparedStatementSetter preparedStatementSetter) throws SQLException {
 
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(createQuery());
              )
         {
             preparedStatementSetter.values(pstmt);
+        }
+    }
+
+    public void update(Object... values) throws SQLException {
+
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(createQuery());
+        )
+        {
+            for (int i = 0; i < values.length; ++i) {
+                pstmt.setObject(i + 1, values[i]);
+            }
+
+            pstmt.executeUpdate();
         }
     }
 

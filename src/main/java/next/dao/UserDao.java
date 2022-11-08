@@ -15,14 +15,12 @@ public class UserDao {
             }
         };
 
-        jdbcTemplate.insertOrUpdate(ps -> {
-            ps.setString(1, user.getUserId());
-            ps.setString(2, user.getPassword());
-            ps.setString(3, user.getName());
-            ps.setString(4, user.getEmail());
-
-            ps.executeUpdate();
-        });
+        jdbcTemplate.update(
+                user.getUserId(),
+                user.getPassword(),
+                user.getName(),
+                user.getEmail()
+        );
     }
 
     public void update(User user) throws SQLException {
@@ -33,7 +31,7 @@ public class UserDao {
             }
 
         };
-        jdbcTemplate.insertOrUpdate(ps -> {
+        jdbcTemplate.update(ps -> {
             ps.setString(1, user.getPassword());
             ps.setString(2, user.getName());
             ps.setString(3, user.getEmail());
@@ -84,6 +82,4 @@ public class UserDao {
             ps.setString(1, userId);
         });
     }
-
-
 }
