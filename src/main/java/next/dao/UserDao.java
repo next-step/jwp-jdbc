@@ -1,9 +1,8 @@
 package next.dao;
 
+import next.exception.DataAccessException;
 import next.model.User;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class UserDao {
             try {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new DataAccessException(e);
             }
             return user;
         });
@@ -78,12 +77,13 @@ public class UserDao {
             try {
                 user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new DataAccessException(e);
             }
             return user;
-        },
-                ps -> {
-                    ps.setString(1, userId);
-                });
+        }, ps -> {
+            ps.setString(1, userId);
+        });
     }
+
+
 }
