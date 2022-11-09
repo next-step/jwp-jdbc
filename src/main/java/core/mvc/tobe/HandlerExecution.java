@@ -6,6 +6,7 @@ import org.springframework.core.ParameterNameDiscoverer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -57,7 +58,7 @@ public class HandlerExecution {
         return methodParameters;
     }
 
-    private Object getArguments(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
+    private Object getArguments(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) throws IOException {
         for (ArgumentResolver resolver : argumentResolver) {
             if (resolver.supports(methodParameter)) {
                 return resolver.resolveArgument(methodParameter, request, response);

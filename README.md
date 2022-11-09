@@ -15,3 +15,19 @@
 - UserAcceptanceTest 를 위한 Controller 구현
   - Controller 구현
   - RequestBody 처리할 수 있는 Resolver 구현
+
+## step2
+- UserDaoTest 를 위한 UserDao 내 로직 구현
+  - update
+  - findAll
+- 로직을 메서드화 리팩토링
+- insert,update 로직을 InsertJdbcTemplate, UpdateJdbcTemplate 을 구현 후 이동
+- 추상 메서드 구현 및 적용(UserDao 의존성 제거)
+- JdbcTemplate 으로 통합
+- select 로직을 SelectJdbcTemplate 구현 후 이동
+- SelectJdbcTemplate 을 JdbcTemplate 으로 통합
+- PreparedStatementSetter, RowMapper 인터페이스화
+- 커스텀 DataAccessException 구현 및 사용
+- try-with-resources 문법 적용
+- 제네릭 적용
+- 유연한 메소드 사용을 위한 가변인자 문법 적용 

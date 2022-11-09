@@ -1,78 +1,85 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
+import next.exception.DataAccessException;
 import next.model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
     public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+        final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate() {
+            @Override
+            public String createQuery() {
+                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
             }
+        };
 
-            if (con != null) {
-                con.close();
-            }
-        }
+        jdbcTemplate.update(
+                user.getUserId(),
+                user.getPassword(),
+                user.getName(),
+                user.getEmail()
+        );
     }
 
     public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
+        final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate() {
+            @Override
+            public String createQuery() {
+                return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
+            }
+
+        };
+        jdbcTemplate.update(ps -> {
+            ps.setString(1, user.getPassword());
+            ps.setString(2, user.getName());
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getUserId());
+
+            ps.executeUpdate();
+        });
     }
 
     public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
+
+        final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate() {
+            @Override
+            public String createQuery() {
+                return "SELECT userId, password, name, email FROM USERS";
+            }
+
+        };
+
+        return jdbcTemplate.query(rs -> {
+            User user = null;
+            try {
+                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
+            } catch (SQLException e) {
+                throw new DataAccessException("findAll 을 실패하였습니다", e);
+            }
+            return user;
+        });
     }
 
     public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+        final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate() {
+            @Override
+            public String createQuery() {
+                return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+            }
+        };
 
-            rs = pstmt.executeQuery();
-
+        return jdbcTemplate.queryForObject(rs -> {
             User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
+            try {
+                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
+            } catch (SQLException e) {
+                throw new DataAccessException(userId + "을 find 하는데 실패하였습니다", e);
             }
-
             return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        }, ps -> {
+            ps.setString(1, userId);
+        });
     }
 }
