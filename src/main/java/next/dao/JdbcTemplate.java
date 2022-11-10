@@ -12,25 +12,21 @@ import java.util.List;
 abstract public class JdbcTemplate<T> {
 
     public void update(PreparedStatementSetter preparedStatementSetter) throws SQLException {
-
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(createQuery());
         ) {
             preparedStatementSetter.values(pstmt);
+
+            pstmt.executeUpdate();
         }
     }
 
     public void update(Object... values) throws SQLException {
-
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery());
-        ) {
+        update(ps -> {
             for (int i = 0; i < values.length; ++i) {
-                pstmt.setObject(i + 1, values[i]);
+                ps.setObject(i + 1, values[i]);
             }
-
-            pstmt.executeUpdate();
-        }
+        });
     }
 
     public T queryForObject(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {

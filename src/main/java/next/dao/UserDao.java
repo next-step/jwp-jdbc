@@ -36,8 +36,6 @@ public class UserDao {
             ps.setString(2, user.getName());
             ps.setString(3, user.getEmail());
             ps.setString(4, user.getUserId());
-
-            ps.executeUpdate();
         });
     }
 
