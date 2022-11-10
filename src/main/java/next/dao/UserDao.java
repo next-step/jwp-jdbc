@@ -57,7 +57,7 @@ public class UserDao {
                 throw new DataAccessException("findAll 을 실패하였습니다", e);
             }
             return user;
-        });
+        }, null);
     }
 
     public User findByUserId(String userId) throws SQLException {

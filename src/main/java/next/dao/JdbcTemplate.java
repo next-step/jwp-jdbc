@@ -30,13 +30,7 @@ abstract public class JdbcTemplate<T> {
     }
 
     public T queryForObject(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery());
-        ) {
-            preparedStatementSetter.values(pstmt);
-
-            return convertToObj(rowMapper, pstmt);
-        }
+        return query(rowMapper, preparedStatementSetter).get(0);
     }
 
     public T convertToObj(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
@@ -49,10 +43,14 @@ abstract public class JdbcTemplate<T> {
         return obj;
     }
 
-    public List<T> query(RowMapper<T> rowMapper) throws SQLException {
-
+    public List<T> query(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery());) {
+             PreparedStatement pstmt = con.prepareStatement(createQuery())) {
+
+            if (preparedStatementSetter != null) {
+                preparedStatementSetter.values(pstmt);
+            }
+
             return convertToList(rowMapper, pstmt);
         }
     }
