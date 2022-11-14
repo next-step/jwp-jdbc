@@ -19,7 +19,7 @@
 
 - [x] JDBC에 대한 공통 라이브러리를 만들어 개발자가 SQL 쿼리, 쿼리에 전달할 인자, SELECT 구문의 경우 조회한 데이터를 추출하는 3가지 구현에만 집중하도록 해야 한다.
     - | 작업 | JDBC 라이브러리 | 개발자가 구현할 부분 |
-                  |-----|--------------|-----------------|
+                        |-----|--------------|-----------------|
       | Connection 생성 및 close | O | X |
       | SQL 문 | X | O |
       | Statement 생성 및 close | O | X |
@@ -33,4 +33,4 @@
 
 ### 4단계 - Interceptor 구현
 
-- [ ] Interceptor를 구현한 후 각 Controller 메소드의 실행 속도를 측정한 후 debug level로 log를 출력하는 요구사항을 구현한다.
+- [x] Interceptor를 구현한 후 각 Controller 메소드의 실행 속도를 측정한 후 debug level로 log를 출력하는 요구사항을 구현한다.
