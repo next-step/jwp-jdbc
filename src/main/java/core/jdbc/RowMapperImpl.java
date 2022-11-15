@@ -1,4 +1,4 @@
-package next.dao;
+package core.jdbc;
 
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 

@@ -1,6 +1,4 @@
-package next.dao;
-
-import core.jdbc.ConnectionManager;
+package core.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
