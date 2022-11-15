@@ -1,10 +1,13 @@
 package core.jdbc;
 
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 abstract public class JdbcTemplate<T> {
@@ -28,28 +31,22 @@ abstract public class JdbcTemplate<T> {
     }
 
     public T queryForObject(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery())
-        ) {
-            preparedStatementSetter.values(pstmt);
-
-            return convertToObj(rowMapper, pstmt);
-        }
-    }
-
-    public T convertToObj(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
-        T obj = null;
-        try (ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                obj = rowMapper.mapRow(rs);
-            }
-        }
-        return obj;
+        List<T> list = query(rowMapper, preparedStatementSetter);
+        return list.isEmpty() ? null : list.get(0);
     }
 
     public List<T> query(RowMapper<T> rowMapper) throws SQLException {
+        return query(rowMapper, null);
+    }
+
+    public List<T> query(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(createQuery())) {
+
+            if(preparedStatementSetter != null) {
+                preparedStatementSetter.values(pstmt);
+            }
+
             return convertToList(rowMapper, pstmt);
         }
     }
