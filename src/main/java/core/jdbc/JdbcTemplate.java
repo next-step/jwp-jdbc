@@ -1,13 +1,10 @@
 package core.jdbc;
 
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 abstract public class JdbcTemplate<T> {
@@ -23,15 +20,18 @@ abstract public class JdbcTemplate<T> {
     }
 
     public void update(Object... values) throws SQLException {
-        update(ps -> {
-            for (int i = 0; i < values.length; ++i) {
-                ps.setObject(i + 1, values[i]);
-            }
-        });
+        update(createPreparedStatementSetter(values));
     }
 
     public T queryForObject(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
-        List<T> list = query(rowMapper, preparedStatementSetter);
+        return getObject(query(rowMapper, preparedStatementSetter));
+    }
+
+    public T queryForObject(RowMapper<T> rowMapper, Object... values) throws SQLException {
+        return getObject( query(rowMapper, createPreparedStatementSetter(values)));
+    }
+
+    private T getObject(List<T> list) {
         return list.isEmpty() ? null : list.get(0);
     }
 
@@ -51,7 +51,7 @@ abstract public class JdbcTemplate<T> {
         }
     }
 
-    public List<T> convertToList(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+    private List<T> convertToList(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
         List<T> list = new ArrayList<>();
         try (ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
@@ -60,6 +60,14 @@ abstract public class JdbcTemplate<T> {
             }
         }
         return list;
+    }
+
+    private PreparedStatementSetter createPreparedStatementSetter(Object[] values) {
+        return ps -> {
+            for (int i = 0; i < values.length; ++i) {
+                ps.setObject(i + 1, values[i]);
+            }
+        };
     }
 
     abstract public String createQuery();

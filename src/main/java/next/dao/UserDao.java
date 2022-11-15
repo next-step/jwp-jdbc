@@ -59,8 +59,7 @@ public class UserDao {
         };
 
         return jdbcTemplate.queryForObject(
-                new RowMapperImpl(User.class),
-                ps -> ps.setString(1, userId)
+                new RowMapperImpl(User.class), userId
         );
     }
 }
