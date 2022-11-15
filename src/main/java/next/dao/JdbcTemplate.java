@@ -31,7 +31,7 @@ abstract public class JdbcTemplate<T> {
 
     public T queryForObject(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery());
+             PreparedStatement pstmt = con.prepareStatement(createQuery())
         ) {
             preparedStatementSetter.values(pstmt);
 
@@ -50,9 +50,8 @@ abstract public class JdbcTemplate<T> {
     }
 
     public List<T> query(RowMapper<T> rowMapper) throws SQLException {
-
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery());) {
+             PreparedStatement pstmt = con.prepareStatement(createQuery())) {
             return convertToList(rowMapper, pstmt);
         }
     }
