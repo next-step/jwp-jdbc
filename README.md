@@ -18,16 +18,17 @@
 ### 2단계 - JDBC 라이브러리 구현
 
 - [x] JDBC에 대한 공통 라이브러리를 만들어 개발자가 SQL 쿼리, 쿼리에 전달할 인자, SELECT 구문의 경우 조회한 데이터를 추출하는 3가지 구현에만 집중하도록 해야 한다.
-    - | 작업 | JDBC 라이브러리 | 개발자가 구현할 부분 |
-                        |-----|--------------|-----------------|
-      | Connection 생성 및 close | O | X |
-      | SQL 문 | X | O |
-      | Statement 생성 및 close | O | X |
-      | ResultSet 생성 및 close | O | X |
-      | SQL 문에 전달할 값 | X | O |
-      | ResultSet에서 데이터 추출 | X | O |
-      | SQL 문에 인자 setting | O | X |
-      | 트랜잭션 관리 | O | X |
+
+| 작업                    | JDBC 라이브러리 | 개발자가 구현할 부분 |
+|-----------------------|------------|-------------|
+| Connection 생성 및 close | O          | X           |
+| SQL 문                 | X          | O           |
+| Statement 생성 및 close  | O          | X           |
+| ResultSet 생성 및 close  | O          | X           |
+| SQL 문에 전달할 값          | X          | O           |
+| ResultSet에서 데이터 추출    | O          | X           |
+|                       |            |             |
+| 트랜잭션 관리               | O          | X           |
 
 - [x] 또한 SQLException을 런타임 Exception으로 변환해 try/catch 절로 인해 소스 코드의 가독성을 헤치지 않도록 해야 한다. 리팩토링을 하는 과정에서 최대한 컴파일 에러를 발생시키지 않으면서 점진적으로 리팩토링한다.
 

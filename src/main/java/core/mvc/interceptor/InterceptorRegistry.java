@@ -15,9 +15,6 @@ public class InterceptorRegistry {
 
     public void postHandle(HttpServletRequest request, HttpServletResponse response) {
         interceptors.forEach(interceptor -> interceptor.postHandle(request, response));
-//        for (int i = interceptors.size() - 1; i >= 0; i--) {
-//            interceptors.get(i).postHandle(request, response);
-//        }
     }
 
     public void addInterceptor(Interceptor interceptor) {
