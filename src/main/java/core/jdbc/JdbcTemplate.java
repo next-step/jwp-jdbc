@@ -1,6 +1,4 @@
-package next.dao;
-
-import core.jdbc.ConnectionManager;
+package core.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,56 +10,48 @@ import java.util.List;
 abstract public class JdbcTemplate<T> {
 
     public void update(PreparedStatementSetter preparedStatementSetter) throws SQLException {
-
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(createQuery());
         ) {
             preparedStatementSetter.values(pstmt);
-        }
-    }
-
-    public void update(Object... values) throws SQLException {
-
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery());
-        ) {
-            for (int i = 0; i < values.length; ++i) {
-                pstmt.setObject(i + 1, values[i]);
-            }
 
             pstmt.executeUpdate();
         }
     }
 
-    public T queryForObject(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
-        try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery());
-        ) {
-            preparedStatementSetter.values(pstmt);
-
-            return convertToObj(rowMapper, pstmt);
-        }
+    public void update(Object... values) throws SQLException {
+        update(createPreparedStatementSetter(values));
     }
 
-    public T convertToObj(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
-        T obj = null;
-        try (ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                obj = rowMapper.mapRow(rs);
-            }
-        }
-        return obj;
+    public T queryForObject(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
+        return getObject(query(rowMapper, preparedStatementSetter));
+    }
+
+    public T queryForObject(RowMapper<T> rowMapper, Object... values) throws SQLException {
+        return getObject( query(rowMapper, createPreparedStatementSetter(values)));
+    }
+
+    private T getObject(List<T> list) {
+        return list.isEmpty() ? null : list.get(0);
     }
 
     public List<T> query(RowMapper<T> rowMapper) throws SQLException {
+        return query(rowMapper, null);
+    }
 
+    public List<T> query(RowMapper<T> rowMapper, PreparedStatementSetter preparedStatementSetter) throws SQLException {
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(createQuery());) {
+             PreparedStatement pstmt = con.prepareStatement(createQuery())) {
+
+            if(preparedStatementSetter != null) {
+                preparedStatementSetter.values(pstmt);
+            }
+
             return convertToList(rowMapper, pstmt);
         }
     }
 
-    public List<T> convertToList(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
+    private List<T> convertToList(RowMapper<T> rowMapper, PreparedStatement pstmt) throws SQLException {
         List<T> list = new ArrayList<>();
         try (ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
@@ -70,6 +60,14 @@ abstract public class JdbcTemplate<T> {
             }
         }
         return list;
+    }
+
+    private PreparedStatementSetter createPreparedStatementSetter(Object[] values) {
+        return ps -> {
+            for (int i = 0; i < values.length; ++i) {
+                ps.setObject(i + 1, values[i]);
+            }
+        };
     }
 
     abstract public String createQuery();

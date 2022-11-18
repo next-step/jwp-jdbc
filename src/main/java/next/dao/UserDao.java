@@ -1,6 +1,7 @@
 package next.dao;
 
-import next.exception.DataAccessException;
+import core.jdbc.JdbcTemplate;
+import core.jdbc.RowMapperImpl;
 import next.model.User;
 
 import java.sql.SQLException;
@@ -36,30 +37,17 @@ public class UserDao {
             ps.setString(2, user.getName());
             ps.setString(3, user.getEmail());
             ps.setString(4, user.getUserId());
-
-            ps.executeUpdate();
         });
     }
 
     public List<User> findAll() throws SQLException {
-
         final JdbcTemplate<User> jdbcTemplate = new JdbcTemplate() {
             @Override
             public String createQuery() {
                 return "SELECT userId, password, name, email FROM USERS";
             }
-
         };
-
-        return jdbcTemplate.query(rs -> {
-            User user = null;
-            try {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
-            } catch (SQLException e) {
-                throw new DataAccessException("findAll 을 실패하였습니다", e);
-            }
-            return user;
-        });
+        return jdbcTemplate.query(new RowMapperImpl(User.class));
     }
 
     public User findByUserId(String userId) throws SQLException {
@@ -70,16 +58,8 @@ public class UserDao {
             }
         };
 
-        return jdbcTemplate.queryForObject(rs -> {
-            User user = null;
-            try {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
-            } catch (SQLException e) {
-                throw new DataAccessException(userId + "을 find 하는데 실패하였습니다", e);
-            }
-            return user;
-        }, ps -> {
-            ps.setString(1, userId);
-        });
+        return jdbcTemplate.queryForObject(
+                new RowMapperImpl(User.class), userId
+        );
     }
 }
