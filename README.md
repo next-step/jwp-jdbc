@@ -16,7 +16,7 @@
   - Controller 구현
   - RequestBody 처리할 수 있는 Resolver 구현
 
-## step2
+## step2 & step3
 - UserDaoTest 를 위한 UserDao 내 로직 구현
   - update
   - findAll
@@ -32,3 +32,8 @@
 - 제네릭 적용
 - 유연한 메소드 사용을 위한 가변인자 문법 적용
 - 인스턴스 변수 이름과 테이블 컬럼 이름이 같으면 자동으로 매핑되는 기능 구현
+
+## step4
+- Interceptor 인터페이스 구현
+- LogMeasureInterceptor 구현체 구현(preHandle, postHandle 메서드)
+- Interceptor 구현체 리스트를 관리하는 InterceptorRegistry 일급 콜렉션 구현
